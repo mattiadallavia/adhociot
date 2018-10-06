@@ -21,12 +21,15 @@ struct message
 {
 	int number;
 	int wait;
+	int channel_ack;
 };
 
 struct node
 {
 	int state;
 	int depth;
+	int channel;
+	int channel_up;
 	struct message queue[QUEUE_MAX];
 	int queue_len;
 };
@@ -88,6 +91,7 @@ int main(int argc, char *argv[])
 	for (int i=1; i<nodes_number; i++)
 	{
 		nodes[i].queue[0].number = i;
+		nodes[i].queue[0].channel_ack = -1;
 		nodes[i].queue_len = 1;
 		nodes[i].depth = -1;
 	}
@@ -150,12 +154,14 @@ int alg2(struct node *nodes, char *net, size_t s)
 	n_tx->state = NODE_ACTIVE;
 	n_tx->queue_len++;
 	m->number = 0;
+	m->channel_ack = -1;
 
 	// execute one task from the picked client
 	while (pick >= 0)
 	{
 		printf("\nt=%d\n", t);
-		printf("node %d transmits message %d\n", pick, m->number);
+		printf("node %d transmits message %d (ch_ack=%d) on channel (%d,%d)\n",
+			   pick, m->number, m->channel_ack, (n_tx->depth % 3), n_tx->channel);
 
 		// the node trasmits his message
 		for (i=0; i<s; i++)
@@ -165,18 +171,32 @@ int alg2(struct node *nodes, char *net, size_t s)
 
 			if (weight) // connected nodes receive the message
 			{
-				// activate waiting nodes
-				if (n_rx->state == NODE_WAIT)
-				{
-					n_rx->state = NODE_ACTIVE;
-					n_rx->queue[0].wait = t + weight; // wait a time proportional to the distance
-					printf("node %d activated, message scheduled for t=%d\n", i, n_rx->queue[0].wait);
-				}
-
 				// update depths
 				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
 				{
 					n_rx->depth = n_tx->depth + 1;
+					printf("node %d updated depth to %d\n", i, n_rx->depth);
+				}
+
+				// activate waiting nodes
+				if (n_rx->state == NODE_WAIT)
+				{
+					n_rx->state = NODE_ACTIVE;
+					n_rx->queue[0].wait = t + n_tx->depth % 3 + 1; // wait a time proportional to the distance
+					printf("node %d activated, message scheduled for t=%d\n", i, n_rx->queue[0].wait);
+				}
+
+				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) < 0) && (m->channel_ack == n_rx->channel))
+				{
+					n_rx->channel = m->channel_ack + 1;
+					printf("node %d selects channel %d because it has receaved message %d with ch_ack=%d\n",
+						   i, n_rx->channel, m->number, m->channel_ack);
+				}
+
+				if ((n_tx->depth > n_rx->depth) && (n_tx->channel >= n_rx->channel_up))
+				{
+					n_rx->channel_up++;
+					printf("node %d update upper channels count to %d\n", i, n_rx->channel_up);
 				}
 
 				// remove message from queue if we receive the re-tx (ack) from nearer the destination
@@ -190,6 +210,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 				if ((n_tx->depth > n_rx->depth) && (find(n_rx, m->number) < 0))
 				{
 					enqueue(n_rx, *m);
+					n_rx->queue[find(n_rx, m->number)].channel_ack = n_tx->channel;
 					printf("enqueued by node %d\n", i);
 				}
 			}
@@ -483,6 +504,10 @@ void printnodes(struct node *nodes, size_t s)
 		if (nodes[i].depth < 0) printf(" ? ");
 		else printf("%2d ", nodes[i].depth);
 	}
+
+	printf("\nchan.: ");
+	for (int i=0; i<s; i++) printf("%2d ", nodes[i].channel);
+	printf("\n");
 
 	printf("\nqueue: ");
 	for (int i=0; i<s; i++) printf("%2d ", nodes[i].queue_len);
