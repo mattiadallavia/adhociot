@@ -11,6 +11,9 @@
 #define QUEUE_MAX 100
 #define MAX_ATTEMPTS 1000000
 
+#define FRAME(t) (t / 3)
+#define SLOT(t) (t % 3)
+
 struct point
 {
 	int x;
@@ -159,7 +162,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 	// execute one task from the picked client
 	while (pick >= 0)
 	{
-		printf("\nt=%d (slot %d)\n", t, (t % 3));
+		printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
 		printf("node %d transmits message %d on channel %d\n", pick, m->number, n_tx->channel);
 
 		// the node trasmits his message
@@ -181,8 +184,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 				{
 					n_rx->state = NODE_ACTIVE;
 					// n_rx->queue[0].wait = t + (3-t%3) + (n_rx->depth % 3); // wait for the slot, todo: wait a time proportional to the distance
-					printf("node %d activated at depth %d, message scheduled for t=%d (slot %d)\n",
-						   i, n_rx->depth, n_rx->queue[0].wait, (n_rx->queue[0].wait % 3));
+					printf("node %d activated at depth %d, message scheduled for frame %d\n", i, n_rx->depth, n_rx->queue[0].wait);
 				}
 
 				// select new channel if we receive an ack for a message from another node transmitted on our channel
@@ -216,9 +218,9 @@ int alg2(struct node *nodes, char *net, size_t s)
 		}
 		else {
 			// delay message unil it is acknowledged
-			m->wait = t + (rand() % ((int)pow(2, m->retransmission))); // exponential backoff
 			m->retransmission++;
-			printf("node %d rescheduled message %d for retransmission %d until t=%d\n", pick, m->number, m->retransmission, m->wait);
+			m->wait = FRAME(t) + (rand() % ((int)pow(2, m->retransmission) - 1)) + 1; // exponential backoff
+			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", pick, m->number, m->retransmission, m->wait);
 		}
 
 		tx++;
@@ -242,7 +244,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 					{
 						again = 1; // there is at least one message in one queue
 
-						if ((t >= nodes[i].queue[j].wait) && ((nodes[i].depth % 3) == (t % 3)))
+						if ((t >= nodes[i].queue[j].wait) && (SLOT(nodes[i].depth) == SLOT(t)))
 						{
 							pick = i;
 							n_tx = &nodes[pick];
