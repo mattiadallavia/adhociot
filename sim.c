@@ -145,34 +145,73 @@ int main(int argc, char *argv[])
 
 int alg2(struct node *nodes, char *net, size_t s)
 {
-	int i, j, tx = 0, t = 0, pick, weight, again, pos;
+	int i, j, term, weight, pos;
+	int tx = 0, t = 0;
+	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
 	struct message *m;
 
 	// the gateway initiates the process sending a void message
-	pick = 0;
-	n_tx = &nodes[pick];
-	m = &n_tx->queue[0];
-	
-	n_tx->state = NODE_ACTIVE;
-	n_tx->queue_len++;
-	m->number = 0;
-	m->channel_rx = -1;
+	nodes[0].state = NODE_ACTIVE;
+	nodes[0].queue_len++;
+	nodes[0].queue[0].number = 0;
+	nodes[0].queue[0].channel_rx = -1;
 
-	// execute one task from the picked client
-	while (pick >= 0)
+	while (1)
 	{
-		printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
-		printf("node %d transmits message %d on channel %d\n", pick, m->number, n_tx->channel);
+		// select message to transmit
+		i_tx = -1;
+		term = 1;
 
-		// the node trasmits his message
-		for (i=0; i<s; i++)
+		// check every active node
+		for (i = 0; (i < s) && (i_tx < 0); i++) if (nodes[i].state == NODE_ACTIVE)
 		{
-			weight = net[pick*s+i];
-			n_rx = &nodes[i];
+			// if there is at least one active node with one message in queue
+			// the process is not terminated
+			if (nodes[i].queue_len > 0) term = 0;
 
+			// if it is the right slot for this node
+			if (SLOT(t) == SLOT(nodes[i].depth))
+			{
+				// check the queue
+				for (j = 0; (j < nodes[i].queue_len) && (i_tx < 0); j++)
+				{
+					// if the message is scheduled for this (or a past) frame
+					if (FRAME(t) >= nodes[i].queue[j].wait)
+					{
+						i_tx = i;
+						n_tx = &nodes[i_tx];
+						m = &n_tx->queue[j];
+					}
+				}
+			}
+		}
+
+		// all the queues are empty
+		if (term) return tx;
+
+		// if there is no node transmitting at t
+		if (i_tx < 0)
+		{
+			// skip to t+1
+			t++;
+			continue;
+		}
+
+		tx++;
+
+		printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
+		printf("node %d transmits message %d on channel %d\n", i_tx, m->number, n_tx->channel);
+
+		// transmit to all connected nodes
+		for (i_rx = 0; i_rx < s; i_rx++)
+		{
+			weight = net[i_tx*s+i_rx];
+			
 			if (weight) // connected nodes receive the message
 			{
+				n_rx = &nodes[i_rx];
+
 				// update depths
 				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
 				{
@@ -183,22 +222,22 @@ int alg2(struct node *nodes, char *net, size_t s)
 				if (n_rx->state == NODE_WAIT)
 				{
 					n_rx->state = NODE_ACTIVE;
-					// n_rx->queue[0].wait = t + (3-t%3) + (n_rx->depth % 3); // wait for the slot, todo: wait a time proportional to the distance
-					printf("node %d activated at depth %d, message scheduled for frame %d\n", i, n_rx->depth, n_rx->queue[0].wait);
+					n_rx->queue[0].wait = FRAME(t); // todo: wait a frame proportional to the distance
+					printf("node %d activated at depth %d, message scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->queue[0].wait);
 				}
 
 				// select new channel if we receive an ack for a message from another node transmitted on our channel
 				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) < 0) && (m->channel_rx == n_rx->channel))
 				{
 					n_rx->channel++;
-					printf("node %d selects channel %d\n", i, n_rx->channel);
+					printf("node %d selects channel %d\n", i_rx, n_rx->channel);
 				}
 
 				// remove message from queue if we receive the re-tx (ack) from nearer the destination
 				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) >= 0))
 				{
 					dequeue(n_rx, pos);
-					printf("message %d dequeued from node %d\n", m->number, i);
+					printf("message %d dequeued from node %d\n", m->number, i_rx);
 				}
 
 				// relay message if we are nearer to the gateway
@@ -206,57 +245,28 @@ int alg2(struct node *nodes, char *net, size_t s)
 				{
 					enqueue(n_rx, *m);
 					n_rx->queue[find(n_rx, m->number)].channel_rx = n_tx->channel;
-					printf("enqueued by node %d\n", i);
+					printf("enqueued by node %d\n", i_rx);
 				}
 			}
 		}
 
-		if (pick == 0) // if sink node
+		// after transmitting
+		if (i_tx == 0) // if sink node
 		{
 			// dequeue sent message
 			dequeue(n_tx, find(n_tx, m->number));
 		}
-		else {
+		else
+		{
 			// delay message unil it is acknowledged
 			m->retransmission++;
 			m->wait = FRAME(t) + (rand() % ((int)pow(2, m->retransmission) - 1)) + 1; // exponential backoff
-			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", pick, m->number, m->retransmission, m->wait);
+			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", i_tx, m->number, m->retransmission, m->wait);
 		}
-
-		tx++;
 
 		printf("\n");
 		printnodes(nodes, s);
-
-		// select next node to execute
-		pick = -1;
-		again = 1;
-		while (again && (pick < 0))
-		{
-			again = 0;
-			t++;
-
-			for (i=0; (i < s) && (pick < 0); i++)
-			{
-				if (nodes[i].state == NODE_ACTIVE)
-				{
-					for (j=0; (j<nodes[i].queue_len) && (pick < 0); j++)
-					{
-						again = 1; // there is at least one message in one queue
-
-						if ((t >= nodes[i].queue[j].wait) && (SLOT(nodes[i].depth) == SLOT(t)))
-						{
-							pick = i;
-							n_tx = &nodes[pick];
-							m = &nodes[i].queue[j];
-						}
-					}
-				}
-			}
-		}
 	}
-	
-	return tx;
 }
 
 int alg1(struct node *nodes, char *net, size_t s)
@@ -502,7 +512,6 @@ void printnodes(struct node *nodes, size_t s)
 
 	printf("\nchan.: ");
 	for (int i=0; i<s; i++) printf("%2d ", nodes[i].channel);
-	printf("\n");
 
 	printf("\nqueue: ");
 	for (int i=0; i<s; i++) printf("%2d ", nodes[i].queue_len);
