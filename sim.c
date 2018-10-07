@@ -33,6 +33,7 @@ struct node
 	int state;
 	int depth;
 	int channel;
+	int transmitting;
 	struct message queue[QUEUE_MAX];
 	int queue_len;
 };
@@ -97,6 +98,7 @@ int main(int argc, char *argv[])
 		nodes[i].queue[0].channel_rx = -1;
 		nodes[i].queue_len = 1;
 		nodes[i].depth = -1;
+		nodes[i].transmitting = -1;
 	}
 
 	// attempt to generate random topology and graph
@@ -145,7 +147,8 @@ int main(int argc, char *argv[])
 
 int alg2(struct node *nodes, char *net, size_t s)
 {
-	int i, j, term, weight, pos;
+	int i, j, weight, pos, coll;
+	int disp_total;
 	int tx = 0, t = 0;
 	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
@@ -158,58 +161,49 @@ int alg2(struct node *nodes, char *net, size_t s)
 	nodes[0].queue[0].number = 0;
 	nodes[0].queue[0].channel_rx = -1;
 
-	while (1)
+	while (1) // time loop
 	{
-		// select message to transmit
-		i_tx = -1;
-		term = 1;
+		disp_total = 0;
 
-		// check every active node
-		for (i = 0; (i < s) && (i_tx < 0); i++) if (nodes[i].state == NODE_ACTIVE)
+		// check every active node for messages to dispatch
+		for (i = 0; i < s; i++) if (nodes[i].state == NODE_ACTIVE)
 		{
-			// if there is at least one active node with one message in queue
-			// the process is not terminated
-			if (nodes[i].queue_len > 0) term = 0;
+			// all the messages to dispatch, now and in the future
+			disp_total += nodes[i].queue_len;
+
+			// end old transissions
+			nodes[i].transmitting = -1;
 
 			// if it is the right slot for this node
 			if (SLOT(t) == SLOT(nodes[i].depth))
 			{
 				// check the queue
-				for (j = 0; (j < nodes[i].queue_len) && (i_tx < 0); j++)
+				for (j = 0; j < nodes[i].queue_len; j++)
 				{
 					// if the message is scheduled for this (or a past) frame
 					if (FRAME(t) >= nodes[i].queue[j].wait)
 					{
-						i_tx = i;
-						n_tx = &nodes[i_tx];
-						m_tx = &n_tx->queue[j];
+						nodes[i].transmitting = nodes[i].queue[j].number;
+						break; // only one message dispatched by one node per slot
 					}
 				}
 			}
 		}
 
 		// all the queues are empty
-		if (term) return tx;
+		if (disp_total == 0) return tx;
 
-		// if there is no node transmitting at t
-		if (i_tx < 0)
+		// dispatch all transmissions
+		for (i_tx = 0; i_tx < s; i_tx++) if (nodes[i_tx].transmitting >= 0)
 		{
-			// skip to t+1
-			t++;
-			continue;
-		}
+			n_tx = &nodes[i_tx];
+			m_tx = &n_tx->queue[j];
 
-		tx++;
+			printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
+			printf("node %d transmits message %d on channel %d\n", i_tx, m_tx->number, n_tx->channel);
 
-		printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
-		printf("node %d transmits message %d on channel %d\n", i_tx, m_tx->number, n_tx->channel);
-
-		// transmit to all connected nodes
-		for (i_rx = 0; i_rx < s; i_rx++)
-		{
-			weight = net[i_tx*s+i_rx];
-			
-			if (weight) // connected nodes receive the message
+			// transmit to all connected nodes
+			for (i_rx = 0; i_rx < s; i_rx++) if (weight = net[i_tx*s+i_rx])
 			{
 				n_rx = &nodes[i_rx];
 				m_rx = memcpy(&m, m_tx, sizeof (struct message));
@@ -217,6 +211,22 @@ int alg2(struct node *nodes, char *net, size_t s)
 				m_rx->channel_rx = n_tx->channel;
 				m_rx->retransmission = 0;
 				m_rx->wait = FRAME(t);
+
+				// collision detection
+				coll = 0;
+				for (i = 0; i < s; i++)
+				{
+					// is there anyone else connected to me transmitting on the same channel at the same time?
+					if ((i != i_tx) && net[i_rx*s+i] && (nodes[i].transmitting >= 0) && (nodes[i].channel == n_rx->channel))
+					{
+						coll++;
+						printf("collision between m. %d from node %d and m. %d from node %d at node %d\n",
+							   m_rx->number, i_tx, nodes[i].transmitting, i, i_rx);
+					}
+				}
+
+				// if a collision happened the message is not received
+				if (coll) continue;
 
 				// update depths
 				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
@@ -253,24 +263,28 @@ int alg2(struct node *nodes, char *net, size_t s)
 					printf("enqueued by node %d\n", i_rx);
 				}
 			}
+
+			// after transmitting
+			if (i_tx == 0) // if sink node
+			{
+				// dequeue sent message
+				dequeue(n_tx, find(n_tx, m_tx->number));
+			}
+			else
+			{
+				// delay message unil it is acknowledged
+				m_tx->retransmission++;
+				m_tx->wait = FRAME(t) + (rand() % ((int)pow(2, m_tx->retransmission) - 1)) + 1; // exponential backoff
+				printf("node %d rescheduled message %d for retransmission %d at frame %d\n", i_tx, m_tx->number, m_tx->retransmission, m_tx->wait);
+			}
+
+			printf("\n");
+			printnodes(nodes, s);
+
+			tx++;
 		}
 
-		// after transmitting
-		if (i_tx == 0) // if sink node
-		{
-			// dequeue sent message
-			dequeue(n_tx, find(n_tx, m_tx->number));
-		}
-		else
-		{
-			// delay message unil it is acknowledged
-			m_tx->retransmission++;
-			m_tx->wait = FRAME(t) + (rand() % ((int)pow(2, m_tx->retransmission) - 1)) + 1; // exponential backoff
-			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", i_tx, m_tx->number, m_tx->retransmission, m_tx->wait);
-		}
-
-		printf("\n");
-		printnodes(nodes, s);
+		t++; // all messages dispatched for t, go to t+1
 	}
 }
 
@@ -517,6 +531,13 @@ void printnodes(struct node *nodes, size_t s)
 
 	printf("\nchan.: ");
 	for (int i=0; i<s; i++) printf("%2d ", nodes[i].channel);
+
+	printf("\ntran.: ");
+	for (int i=0; i<s; i++)
+	{
+		if (nodes[i].transmitting < 0) printf("   ");
+		else printf("%2d ", nodes[i].transmitting);
+	}
 
 	printf("\nqueue: ");
 	for (int i=0; i<s; i++) printf("%2d ", nodes[i].queue_len);
