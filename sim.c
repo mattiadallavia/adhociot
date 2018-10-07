@@ -21,7 +21,8 @@ struct message
 {
 	int number;
 	int wait;
-	int channel_ack;
+	int retransmission;
+	int channel_rx;
 };
 
 struct node
@@ -29,7 +30,6 @@ struct node
 	int state;
 	int depth;
 	int channel;
-	int channel_up;
 	struct message queue[QUEUE_MAX];
 	int queue_len;
 };
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 	for (int i=1; i<nodes_number; i++)
 	{
 		nodes[i].queue[0].number = i;
-		nodes[i].queue[0].channel_ack = -1;
+		nodes[i].queue[0].channel_rx = -1;
 		nodes[i].queue_len = 1;
 		nodes[i].depth = -1;
 	}
@@ -154,14 +154,13 @@ int alg2(struct node *nodes, char *net, size_t s)
 	n_tx->state = NODE_ACTIVE;
 	n_tx->queue_len++;
 	m->number = 0;
-	m->channel_ack = -1;
+	m->channel_rx = -1;
 
 	// execute one task from the picked client
 	while (pick >= 0)
 	{
-		printf("\nt=%d\n", t);
-		printf("node %d transmits message %d (ch_ack=%d) on channel (%d,%d)\n",
-			   pick, m->number, m->channel_ack, (n_tx->depth % 3), n_tx->channel);
+		printf("\nt=%d (slot %d)\n", t, (t % 3));
+		printf("node %d transmits message %d on channel %d\n", pick, m->number, n_tx->channel);
 
 		// the node trasmits his message
 		for (i=0; i<s; i++)
@@ -175,28 +174,22 @@ int alg2(struct node *nodes, char *net, size_t s)
 				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
 				{
 					n_rx->depth = n_tx->depth + 1;
-					printf("node %d updated depth to %d\n", i, n_rx->depth);
 				}
 
 				// activate waiting nodes
 				if (n_rx->state == NODE_WAIT)
 				{
 					n_rx->state = NODE_ACTIVE;
-					n_rx->queue[0].wait = t + n_tx->depth % 3 + 1; // wait a time proportional to the distance
-					printf("node %d activated, message scheduled for t=%d\n", i, n_rx->queue[0].wait);
+					// n_rx->queue[0].wait = t + (3-t%3) + (n_rx->depth % 3); // wait for the slot, todo: wait a time proportional to the distance
+					printf("node %d activated at depth %d, message scheduled for t=%d (slot %d)\n",
+						   i, n_rx->depth, n_rx->queue[0].wait, (n_rx->queue[0].wait % 3));
 				}
 
-				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) < 0) && (m->channel_ack == n_rx->channel))
+				// select new channel if we receive an ack for a message from another node transmitted on our channel
+				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) < 0) && (m->channel_rx == n_rx->channel))
 				{
-					n_rx->channel = m->channel_ack + 1;
-					printf("node %d selects channel %d because it has receaved message %d with ch_ack=%d\n",
-						   i, n_rx->channel, m->number, m->channel_ack);
-				}
-
-				if ((n_tx->depth > n_rx->depth) && (n_tx->channel >= n_rx->channel_up))
-				{
-					n_rx->channel_up++;
-					printf("node %d update upper channels count to %d\n", i, n_rx->channel_up);
+					n_rx->channel++;
+					printf("node %d selects channel %d\n", i, n_rx->channel);
 				}
 
 				// remove message from queue if we receive the re-tx (ack) from nearer the destination
@@ -210,7 +203,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 				if ((n_tx->depth > n_rx->depth) && (find(n_rx, m->number) < 0))
 				{
 					enqueue(n_rx, *m);
-					n_rx->queue[find(n_rx, m->number)].channel_ack = n_tx->channel;
+					n_rx->queue[find(n_rx, m->number)].channel_rx = n_tx->channel;
 					printf("enqueued by node %d\n", i);
 				}
 			}
@@ -223,9 +216,9 @@ int alg2(struct node *nodes, char *net, size_t s)
 		}
 		else {
 			// delay message unil it is acknowledged
-			// the delay is proportional to the number of nodes
-			m->wait = t + s;
-			printf("message %d delayed until t=%d by node %d\n", m->number, m->wait, pick);
+			m->wait = t + (rand() % ((int)pow(2, m->retransmission))); // exponential backoff
+			m->retransmission++;
+			printf("node %d rescheduled message %d for retransmission %d until t=%d\n", pick, m->number, m->retransmission, m->wait);
 		}
 
 		tx++;
@@ -249,7 +242,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 					{
 						again = 1; // there is at least one message in one queue
 
-						if (t >= nodes[i].queue[j].wait)
+						if ((t >= nodes[i].queue[j].wait) && ((nodes[i].depth % 3) == (t % 3)))
 						{
 							pick = i;
 							n_tx = &nodes[pick];
