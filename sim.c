@@ -149,7 +149,8 @@ int alg2(struct node *nodes, char *net, size_t s)
 	int tx = 0, t = 0;
 	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
-	struct message *m;
+	struct message *m_tx, *m_rx;
+	struct message m;
 
 	// the gateway initiates the process sending a void message
 	nodes[0].state = NODE_ACTIVE;
@@ -181,7 +182,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 					{
 						i_tx = i;
 						n_tx = &nodes[i_tx];
-						m = &n_tx->queue[j];
+						m_tx = &n_tx->queue[j];
 					}
 				}
 			}
@@ -201,7 +202,7 @@ int alg2(struct node *nodes, char *net, size_t s)
 		tx++;
 
 		printf("\nt=%d (frame %d, slot %d)\n", t, FRAME(t), SLOT(t));
-		printf("node %d transmits message %d on channel %d\n", i_tx, m->number, n_tx->channel);
+		printf("node %d transmits message %d on channel %d\n", i_tx, m_tx->number, n_tx->channel);
 
 		// transmit to all connected nodes
 		for (i_rx = 0; i_rx < s; i_rx++)
@@ -211,6 +212,11 @@ int alg2(struct node *nodes, char *net, size_t s)
 			if (weight) // connected nodes receive the message
 			{
 				n_rx = &nodes[i_rx];
+				m_rx = memcpy(&m, m_tx, sizeof (struct message));
+
+				m_rx->channel_rx = n_tx->channel;
+				m_rx->retransmission = 0;
+				m_rx->wait = FRAME(t);
 
 				// update depths
 				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
@@ -227,24 +233,23 @@ int alg2(struct node *nodes, char *net, size_t s)
 				}
 
 				// select new channel if we receive an ack for a message from another node transmitted on our channel
-				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) < 0) && (m->channel_rx == n_rx->channel))
+				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m_rx->number)) < 0) && (m_tx->channel_rx == n_rx->channel))
 				{
 					n_rx->channel++;
 					printf("node %d selects channel %d\n", i_rx, n_rx->channel);
 				}
 
 				// remove message from queue if we receive the re-tx (ack) from nearer the destination
-				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m->number)) >= 0))
+				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m_rx->number)) >= 0))
 				{
 					dequeue(n_rx, pos);
-					printf("message %d dequeued from node %d\n", m->number, i_rx);
+					printf("message %d dequeued from node %d\n", m_rx->number, i_rx);
 				}
 
-				// relay message if we are nearer to the gateway
-				if ((n_tx->depth > n_rx->depth) && (find(n_rx, m->number) < 0))
+				// relay message if we are nearer the gateway
+				if ((n_tx->depth > n_rx->depth) && (find(n_rx, m_rx->number) < 0))
 				{
-					enqueue(n_rx, *m);
-					n_rx->queue[find(n_rx, m->number)].channel_rx = n_tx->channel;
+					enqueue(n_rx, *m_rx);
 					printf("enqueued by node %d\n", i_rx);
 				}
 			}
@@ -254,14 +259,14 @@ int alg2(struct node *nodes, char *net, size_t s)
 		if (i_tx == 0) // if sink node
 		{
 			// dequeue sent message
-			dequeue(n_tx, find(n_tx, m->number));
+			dequeue(n_tx, find(n_tx, m_tx->number));
 		}
 		else
 		{
 			// delay message unil it is acknowledged
-			m->retransmission++;
-			m->wait = FRAME(t) + (rand() % ((int)pow(2, m->retransmission) - 1)) + 1; // exponential backoff
-			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", i_tx, m->number, m->retransmission, m->wait);
+			m_tx->retransmission++;
+			m_tx->wait = FRAME(t) + (rand() % ((int)pow(2, m_tx->retransmission) - 1)) + 1; // exponential backoff
+			printf("node %d rescheduled message %d for retransmission %d at frame %d\n", i_tx, m_tx->number, m_tx->retransmission, m_tx->wait);
 		}
 
 		printf("\n");
