@@ -38,24 +38,26 @@ struct node
 	int messages_len;
 };
 
-int alg2(struct node *nodes, char *net, size_t s);
-int alg1(struct node *nodes, char *net, size_t s);
-void randtopo(struct point *points, size_t n, int radius);
-void printtopo(struct point *points, size_t n, int radius);
-void plottopo(struct point *points, char *graph, size_t n, int radius, char *plot_filename);
-int topo2graph(struct point *points, char *graph, size_t n, int range);
-void printgraph(char *graph, size_t n);
-int connectedgraph(char *graph, size_t n);
-void visitgraph(char* n, size_t s, int vertex, char* visited);
-void printnodes(struct node *nodes, size_t s);
+int alg(struct node *nodes, char *net, size_t s);
+
 struct message peek(struct node *n);
 int find(struct node *n, int number);
-void delete(struct node *n, unsigned int pos);
 void push(struct node *n, struct message m);
+void delete(struct node *n, unsigned int pos);
+
+void randtopo(struct point *points, size_t n, int radius);
+int topo2graph(struct point *points, char *graph, size_t n, int range);
+int connectedgraph(char *graph, size_t n);
+void visitgraph(char* n, size_t s, int vertex, char* visited);
+
+void printgraph(char *graph, size_t n);
+void printtopo(struct point *points, size_t n, int radius);
+void printnodes(struct node *nodes, size_t s);
+void plottopo(struct point *points, char *graph, size_t n, int radius, char *plot_filename);
 
 int main(int argc, char *argv[])
 {
-	int c, tx, nodes_number, alg, conn, radius, range, attempts = 0;
+	int c, tx, nodes_number, conn, radius, range, attempts = 0;
 	char* plot_filename = 0;
 	struct point *points;
 	struct node *nodes;
@@ -64,19 +66,18 @@ int main(int argc, char *argv[])
 	srand(time(0));
 
 	// mandatory arguments
-	if (argc < 5)
+	if (argc < 4)
 	{
-		fprintf(stderr, "usage: %s <alg.> <number of nodes> <radius of grid> <range> [-p filename.png]\n", argv[0]);
+		fprintf(stderr, "usage: %s <number of nodes> <radius of grid> <range> [-p filename.png]\n", argv[0]);
 		return 1;
 	}
 
-	alg = atoi(argv[1]);
-	nodes_number = atoi(argv[2]);
-	radius = atoi(argv[3]);
-	range = atoi(argv[4]);
+	nodes_number = atoi(argv[1]);
+	radius = atoi(argv[2]);
+	range = atoi(argv[3]);
 
 	// optional arguments
-	while ((c = getopt(argc-4, &argv[4], "p:")) != -1)
+	while ((c = getopt(argc-3, &argv[3], "p:")) != -1)
 	{
 		switch(c)
 		{
@@ -122,30 +123,12 @@ int main(int argc, char *argv[])
 	printf("\ngraph of the network:\n");
 	printgraph(graph, nodes_number);
 
-	switch (alg)
-	{
-		case 0:
-			// no alg.
-			tx = 0;
-			break;
-
-		case 1:
-			tx = alg1(nodes, graph, nodes_number);
-			break;
-
-		case 2:
-			tx = alg2(nodes, graph, nodes_number);
-			break;
-
-		default:
-			fprintf(stderr, "\nalg. number %d does not exist\n", alg);
-			return 1;
-	}
+	tx = alg(nodes, graph, nodes_number);
 
 	printf("\nnumber of transmissions: %d\n", tx);
 }
 
-int alg2(struct node *nodes, char *net, size_t s)
+int alg(struct node *nodes, char *net, size_t s)
 {
 	int i, j, weight, pos, coll;
 	int disp;
@@ -281,92 +264,6 @@ int alg2(struct node *nodes, char *net, size_t s)
 
 		t++; // all messages dispatched for t, go to t+1
 	}
-}
-
-int alg1(struct node *nodes, char *net, size_t s)
-{
-	int pick, weight;
-	struct node *n_tx, *n_rx;
-	struct message *m;
-	int tx = 0;
-	int t = 0;
-
-	// the gateway initiates the process sending a void message
-	pick = 0;
-	n_tx = &nodes[pick];
-	m = &n_tx->messages[0];
-	
-	n_tx->state = NODE_ACTIVE;
-	n_tx->messages_len++;
-	m->number = 0;
-
-	// execute one task from the picked client
-	while (pick >= 0)
-	{
-		printf("\nt=%d\n", t);
-		printf("node %d transmits message %d\n", pick, m->number);
-
-		// the node trasmits his message
-		for (int i=0; i<s; i++)
-		{
-			weight = *(net+pick*s+i);
-			n_rx = &nodes[i];
-
-			if (weight) // connected nodes receive the message
-			{
-				// activate waiting nodes
-				if (n_rx->state != NODE_ACTIVE)
-				{
-					n_rx->state = NODE_ACTIVE;
-					printf("node %d activated\n", i);
-				}
-
-				// update depths
-				if ((n_rx->depth < 0) ||
-					((n_tx->depth + 1) < n_rx->depth)) // better path
-				{
-					n_rx->depth = n_tx->depth + 1;
-				}
-
-				if (n_rx->depth == 0)
-				{
-					printf("message %d reached the destination\n", m->number);
-				}
-				// relay message if we are nearer to the gateway
-				else if ((n_rx->depth < n_tx->depth) && (find(n_rx, m->number) < 0))
-				{
-					push(n_rx, *m);
-					printf("pushd by node %d\n", i);
-				}
-			}
-		}
-
-		delete(n_tx, find(n_tx, m->number));
-		printf("message %d popd from node %d\n", m->number, pick);
-
-		tx++;
-		t++;
-
-		printf("\n");
-		printnodes(nodes, s);
-
-		// select next node to execute
-		pick = -1;
-		for (int i=0; (i < s) && (pick < 0); i++)
-		{
-			if (nodes[i].state == NODE_ACTIVE)
-			{
-				for (int j=0; (j<nodes[i].messages_len) && (pick < 0); j++)
-				{
-					pick = i;
-					n_tx = &nodes[pick];
-					m = &nodes[i].messages[j];
-				}
-			}
-		}
-	}
-	
-	return tx;
 }
 
 void randtopo(struct point *points, size_t n, int radius)
