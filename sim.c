@@ -39,7 +39,15 @@ struct node
 	int messages_len;
 };
 
-int alg(struct node *nodes, char *net, size_t s);
+struct statistics
+{
+	int t;
+	int tx;
+	int rx;
+	int collisions;
+};
+
+struct statistics alg(struct node *nodes, char *net, size_t s);
 
 struct message peek(struct node *n);
 int find(struct node *n, int number);
@@ -58,8 +66,9 @@ void plottopo(struct point *points, char *graph, size_t n, int radius, char *plo
 
 int main(int argc, char *argv[])
 {
-	int c, tx, nodes_number, conn, radius, range, attempts = 0;
+	int c, nodes_number, conn, radius, range, attempts = 0;
 	char* plot_filename = 0;
+	struct statistics stats;
 	struct point *points;
 	struct node *nodes;
 	char* graph;
@@ -125,18 +134,23 @@ int main(int argc, char *argv[])
 	printf("\ngraph of the network:\n");
 	printgraph(graph, nodes_number);
 
-	tx = alg(nodes, graph, nodes_number);
+	stats = alg(nodes, graph, nodes_number);
 
-	printf("\nnumber of transmissions: %d\n", tx);
+	printf("\nfinal time: t=%d\n", stats.t);
+	printf("messages transmitted: %d\n", stats.tx);
+	printf("messages received: %d\n", stats.rx);
+	printf("collisions: %d\n", stats.collisions);
 }
 
-int alg(struct node *nodes, char *net, size_t s)
+struct statistics alg(struct node *nodes, char *net, size_t s)
 {
 	int i, weight, pos, coll, disp;
-	int t = 0, tx = 0;
 	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
 	struct message m_tx, m_rx;
+	struct statistics stats;
+
+	memset(&stats, 0, sizeof (struct statistics));
 
 	// the gateway initiates the process sending a void message
 	nodes[0].state = NODE_ACTIVE;
@@ -157,16 +171,16 @@ int alg(struct node *nodes, char *net, size_t s)
 
 			// if it is the right slot for this node
 			// and is scheduled for this (or a past) frame
-			if ((SLOT(t) == SLOT(nodes[i].depth)) && (FRAME(t) >= nodes[i].wait))
+			if ((SLOT(stats.t) == SLOT(nodes[i].depth)) && (FRAME(stats.t) >= nodes[i].wait))
 			{
 				nodes[i].transmitting = 1;
 			}
 		}
 
 		// there are no more messages to dispatch
-		if (disp == 0) return tx;
+		if (disp == 0) return stats;
 
-		printf("\nt=%d (frame %d, slot %d)\n\n", t, FRAME(t), SLOT(t));
+		printf("\nt=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
 		printnodes(nodes, s);
 
 		// dispatch all transmissions in t
@@ -194,7 +208,8 @@ int alg(struct node *nodes, char *net, size_t s)
 					// is there anyone else connected to me transmitting on the same channel at the same time?
 					if ((i != i_tx) && net[i_rx*s+i] && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
 					{
-						coll++;
+						coll = 1;
+						stats.collisions++;
 						printf("collision with message %d from node %d at node %d\n", peek(&nodes[i]).number, i, i_rx);
 					}
 				}
@@ -212,7 +227,7 @@ int alg(struct node *nodes, char *net, size_t s)
 				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
-					n_rx->wait = FRAME(t); // todo: wait a frame proportional to the distance
+					n_rx->wait = FRAME(stats.t); // todo: wait a frame proportional to the distance
 					printf("node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
@@ -228,7 +243,7 @@ int alg(struct node *nodes, char *net, size_t s)
 				{
 					// reset the exp. backoff
 					n_rx->attempts = 0;
-					n_rx->wait = FRAME(t);
+					n_rx->wait = FRAME(stats.t);
 					printf("node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
 				}
 
@@ -249,6 +264,8 @@ int alg(struct node *nodes, char *net, size_t s)
 					push(n_rx, m_rx);
 					printf("added by node %d\n", i_rx);
 				}
+
+				stats.rx++;
 			}
 
 			// after transmitting
@@ -261,16 +278,16 @@ int alg(struct node *nodes, char *net, size_t s)
 			{
 				// delay transmissions unil sent message is acknowledged
 				n_tx->attempts++;
-				n_tx->wait = FRAME(t) + (rand() % (int)pow(2, n_tx->attempts)) + 1; // exponential backoff
+				n_tx->wait = FRAME(stats.t) + (rand() % (int)pow(2, n_tx->attempts)) + 1; // exponential backoff
 				printf("node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
-			tx++;
+			stats.tx++;
 		}
 		// end current transmissions
 		for (i = 0; i < s; i++) nodes[i].transmitting = 0;
 
-		t++; // all messages dispatched for t, go to t+1
+		stats.t++; // all messages dispatched for t, go to t+1
 	}
 }
 
