@@ -33,7 +33,7 @@ struct node
 	int depth;
 	int channel;
 	int wait;
-	int retransmission;
+	int attempts;
 	int transmitting;
 	struct message messages[STACK_MAX];
 	int messages_len;
@@ -227,7 +227,7 @@ int alg(struct node *nodes, char *net, size_t s)
 				if ((n_tx->depth < n_rx->depth) && (m_tx.node_confirm == i_rx))
 				{
 					// reset the exp. backoff
-					n_rx->retransmission = 0;
+					n_rx->attempts = 0;
 					n_rx->wait = FRAME(t);
 					printf("node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
 				}
@@ -260,9 +260,9 @@ int alg(struct node *nodes, char *net, size_t s)
 			else
 			{
 				// delay transmissions unil sent message is acknowledged
-				n_tx->retransmission++;
-				n_tx->wait = FRAME(t) + (rand() % (int)pow(2, n_tx->retransmission)) + 1; // exponential backoff
-				printf("node %d scheduled retransmission %d at frame %d\n", i_tx, n_tx->retransmission, n_tx->wait);
+				n_tx->attempts++;
+				n_tx->wait = FRAME(t) + (rand() % (int)pow(2, n_tx->attempts)) + 1; // exponential backoff
+				printf("node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
 			tx++;
