@@ -5,8 +5,8 @@
 #include <time.h>
 #include <math.h>
 
-#define NODE_WAIT   0 // waiting to be activated by the reception of one packet
-#define NODE_ACTIVE 1 // ready to transmit message or to relay other client's messages
+#define NODE_WAITING   0 // waiting to be activated by the reception of one packet
+#define NODE_ACTIVE    1 // ready to transmit message or to relay other client's messages
 
 #define STACK_MAX 100
 #define MAX_ATTEMPTS 1000000
@@ -23,7 +23,8 @@ struct point
 struct message
 {
 	int number;
-	int channel_rx;
+	int node_confirm;
+	int channel_confirm;
 };
 
 struct node
@@ -99,7 +100,8 @@ int main(int argc, char *argv[])
 		nodes[i].depth = -1;
 		nodes[i].messages_len = 1;
 		nodes[i].messages[0].number = i;
-		nodes[i].messages[0].channel_rx = -1;
+		nodes[i].messages[0].node_confirm = -1;
+		nodes[i].messages[0].channel_confirm = -1;
 	}
 
 	// attempt to generate random topology and graph
@@ -130,8 +132,7 @@ int main(int argc, char *argv[])
 
 int alg(struct node *nodes, char *net, size_t s)
 {
-	int i, j, weight, pos, coll;
-	int disp;
+	int i, weight, pos, coll, disp;
 	int t = 0, tx = 0;
 	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
@@ -141,7 +142,8 @@ int alg(struct node *nodes, char *net, size_t s)
 	nodes[0].state = NODE_ACTIVE;
 	nodes[0].messages_len++;
 	nodes[0].messages[0].number = 0;
-	nodes[0].messages[0].channel_rx = -1;
+	nodes[0].messages[0].node_confirm = -1;
+	nodes[0].messages[0].channel_confirm = -1;
 
 	while (1) // time loop
 	{
@@ -173,6 +175,10 @@ int alg(struct node *nodes, char *net, size_t s)
 			n_tx = &nodes[i_tx];
 			m_tx = peek(n_tx);
 
+			m_rx.number = m_tx.number;
+			m_rx.node_confirm = i_tx;
+			m_rx.channel_confirm = n_tx->channel;
+
 			printf("\nnode %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
 
 			// transmit to all connected nodes
@@ -180,8 +186,6 @@ int alg(struct node *nodes, char *net, size_t s)
 			for (i_rx = 0; i_rx < s; i_rx++) if ((weight = net[i_tx*s+i_rx]) && !nodes[i_rx].transmitting)
 			{
 				n_rx = &nodes[i_rx];
-				m_rx.number = m_tx.number;
-				m_rx.channel_rx = n_tx->channel;
 
 				// collision detection
 				coll = 0;
@@ -191,8 +195,7 @@ int alg(struct node *nodes, char *net, size_t s)
 					if ((i != i_tx) && net[i_rx*s+i] && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
 					{
 						coll++;
-						printf("collision between m. %d from node %d and m. %d from node %d at node %d\n",
-							   m_rx.number, i_tx, peek(&nodes[i]).number, i, i_rx);
+						printf("collision with message %d from node %d at node %d\n", peek(&nodes[i]).number, i, i_rx);
 					}
 				}
 
@@ -206,28 +209,33 @@ int alg(struct node *nodes, char *net, size_t s)
 				}
 
 				// activate waiting nodes
-				if (n_rx->state == NODE_WAIT)
+				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
 					n_rx->wait = FRAME(t); // todo: wait a frame proportional to the distance
 					printf("node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
-				// select new channel if we receive an ack for a message from another node transmitted on our channel
-				if ((n_tx->depth < n_rx->depth) && (find(n_rx, m_rx.number) < 0) && (m_tx.channel_rx == n_rx->channel))
+				// select new channel if we receive an ack for another node transmitted on our channel
+				if ((n_tx->depth < n_rx->depth) && (m_tx.node_confirm != i_rx) && (m_tx.channel_confirm == n_rx->channel))
 				{
 					n_rx->channel++;
-					printf("node %d selects channel %d\n", i_rx, n_rx->channel);
+					printf("channel %d in use by node %d, node %d selects channel %d\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
 				}
 
-				// remove message from stack if we receive the re-tx (ack) from nearer the destination
+				// ack for a message we sent
+				if ((n_tx->depth < n_rx->depth) && (m_tx.node_confirm == i_rx))
+				{
+					// reset the exp. backoff
+					n_rx->retransmission = 0;
+					n_rx->wait = FRAME(t);
+					printf("node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
+				}
+
+				// remove message from stack if we receive an ack from nearer the destination
+				// from us or another node, doesn't matter
 				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m_rx.number)) >= 0))
 				{
-					// we received an ack, reset the exp. backoff
-					n_rx->retransmission = 0;
-					n_tx->wait = FRAME(t);
-					printf("node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
-
 					delete(n_rx, pos);
 					printf("message %d removed from node %d\n", m_rx.number, i_rx);
 				}
