@@ -100,7 +100,7 @@ int points2graph(struct point *points, int *graph, int n)
 
 	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
 	{
-		graph[i*n+j] = graph[j*n+i] = DIST(points[i].x, points[i].y, points[j].x, points[j].y);
+		graph[i*n+j] = graph[j*n+i] = round(DIST(points[i].x, points[i].y, points[j].x, points[j].y));
 	}
 }
 

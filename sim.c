@@ -353,7 +353,7 @@ int points2graph(struct point *points, int *graph, int n)
 
 	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
 	{
-		graph[i*n+j] = graph[j*n+i] = DIST(points[i].x, points[i].y, points[j].x, points[j].y);
+		graph[i*n+j] = graph[j*n+i] = round(DIST(points[i].x, points[i].y, points[j].x, points[j].y));
 	}
 }
 
@@ -389,7 +389,7 @@ void print_points(struct point *points, int n, int radius)
 			}
 
 			// reached the end without finding one
-			if (k == n) printf(" -");
+			if (k == n) (round(DIST(i, j, radius, radius)) > radius) ? printf("  ") : printf(" -");
 		}
 		
 		printf("\n");
@@ -460,27 +460,29 @@ void print_graph(int *graph, int n, int range)
 
 void print_nodes(struct node *nodes, int n)
 {
+	int i;
+
 	printf("     # ");
-	for (int i=0; i<n; i++) printf("%2d ", i);
+	for (i = 0; i < n; i++) printf("%2d ", i);
 
 	printf("\ntran.: ");
-	for (int i=0; i<n; i++)
+	for (i = 0; i < n; i++)
 	{
 		if (nodes[i].transmitting) printf(" * ");
 		else printf("   ");
 	}
 
 	printf("\ndepth: ");
-	for (int i=0; i<n; i++)
+	for (i = 0; i < n; i++)
 	{
 		if (nodes[i].depth < 0) printf("   ");
 		else printf("%2d ", nodes[i].depth);
 	}
 
 	printf("\nchan.: ");
-	for (int i=0; i<n; i++) printf("%2d ", nodes[i].channel);
+	for (i = 0; i < n; i++) printf("%2d ", nodes[i].channel);
 
 	printf("\nmess.: ");
-	for (int i=0; i<n; i++) printf("%2d ", nodes[i].messages_len);
+	for (i = 0; i < n; i++) printf("%2d ", nodes[i].messages_len);
 	printf("\n");
 }
