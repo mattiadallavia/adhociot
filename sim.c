@@ -11,8 +11,11 @@
 #define STACK_MAX 100
 #define MAX_ATTEMPTS 1000000
 
-#define FRAME(t) (t / 3)
-#define SLOT(t) (t % 3)
+#define FRAME(T) (T / 3)
+#define SLOT(T) (T % 3)
+
+#define DIST(X1, Y1, X2, Y2) sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2))
+#define IN_RANGE(A, B, GRAPH, N, RANGE) ((A != B) && (GRAPH[A*N+B] <= RANGE))
 
 struct point
 {
@@ -47,31 +50,31 @@ struct statistics
 	int collisions;
 };
 
-struct statistics alg(struct node *nodes, char *net, size_t s);
+struct statistics alg(struct node *nodes, int *graph, int n, int range);
 
 struct message peek(struct node *n);
 int find(struct node *n, int number);
 void push(struct node *n, struct message m);
 void delete(struct node *n, unsigned int pos);
 
-void randtopo(struct point *points, size_t n, int radius);
-int topo2graph(struct point *points, char *graph, size_t n, int range);
-int connectedgraph(char *graph, size_t n);
-void visitgraph(char* n, size_t s, int vertex, char* visited);
+void rand_points(struct point *points, int n, int radius);
+int points2graph(struct point *points, int *graph, int n);
+int visit(int *graph, int n, int range, int vertex, int *visited);
 
-void printgraph(char *graph, size_t n);
-void printtopo(struct point *points, size_t n, int radius);
-void printnodes(struct node *nodes, size_t s);
-void plottopo(struct point *points, char *graph, size_t n, int radius, char *plot_filename);
+void print_points(struct point *points, int n, int radius);
+void print_graph(int *graph, int n, int range);
+void print_nodes(struct node *nodes, int n);
+void plot_graph(struct point *points, int *graph, int n, int radius, int range, char *plot_filename);
 
 int main(int argc, char *argv[])
 {
-	int c, nodes_number, conn, radius, range, attempts = 0;
-	char* plot_filename = 0;
+	int c, n, conn, radius, range, attempts = 0;
+	char *plot_filename = 0;
 	struct statistics stats;
 	struct point *points;
 	struct node *nodes;
-	char* graph;
+	int *graph;
+	int *visited;
 
 	srand(time(0));
 
@@ -82,7 +85,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	nodes_number = atoi(argv[1]);
+	n = atoi(argv[1]);
 	radius = atoi(argv[2]);
 	range = atoi(argv[3]);
 
@@ -99,12 +102,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	nodes = calloc(nodes_number, sizeof (struct node));
-	graph = malloc(nodes_number * nodes_number);
-	points = malloc(nodes_number * sizeof (struct point));
+	nodes = calloc(n, sizeof (struct node));
+	points = malloc(n * sizeof (struct point));
+	graph = malloc(n * n * sizeof (int));
+	visited = malloc(n * sizeof (int));
 
 	// nodes initialization
-	for (int i=1; i<nodes_number; i++)
+	for (int i=1; i<n; i++)
 	{
 		nodes[i].depth = -1;
 		nodes[i].messages_len = 1;
@@ -112,6 +116,10 @@ int main(int argc, char *argv[])
 		nodes[i].messages[0].node_confirm = -1;
 		nodes[i].messages[0].channel_confirm = -1;
 	}
+
+	// the sink is always in the center
+	points[0].x = 0;
+	points[0].y = 0;
 
 	// attempt to generate random topology and graph
 	do {
@@ -122,19 +130,21 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 
-		randtopo(points, nodes_number, radius);
-		topo2graph(points, graph, nodes_number, range);
+		memset(visited, 0, n * sizeof (int));
+
+		rand_points(points+1, n-1, radius);
+		points2graph(points, graph, n);
 	}
-	while (!connectedgraph(graph, nodes_number));
+	while (visit(graph, n, range, 0, visited) != n); // not all nodes are reachable
 
 	printf("topology gen. after %d attempts:\n", attempts);
-	printtopo(points, nodes_number, radius);
-	if (plot_filename) plottopo(points, graph, nodes_number, radius, plot_filename);
+	print_points(points, n, radius);
+	if (plot_filename) plot_graph(points, graph, n, radius, range, plot_filename);
 
 	printf("\ngraph of the network:\n");
-	printgraph(graph, nodes_number);
+	print_graph(graph, n, range);
 
-	stats = alg(nodes, graph, nodes_number);
+	stats = alg(nodes, graph, n, range);
 
 	printf("\nfinal time: t=%d\n", stats.t);
 	printf("messages transmitted: %d\n", stats.tx);
@@ -142,9 +152,9 @@ int main(int argc, char *argv[])
 	printf("collisions: %d\n", stats.collisions);
 }
 
-struct statistics alg(struct node *nodes, char *net, size_t s)
+struct statistics alg(struct node *nodes, int *graph, int n, int range)
 {
-	int i, weight, pos, coll, disp;
+	int i, dist, pos, coll, disp;
 	int i_tx, i_rx;
 	struct node *n_tx, *n_rx;
 	struct message m_tx, m_rx;
@@ -164,7 +174,7 @@ struct statistics alg(struct node *nodes, char *net, size_t s)
 		disp = 0;
 
 		// check every active node for messages to dispatch
-		for (i = 0; i < s; i++) if ((nodes[i].state == NODE_ACTIVE) && (nodes[i].messages_len > 0))
+		for (i = 0; i < n; i++) if ((nodes[i].state == NODE_ACTIVE) && (nodes[i].messages_len > 0))
 		{
 			// count nodes with messages to dispatch, now or in the future
 			disp++;
@@ -181,10 +191,10 @@ struct statistics alg(struct node *nodes, char *net, size_t s)
 		if (disp == 0) return stats;
 
 		printf("\nt=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
-		printnodes(nodes, s);
+		print_nodes(nodes, n);
 
 		// dispatch all transmissions in t
-		for (i_tx = 0; i_tx < s; i_tx++) if (nodes[i_tx].transmitting)
+		for (i_tx = 0; i_tx < n; i_tx++) if (nodes[i_tx].transmitting)
 		{
 			n_tx = &nodes[i_tx];
 			m_tx = peek(n_tx);
@@ -197,16 +207,16 @@ struct statistics alg(struct node *nodes, char *net, size_t s)
 
 			// transmit to all connected nodes
 			// node who are transmitting cannot receive at the same time
-			for (i_rx = 0; i_rx < s; i_rx++) if ((weight = net[i_tx*s+i_rx]) && !nodes[i_rx].transmitting)
+			for (i_rx = 0; i_rx < n; i_rx++) if (IN_RANGE(i_tx, i_rx, graph, n, range) && !nodes[i_rx].transmitting)
 			{
 				n_rx = &nodes[i_rx];
 
 				// collision detection
 				coll = 0;
-				for (i = 0; i < s; i++)
+				for (i = 0; i < n; i++)
 				{
 					// is there anyone else connected to me transmitting on the same channel at the same time?
-					if ((i != i_tx) && net[i_rx*s+i] && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
+					if ((i != i_tx) && IN_RANGE(i, i_rx, graph, n, range) && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
 					{
 						coll = 1;
 						stats.collisions++;
@@ -285,180 +295,10 @@ struct statistics alg(struct node *nodes, char *net, size_t s)
 			stats.tx++;
 		}
 		// end current transmissions
-		for (i = 0; i < s; i++) nodes[i].transmitting = 0;
+		for (i = 0; i < n; i++) nodes[i].transmitting = 0;
 
 		stats.t++; // all messages dispatched for t, go to t+1
 	}
-}
-
-void randtopo(struct point *points, size_t n, int radius)
-{
-	int i, j, overlap, l = 2*radius+1;
-
-	// the sink is always in the center
-	points[0].x = 0;
-	points[0].y = 0;
-
-	for (i=1; i<n; i++)
-	{
-		do {
-			overlap = 0;
-
-			points[i].x = (rand() % l) - radius;
-			points[i].y = (rand() % l) - radius;
-
-			for (j=0; j<i; j++) if ((points[i].x == points[j].x) && (points[i].y == points[j].y)) overlap = 1;
-		}
-		while (overlap);
-	}
-}
-
-void printtopo(struct point *points, size_t n, int radius)
-{
-	int i, j, k, found, l=2*radius+1;
-
-	for (i=0; i<l; i++) // row
-	{
-		for (j=0; j<l; j++) // col
-		{
-			found = 0;
-			for (k=0; k<n; k++)
-			{
-				if (points[k].x == (j-radius) && points[k].y == -(i-radius))
-				{
-					printf("%2d", k);
-					found = 1;
-				}
-			}
-
-			if (!found) printf(" -");
-		}
-		printf("\n");
-	}
-}
-
-void plottopo(struct point *points, char *graph, size_t n, int r, char* filename)
-{
-	int i, j;
-	FILE *p;
-
-	p = popen("gnuplot", "w");
-
-	fprintf(p, "set terminal pngcairo size 640, 640\n");
-	fprintf(p, "set output '%s'\n", filename);
-	fprintf(p, "set size square\n");
-	fprintf(p, "set xr [%f:%f]\n", -r*1.1, r*1.1);
-	fprintf(p, "set yr [%f:%f]\n", -r*1.1, r*1.1);
-	fprintf(p, "set xtics %d\n", r/5);
-	fprintf(p, "set ytics %d\n", r/5);
-
-	fprintf(p, "$vertices << EOD\n");
-	for (i=0; i<n; i++)
-	{
-		fprintf(p, "%d %d %d\n", i, points[i].x, points[i].y);
-	}
-	fprintf(p, "EOD\n");
-
-	fprintf(p, "$arcs << EOD\n");
-	for (i=0; i<n; i++) for (j=0; j<i; j++)
-	{
-		if (graph[i*n+j]) fprintf(p, "%d %d\n%d %d\n\n", points[i].x, points[i].y, points[j].x, points[j].y);
-	}
-	fprintf(p, "EOD\n");
-
-	fprintf(p, "$weights << EOD\n");
-	for (i=0; i<n; i++) for (j=0; j<i; j++)
-	{
-		if (graph[i*n+j]) fprintf(p, "%d %f %f\n", graph[i*n+j], (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0);
-	}
-	fprintf(p, "EOD\n");
-
-	fprintf(p, "plot ");
-	fprintf(p, "'$arcs' using 1:2 with lines lc rgb 'black' notitle, ");
-	fprintf(p, "'$weights' using 2:3 with points ps 3.5 pt 7 lc rgb 'white' notitle, ");
-	fprintf(p, "'$weights' using 2:3:1 with labels tc rgb 'black' notitle, ");
-	fprintf(p, "'$vertices' using 2:3 with points ps 3.5 pt 7 lc rgb 'black' notitle, ");
-	fprintf(p, "'$vertices' using 2:3:1 with labels tc rgb 'white' notitle\n");
-
-	pclose(p);
-}
-
-int topo2graph(struct point *points, char *graph, size_t n, int range)
-{
-	int i, j, dist;
-
-	for (i=0; i<n; i++) for (j=0; j<n; j++)
-	{
-		dist = sqrt(pow(points[i].x - points[j].x, 2) + pow(points[i].y - points[j].y, 2));
-		graph[i*n+j] = graph[j*n+i] = (dist <= range) ? dist : 0;
-	}
-}
-
-int connectedgraph(char *graph, size_t n)
-{
-	int i, connected = 1;
-	char* visited = calloc(n, 1);
-
-	visitgraph(graph, n, 0, visited);
-	for (i=0; i<n; i++) if(!visited[i]) connected = 0;
-
-	return connected;
-}
-
-void visitgraph(char* n, size_t s, int vertex, char* visited)
-{
-	visited[vertex] = 1;
-
-	for (int i=0; i<s; i++)
-	{
-		// if vertex is connected to i and i has not been visited yet
-		if (n[vertex*s+i] && (visited[i] == 0)) visitgraph(n, s, i, visited);
-	}
-}
-
-void printgraph(char *n, size_t s)
-{
-	int v;
-
-	for (int i=0; i<s; i++)
-	{
-		for (int j=0; j<s; j++)
-		{
-			v = *(n+i*s+j);
-
-			if (v == 0) printf(" -");
-			else printf("%2d", v);
-		}
-
-		printf("\n");
-	}
-}
-
-void printnodes(struct node *nodes, size_t s)
-{
-	printf("     # ");
-	for (int i=0; i<s; i++) printf("%2d ", i);
-
-	printf("\ntran.: ");
-	for (int i=0; i<s; i++)
-	{
-		if (nodes[i].transmitting) printf(" * ");
-		else printf("   ");
-	}
-
-	printf("\ndepth: ");
-	for (int i=0; i<s; i++)
-	{
-		if (nodes[i].depth < 0) printf("   ");
-		else printf("%2d ", nodes[i].depth);
-	}
-
-	printf("\nchan.: ");
-	for (int i=0; i<s; i++) printf("%2d ", nodes[i].channel);
-
-	printf("\nmess.: ");
-	for (int i=0; i<s; i++) printf("%2d ", nodes[i].messages_len);
-	printf("\n");
 }
 
 struct message peek(struct node *n)
@@ -490,4 +330,157 @@ void delete(struct node *n, unsigned int pos)
 
 	n->messages_len--;
 	for (i = pos; i < n->messages_len; i++) n->messages[i] = n->messages[i+1];
+}
+
+void rand_points(struct point *points, int n, int radius)
+{
+	int i;
+	float r, a;
+
+	for (i = 0; i < n; i++)
+	{
+		r = radius * sqrt(((float)rand()) / RAND_MAX);
+		a = 2*M_PI * ((float)rand()) / RAND_MAX;
+
+		points[i].x = round(r * cos(a));
+		points[i].y = round(r * sin(a));
+	}
+}
+
+int points2graph(struct point *points, int *graph, int n)
+{
+	int i, j;
+
+	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
+	{
+		graph[i*n+j] = graph[j*n+i] = DIST(points[i].x, points[i].y, points[j].x, points[j].y);
+	}
+}
+
+int visit(int *graph, int n, int range, int vertex, int *visited)
+{
+	int i, v = 1;
+	visited[vertex] = 1;
+
+	for (i = 0; i < n; i++)
+	{
+		// if i is reachable from vertex and i has not been visited yet
+		if (IN_RANGE(vertex, i, graph, n, range) && (!visited[i])) v += visit(graph, n, range, i, visited);
+	}
+
+	return v;
+}
+
+void print_points(struct point *points, int n, int radius)
+{
+	int i, j, k, l=2*radius+1;
+
+	for (i = 0; i < l; i++) // row
+	{
+		for (j = 0; j < l; j++) // col
+		{
+			for (k = 0; k < n; k++)
+			{
+				if ((points[k].x == (j-radius)) && (points[k].y == -(i-radius)))
+				{
+					printf("%2d", k);
+					break;
+				}
+			}
+
+			// reached the end without finding one
+			if (k == n) printf(" -");
+		}
+		
+		printf("\n");
+	}
+}
+
+void plot_graph(struct point *points, int *graph, int n, int r, int range, char* filename)
+{
+	int i, j;
+	FILE *p;
+
+	p = popen("gnuplot", "w");
+
+	fprintf(p, "set terminal pngcairo size 640, 640\n");
+	fprintf(p, "set output '%s'\n", filename);
+	fprintf(p, "set size square\n");
+	fprintf(p, "set xr [%f:%f]\n", -r*1.1, r*1.1);
+	fprintf(p, "set yr [%f:%f]\n", -r*1.1, r*1.1);
+	fprintf(p, "set xtics %d\n", r/5);
+	fprintf(p, "set ytics %d\n", r/5);
+
+	fprintf(p, "$vertices << EOD\n");
+	for (i=0; i<n; i++)
+	{
+		fprintf(p, "%d %d %d\n", i, points[i].x, points[i].y);
+	}
+	fprintf(p, "EOD\n");
+
+	fprintf(p, "$arcs << EOD\n");
+	for (i=0; i<n; i++) for (j=0; j<i; j++)
+	{
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(p, "%d %d\n%d %d\n\n", points[i].x, points[i].y, points[j].x, points[j].y);
+	}
+	fprintf(p, "EOD\n");
+
+	fprintf(p, "$weights << EOD\n");
+	for (i=0; i<n; i++) for (j=0; j<i; j++)
+	{
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(p, "%d %f %f\n", graph[i*n+j], (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0);
+	}
+	fprintf(p, "EOD\n");
+
+	fprintf(p, "plot ");
+	fprintf(p, "'$arcs' using 1:2 with lines lc rgb 'black' notitle, ");
+	fprintf(p, "'$weights' using 2:3 with points ps 3.5 pt 7 lc rgb 'white' notitle, ");
+	fprintf(p, "'$weights' using 2:3:1 with labels tc rgb 'black' notitle, ");
+	fprintf(p, "'$vertices' using 2:3 with points ps 3.5 pt 7 lc rgb 'black' notitle, ");
+	fprintf(p, "'$vertices' using 2:3:1 with labels tc rgb 'white' notitle\n");
+
+	pclose(p);
+}
+
+void print_graph(int *graph, int n, int range)
+{
+	int i, j;
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j<n; j++)
+		{
+			if (IN_RANGE(i, j, graph, n, range)) printf("%2d", graph[i*n+j]);
+			else printf(" -");
+		}
+
+		printf("\n");
+	}
+}
+
+void print_nodes(struct node *nodes, int n)
+{
+	printf("     # ");
+	for (int i=0; i<n; i++) printf("%2d ", i);
+
+	printf("\ntran.: ");
+	for (int i=0; i<n; i++)
+	{
+		if (nodes[i].transmitting) printf(" * ");
+		else printf("   ");
+	}
+
+	printf("\ndepth: ");
+	for (int i=0; i<n; i++)
+	{
+		if (nodes[i].depth < 0) printf("   ");
+		else printf("%2d ", nodes[i].depth);
+	}
+
+	printf("\nchan.: ");
+	for (int i=0; i<n; i++) printf("%2d ", nodes[i].channel);
+
+	printf("\nmess.: ");
+	for (int i=0; i<n; i++) printf("%2d ", nodes[i].messages_len);
+	printf("\n");
 }
