@@ -64,12 +64,14 @@ int visit(int *graph, int n, int range, int vertex, int *visited);
 void print_points(struct point *points, int n, int radius);
 void print_graph(int *graph, int n, int range);
 void print_nodes(struct node *nodes, int n);
-void plot_graph(struct point *points, int *graph, int n, int radius, int range, char *plot_filename);
+void plot_net(struct point *points, int *graph, int n, int radius, int range);
+
+FILE *netout;
 
 int main(int argc, char *argv[])
 {
 	int c, n, conn, radius, range, attempts = 0;
-	char *plot_filename = 0;
+	int f_printnet = 0;
 	struct statistics stats;
 	struct point *points;
 	struct node *nodes;
@@ -95,7 +97,8 @@ int main(int argc, char *argv[])
 		switch(c)
 		{
 			case 'p':
-				plot_filename = optarg;
+				f_printnet = 1;
+				netout = fopen(optarg, "w");
 				break;
 			case '?':
 				return 1;
@@ -139,7 +142,7 @@ int main(int argc, char *argv[])
 
 	printf("topology gen. after %d attempts:\n", attempts);
 	print_points(points, n, radius);
-	if (plot_filename) plot_graph(points, graph, n, radius, range, plot_filename);
+	if (f_printnet) plot_net(points, graph, n, radius, range);
 
 	printf("\ngraph of the network:\n");
 	print_graph(graph, n, range);
@@ -396,50 +399,32 @@ void print_points(struct point *points, int n, int radius)
 	}
 }
 
-void plot_graph(struct point *points, int *graph, int n, int r, int range, char* filename)
+void plot_net(struct point *points, int *graph, int n, int radius, int range)
 {
 	int i, j;
-	FILE *p;
 
-	p = popen("gnuplot", "w");
+	fprintf(netout, "radius = %d\n\n", radius);
 
-	fprintf(p, "set terminal pngcairo size 640, 640\n");
-	fprintf(p, "set output '%s'\n", filename);
-	fprintf(p, "set size square\n");
-	fprintf(p, "set xr [%f:%f]\n", -r*1.1, r*1.1);
-	fprintf(p, "set yr [%f:%f]\n", -r*1.1, r*1.1);
-	fprintf(p, "set xtics %d\n", r/5);
-	fprintf(p, "set ytics %d\n", r/5);
-
-	fprintf(p, "$vertices << EOD\n");
-	for (i=0; i<n; i++)
+	fprintf(netout, "$vertices << EOD\n");
+	for (i = 0; i < n; i++)
 	{
-		fprintf(p, "%d %d %d\n", i, points[i].x, points[i].y);
+		fprintf(netout, "%d %d %d\n", i, points[i].x, points[i].y);
 	}
-	fprintf(p, "EOD\n");
+	fprintf(netout, "EOD\n\n");
 
-	fprintf(p, "$arcs << EOD\n");
-	for (i=0; i<n; i++) for (j=0; j<i; j++)
+	fprintf(netout, "$arcs << EOD\n");
+	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n, range)) fprintf(p, "%d %d\n%d %d\n\n", points[i].x, points[i].y, points[j].x, points[j].y);
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%d %d\n%d %d\n\n", points[i].x, points[i].y, points[j].x, points[j].y);
 	}
-	fprintf(p, "EOD\n");
+	fprintf(netout, "EOD\n\n");
 
-	fprintf(p, "$weights << EOD\n");
-	for (i=0; i<n; i++) for (j=0; j<i; j++)
+	fprintf(netout, "$weights << EOD\n");
+	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n, range)) fprintf(p, "%d %f %f\n", graph[i*n+j], (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0);
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%d %f %f\n", graph[i*n+j], (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0);
 	}
-	fprintf(p, "EOD\n");
-
-	fprintf(p, "plot ");
-	fprintf(p, "'$arcs' using 1:2 with lines lc rgb 'black' notitle, ");
-	fprintf(p, "'$weights' using 2:3 with points ps 3.5 pt 7 lc rgb 'white' notitle, ");
-	fprintf(p, "'$weights' using 2:3:1 with labels tc rgb 'black' notitle, ");
-	fprintf(p, "'$vertices' using 2:3 with points ps 3.5 pt 7 lc rgb 'black' notitle, ");
-	fprintf(p, "'$vertices' using 2:3:1 with labels tc rgb 'white' notitle\n");
-
-	pclose(p);
+	fprintf(netout, "EOD\n");
 }
 
 void print_graph(int *graph, int n, int range)
