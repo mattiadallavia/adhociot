@@ -15,6 +15,6 @@ set xyplane 0
 set cbrange [-0.2:0.2]
 set palette defined (-1 'red', 0 'green', 1 'red')
 
-splot c(x,y,w_f,t_f,s_f,q_f) lc 'black', \
-	  'stat.dat' using 1:2:3:($3 - c($1,$2,w_f,t_f,s_f,q_f)) palette, \
-	  'stat.dat' using 1:2:($3 - c($1,$2,w_f,t_f,s_f,q_f)) with lines palette
+splot 'stat.dat' using 1:2:($3 - c($1,$2,w_f,t_f,s_f,q_f)) with pm3d, \
+      c(x,y,w_f,t_f,s_f,q_f) lc 'black', \
+      'stat.dat' using 1:2:3:($3 - c($1,$2,w_f,t_f,s_f,q_f)) palette
