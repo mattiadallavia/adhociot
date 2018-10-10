@@ -64,7 +64,7 @@ int visit(int *graph, int n, int range, int vertex, int *visited);
 void print_points(struct point *points, int n, int radius);
 void print_graph(int *graph, int n, int range);
 void print_nodes(struct node *nodes, int n);
-void plot_net(struct point *points, int *graph, int n, int radius, int range);
+void plot_net(struct point *points, int *graph, struct node *nodes, int n, int radius, int range);
 
 FILE *netout;
 
@@ -142,12 +142,13 @@ int main(int argc, char *argv[])
 
 	printf("topology gen. after %d attempts:\n", attempts);
 	print_points(points, n, radius);
-	if (f_printnet) plot_net(points, graph, n, radius, range);
 
 	printf("\ngraph of the network:\n");
 	print_graph(graph, n, range);
 
 	stats = alg(nodes, graph, n, range);
+
+	if (f_printnet) plot_net(points, graph, nodes, n, radius, range);
 
 	printf("\nfinal time: t=%d\n", stats.t);
 	printf("messages transmitted: %d\n", stats.tx);
@@ -399,7 +400,7 @@ void print_points(struct point *points, int n, int radius)
 	}
 }
 
-void plot_net(struct point *points, int *graph, int n, int radius, int range)
+void plot_net(struct point *points, int *graph, struct node *nodes, int n, int radius, int range)
 {
 	int i, j;
 
@@ -408,7 +409,7 @@ void plot_net(struct point *points, int *graph, int n, int radius, int range)
 	fprintf(netout, "$vertices << EOD\n");
 	for (i = 0; i < n; i++)
 	{
-		fprintf(netout, "%d %d %d\n", i, points[i].x, points[i].y);
+		fprintf(netout, "%d %d %d %d\n", points[i].x, points[i].y, i, nodes[i].depth);
 	}
 	fprintf(netout, "EOD\n\n");
 
@@ -422,7 +423,7 @@ void plot_net(struct point *points, int *graph, int n, int radius, int range)
 	fprintf(netout, "$weights << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%d %f %f\n", graph[i*n+j], (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0);
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%f %f %d\n", (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0, graph[i*n+j]);
 	}
 	fprintf(netout, "EOD\n");
 }

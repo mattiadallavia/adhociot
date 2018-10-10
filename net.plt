@@ -3,15 +3,17 @@ load 'net.dat'
 set size square
 unset key
 unset border
-set xrange [-radius*1.1:radius*1.1]
-set yrange [-radius*1.1:radius*1.1]
-set xtics radius/5
-set ytics radius/5
+set xrange [-radius:radius]
+set yrange [-radius:radius]
+set xtics axis radius/5, radius/5, radius scale 0 left offset 0.2, 1
+unset ytics
 
-set object 1 circle size radius fc rgb 'black' dashtype 3
+do for [i = (radius/5):radius:(radius/5)] {
+	set object i circle size i dashtype 3 fillcolor rgb '#444444'
+}
 
-plot '$arcs' using 1:2 with lines lc rgb 'black', \
-	 '$weights' using 2:3 with points ps 3.5 pt 7 lc rgb 'white', \
-	 '$weights' using 2:3:1 with labels tc rgb 'black', \
-	 '$vertices' using 2:3 with points ps 3.5 pt 7 lc rgb 'black', \
-	 '$vertices' using 2:3:1 with labels tc rgb 'white'
+plot '$arcs' with lines lc rgb 'black', \
+	 '$weights' with points ps 3.5 pt 7 lc rgb 'white', \
+	 '$weights' with labels tc rgb 'black', \
+	 '$vertices' with points ps 3.5 pt 7 lc rgb 'black', \
+	 '$vertices' with labels tc rgb 'white'
