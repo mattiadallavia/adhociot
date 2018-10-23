@@ -1,0 +1,56 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definizione}
+
+\begin{document}
+
+% Nel contesto dell'IoT stanno maturando molteplici tecnologie di comunicazione wireless
+
+Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
+
+% LPWAN
+
+La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la limitata disponibilità di energia: questi dispositivi sono infatti normalmente alimentati a batteria. Le principali soluzioni di connettività orbitano quindi attorno a questa recessità, focalizzandosi sul limitare i tempi di attività di trasmissione e ricezione.
+
+La topologia adottata è quella a stella: ciascun elemento della rete comunica esculivamente con un gateway centrale.
+
+\section{Modello e definizioni}
+
+Si è scelto un semplice modello che descriva la rete dal punto di vista topologico.
+
+\begin{figure}[h]
+\centering
+\includegraphics{model}
+\caption{Esempio rappresentativo del modello.}
+\end{figure}
+
+Esso si compone di:
+
+\begin{enumerate}
+\item Un nodo centrale detto \emph{sink} che costituisce l'unico destinatario finale di tutti i dati.
+\item Un numero $n$ di nodi satellite (sensori), con portata $p$ comune a tutti.
+\item Un disco di raggio $r$ centrato nel \emph{sink}, detto ambiente, dove verranno distribuiti i satelliti.
+\end{enumerate}
+
+Appare subito evidente che la portata $p$ e il raggio dell'ambiente $r$ influenzano in maniera interdipendente il modello. Risultano quindi naturali le seguenti definizioni:
+
+\begin{definition}
+Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno lineare} $g$ è il loro rapporto:
+$$ g = \frac{r}{p} $$
+\end{definition}
+
+\begin{definition}
+Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno superficiale} $G$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
+$$ G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2 $$
+\end{definition}
+
+Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie. 
+
+\end{document}
