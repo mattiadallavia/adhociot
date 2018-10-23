@@ -3,3 +3,7 @@ stat
 
 *.dat
 *.log
+*.pdf
+*.aux
+*.dvi
+*.eps
