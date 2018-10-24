@@ -1,4 +1,4 @@
-# set terminal postscript eps color size 3.5in,3.5in font 'Times-Italic' 24 ps 2 dl 4
+# set terminal pdf size 3.5in,3.5in font 'Times,16' dl 2
 
 unset tics
 unset key
@@ -19,9 +19,9 @@ set arrow 1 from 0,0 to sqrt(2)/2,(-sqrt(2)/2)
 set arrow 2 from 0,0 to 0.4*sqrt(2)/2,0.4*sqrt(2)/2
 
 set object 4 circle at sqrt(2)/3,(-sqrt(2)/3) front size char 1 fs solid fc rgb 'white'
-set label 3 'r' at sqrt(2)/3,(-sqrt(2)/3) center front
+set label 3 '{/:Italic r}' at sqrt(2)/3,(-sqrt(2)/3) center front
 
 set object 5 circle at 0.4*sqrt(2)/4,0.4*sqrt(2)/4 front size char 1 fs solid fc rgb 'white'
-set label 4 'p' at 0.4*sqrt(2)/4,0.4*sqrt(2)/4 center front
+set label 4 '{/:Italic p}' at 0.4*sqrt(2)/4,0.4*sqrt(2)/4 center front
 
 plot NaN
