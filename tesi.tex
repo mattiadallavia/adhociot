@@ -6,11 +6,24 @@
 \usepackage[italian]{babel}
 \usepackage{graphicx}
 \usepackage{amsthm}
+\usepackage{amsfonts}
+
+\setlength{\parskip}{1em}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
 
+\title{Progettazione e analisi di un algoritmo di routing per una rete ad-hoc di consegna nel cotesto dell'IoT}
+\date{2018\\ Dicembre}
+\author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
+
 \begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Premessa}
 
 % Nel contesto dell'IoT stanno maturando molteplici tecnologie di comunicazione wireless
 
@@ -22,14 +35,18 @@ La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la l
 
 La topologia adottata è quella a stella: ciascun elemento della rete comunica esculivamente con un gateway centrale.
 
-\section{Modello e definizioni}
+\section{Modello della rete}
 
-Si è scelto un semplice modello che descriva la rete dal punto di vista topologico.
+In questa sezione viene proposto un semplice modello che riassume le caratteristiche della rete. Sono individuati dei parametri caratteristici che serviranno a classificare, e in seguito analizzare, le possbili configurazioni spaziali e temporali dei nodi.
+
+\subsection{Modello topologico}
+
+Si focalizza sugli aspetti geometrici della rete, racchiudendo le informazioni di posizione portata e radio dei nodi.
 
 \begin{figure}[h]
 \centering
 \includegraphics{model.pdf}
-\caption{Esempio rappresentativo del modello.}
+\caption{Schema di una possibile rete.}
 \end{figure}
 
 Esso si compone di:
@@ -50,8 +67,51 @@ $$ g = \frac{r}{p} $$
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno superficiale} $G$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
 $$ G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2 $$
+dove $g$ è il \emph{guadagno lineare}.
 \end{definition}
 
 Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie. 
+
+La coppia numero di nodi, guadagno $(n, g)$ verrà d'ora in poi utilizzata come caratteristoica fondamentale di una rete.
+
+\subsection{Modello temporale}
+
+Si è fatta l'ipotesi che tutti i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di operare in modo coordinato.
+
+Sono stati individuati i seguenti istanti:
+
+\begin{enumerate}
+\item $t_0 =$ tempo di accensione coordinata di tutti i nodi;
+\item $t_f =$ istante dell'ultima trasmissione.
+\end{enumerate}
+
+\section{Analisi}
+
+Definiti i parametri caratteristici del modello, è stato importante comprendere come questi incidano sulla rete.
+
+Per fare ciò si è ricorsi all'uso delle seguenti funzioni:
+
+\begin{definition}
+Sia $N = \{1, \dots, m\}$ un intervallo di numero di nodi con $m \in \mathbb{N}$ il numero massimo di nodi. Sia $D = \{x \in \mathbb{Q} \mid 0 \leq x \leq d\}$ un intervallo di guadagni con $d \in \mathbb{Q}$ il guadagno massimo. Chiameremo \emph{rapporto di connessione} la funzione
+$$ c \colon N \times D \to [0, 1] $$
+\end{definition}
+
+Questa risponde alla domanda: Data una coppia di parametri $(n, g) \in N \times D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi un'informazione sulla quantità (percentuale) dei nodi contenuti del sottografo contenente il \emph{sink}.
+
+Considerando solamente i nodi connessi direttamente (da un solo salto) al \emph{sink}, questa funzione è definibile semplicemente considerando i nodi che cadono nel disco di portata del \emph{sink}, e risulta
+\begin{equation}
+c^{*}(n, g) = \frac{\pi p^2}{\pi r^2} = \frac{1}{g^2} = \frac{1}{G}
+\end{equation}
+
+Se $g = 1$ la porata del \emph{sink} coprirà l'intero ambiente e quindi tutti i satelliti saranno ad esso direttamente connessi, ovvero $c^{*}(n, 1) = 1 \ \forall g \in D$. 
+
+\begin{definition}
+Sia $N = \{1, \dots, m\}$ un intervallo di numero di nodi e sia $D = \{x \in \mathbb{Q} \mid 0 \leq x \leq d\}$ un intervallo di guadagni. Chiameremo \emph{probabilità di connessione} $p$ la funzione
+$$ p \colon N \times D \to [0, 1] $$
+\end{definition}
+
+\begin{equation}
+\tilde{c}(d) = 0.47 \cdot tanh(0.58 \cdot d - 2.29) + 0.53
+\end{equation}
 
 \end{document}
