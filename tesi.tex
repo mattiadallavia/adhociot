@@ -5,15 +5,17 @@
 \usepackage{lmodern}
 \usepackage[italian]{babel}
 \usepackage{graphicx}
+\usepackage{subcaption} 
+\usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amsfonts}
 
-\setlength{\parskip}{1em}
+\setlength{\parskip}{0.5em}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
 
-\title{Progettazione e analisi di un algoritmo di routing per una rete ad-hoc di consegna nel cotesto dell'IoT}
+\title{Un algoritmo di routing di consegna ad-hoc nel cotesto dell'IoT}
 \date{2018\\ Dicembre}
 \author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
 
@@ -37,11 +39,19 @@ La topologia adottata è quella a stella: ciascun elemento della rete comunica e
 
 \section{Modello della rete}
 
-In questa sezione viene proposto un semplice modello che riassume le caratteristiche della rete. Sono individuati dei parametri caratteristici che serviranno a classificare, e in seguito analizzare, le possbili configurazioni spaziali e temporali dei nodi.
+In questa sezione viene proposto un modello della rete. Sono individuate le caratteristiche spaziali e temporali attorno alle quali questa tesi si concentra. Infine viene fornita una definizione formale di rete basata su un grafo pesato.
 
 \subsection{Modello topologico}
 
-Si focalizza sugli aspetti geometrici della rete, racchiudendo le informazioni di posizione portata e radio dei nodi.
+Si compone di:
+
+\begin{enumerate}
+\item Un nodo centrale detto \emph{sink} che costituisce l'unico destinatario finale di tutti i dati.
+\item Un numero $n$ di nodi satellite, con portata $p$ comune.
+\item Un disco (regione di spazio) di raggio $r$ centrato nel \emph{sink}, detto ambiente, dove sono distribuiti i satelliti.
+\end{enumerate}
+
+A ciascun satellite è assegnato un indice $i \in \{1, \dots, n\}$ univoco e ed è posizionato alle coordinate (a lui ignote) $(x, y)$ nell'ambiente. Al nodo \emph{sink} è riservato l'indice $i = 0$ ed è sempre posizionato al centro dell'ambiente.
 
 \begin{figure}[h]
 \centering
@@ -49,15 +59,7 @@ Si focalizza sugli aspetti geometrici della rete, racchiudendo le informazioni d
 \caption{Schema di una possibile rete.}
 \end{figure}
 
-Esso si compone di:
-
-\begin{enumerate}
-\item Un nodo centrale detto \emph{sink} che costituisce l'unico destinatario finale di tutti i dati.
-\item Un numero $n$ di nodi satellite (sensori), con portata $p$ comune a tutti.
-\item Un disco di raggio $r$ centrato nel \emph{sink}, detto ambiente, dove verranno distribuiti i satelliti.
-\end{enumerate}
-
-Appare subito evidente che la portata $p$ e il raggio dell'ambiente $r$ influenzano in maniera interdipendente il modello. Risultano quindi naturali le seguenti definizioni:
+Appare subito evidente che la portata $p$ e il raggio dell'ambiente $r$ influenzano in maniera interdipendente il modello. Risultano quindi naturale ridurle mediante le seguenti definizioni:
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno lineare} $g$ è il loro rapporto:
@@ -70,9 +72,21 @@ $$ G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2 $$
 dove $g$ è il \emph{guadagno lineare}.
 \end{definition}
 
-Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie. 
+Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, prendendo $p$ come unità di misura.
 
-La coppia numero di nodi, guadagno $(n, g)$ verrà d'ora in poi utilizzata come caratteristoica fondamentale di una rete.
+Spesso in questa tesi si farà riferimento al \emph{grafo della rete}, definito come segue:
+
+\begin{definition}
+Siano $V = \{1, \dots, n \}$ gli indici degli $n$ nodi. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
+$$ E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\} $$
+dove $dist(i, j)$ è la distanza geometrica delle coordinate.\\
+Chiamaremo $G = (V, E)$ il \emph{grafo della rete}.
+\end{definition}
+
+Il valore $w$ (peso dell'arco) fa riferimento alla distanza tra la coppia di nodi.
+In questa definizione (come nelle successive simulazioni) si ricorre all'uso delle coordinate per il suo calcolo. In realtà non si è fatta l'ipotesi che la posizione dei nodi sia nota, in questo caso distanza andrà stimata grazie alla potenza di ricezione dei messaggi.
+
+Questo oggetto rappresenta l'immagine di una rete e costituisce l'unico input per l'analisi e la simulazione della stessa.
 
 \subsection{Modello temporale}
 
@@ -87,16 +101,18 @@ Sono stati individuati i seguenti istanti:
 
 \section{Analisi}
 
-Definiti i parametri caratteristici del modello, è stato importante comprendere come questi incidano sulla rete.
+Muniti di una definizione formale di rete, carattarizzata dal grafo $G$ legato alla coppia $(n, g)$, andiamo ora ad individuare dei criteri qualitativi con i quali valutarla.
 
-Per fare ciò si è ricorsi all'uso delle seguenti funzioni:
+\subsection{Metriche}
+
+Per fare ciò si ricorrerà all'uso delle seguenti definizioni:
 
 \begin{definition}
-Sia $N = \{1, \dots, m\}$ un intervallo di numero di nodi con $m \in \mathbb{N}$ il numero massimo di nodi. Sia $D = \{x \in \mathbb{Q} \mid 0 \leq x \leq d\}$ un intervallo di guadagni con $d \in \mathbb{Q}$ il guadagno massimo. Chiameremo \emph{rapporto di connessione} la funzione
-$$ c \colon N \times D \to [0, 1] $$
+Sia $D$ l'insieme dei possibili \emph{grafi di rete}, ciascuno associato ad una coppia $(n, g)$ dove $n \in \mathbb{N}$ e $r \in \mathbb{Q}_{>0}$. Chiameremo \emph{rapporto di connessione} la funzione
+$$ c \colon D \to [0, 1] $$
 \end{definition}
 
-Questa risponde alla domanda: Data una coppia di parametri $(n, g) \in N \times D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi un'informazione sulla quantità (percentuale) dei nodi contenuti del sottografo contenente il \emph{sink}.
+Questa risponde alla domanda: Dato un grafo $G \in D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi la quantità (percentuale) dei nodi nel sottografo contenente il \emph{sink}.
 
 Considerando solamente i nodi connessi direttamente (da un solo salto) al \emph{sink}, questa funzione è definibile semplicemente considerando i nodi che cadono nel disco di portata del \emph{sink}, e risulta
 \begin{equation}
@@ -109,6 +125,28 @@ Se $g = 1$ la porata del \emph{sink} coprirà l'intero ambiente e quindi tutti i
 Sia $N = \{1, \dots, m\}$ un intervallo di numero di nodi e sia $D = \{x \in \mathbb{Q} \mid 0 \leq x \leq d\}$ un intervallo di guadagni. Chiameremo \emph{probabilità di connessione} $p$ la funzione
 $$ p \colon N \times D \to [0, 1] $$
 \end{definition}
+
+\subsection{Simulazione}
+
+Quale sarà il \emph{rapporto di connessione} al variare dei parametri $n$ e $p$? Questa domanda non trova una risposta univoca, in quanto esso dipende dal \emph{grafo della rete}, ovvero dallo specifica disposizione dei nodi nell'ambiente.
+
+Posto $g > 1$, tutti i nodi potrebbero cadere nel disco di portata del \emph{sink} e quindi risultare $c(G_1) = 1$, oppure viceversa potrebboro essere tutti a distanza $> p$ dal \emph{sink} e perciò risultare $c(G_2) = 0$.
+
+Il valore di $c(n, g)$ risulta perciò impredicibile e fondamentalmente vincolato ad uno specifico grafo $G$.
+
+La strategia utilizzata in questa tesi sarà quindi generare una sequenza di reti $G_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(G_i)$ per la sequenza verrà prodotta una stima $\tilde{c}(n, r)$.
+
+\begin{figure}[h]
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\textwidth]{conn_sim.pdf}
+\caption{}
+\end{subfigure}
+\begin{subfigure}[b]{0.5\textwidth}
+\includegraphics[width=\textwidth]{conn_g.pdf}
+\caption{}
+\end{subfigure}
+\caption{Risultato della simulazione.}%
+\end{figure}
 
 \begin{equation}
 \tilde{c}(d) = 0.47 \cdot tanh(0.58 \cdot d - 2.29) + 0.53
