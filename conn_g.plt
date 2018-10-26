@@ -5,10 +5,11 @@ set view map
 set grid
 unset surface
 unset ylabel
+set xtics 2
 
-set label 1 '{/:Italic n} = 20' at 2.58,0.68 rotate by -75
-set label 2 '{/:Italic n} = 50' at 3.6,0.68 rotate by -75
-set label 3 '{/:Italic n} = 80' at 4.42,0.68 rotate by -75
+set label 1 '{/:Italic n} = 100' at 5.5,0.70 rotate by -84
+set label 2 '{/:Italic n} = 500' at 10.9,0.70 rotate by -81
+set label 3 '{/:Italic n} = 900' at 14.6,0.70 rotate by -82
 
-set cntrparam levels discrete 20, 50, 80
+set cntrparam levels discrete 100, 500, 900
 splot 'stat.dat' using 1:3:2 with lines

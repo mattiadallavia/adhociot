@@ -6,7 +6,7 @@ t_f = -1
 s_f = 0.5
 q_f = 0.5
 
-fit c(x,y,w_f,t_f,s_f,q_f) 'stat.dat' using 1:2:3 via w_f,t_f,s_f,q_f
+fit [1:20] [50:1000] c(x,y,w_f,t_f,s_f,q_f) 'stat.dat' using 1:2:3 via w_f,t_f,s_f,q_f
 
 print sprintf('t(g, n) = %.2f*tanh(%.2f*d(g, n) + %.2f) + %.2f', s_f,w_f,t_f,q_f)
 

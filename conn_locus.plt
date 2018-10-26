@@ -1,3 +1,4 @@
+n(g) = 16/pi * g**2
 l(x, w, t) = w*x**2 + t
 
 w_c = 1
@@ -33,6 +34,7 @@ plot l(x,w_c,t_c) with filledcurves y=1000 palette cb 0.5 notitle fillstyle patt
 	 'stat.dat' using ((($3 >= 0.85) && ($3 <= 0.95)) ? $1 : NaN):2:3 palette pointtype 3 notitle, \
 	 '<echo 1 100' with impulses linecolor 'black' title 'conn. directly', \
 	 l(x,w_t,t_t) palette cb 0.9 title 'l(g, 0.9)', \
-	 l(x,w_c,t_c) palette cb 0.5 title 'l(g, 0.5)'
+	 l(x,w_c,t_c) palette cb 0.5 title 'l(g, 0.5)', \
+	 n(x) title '16/{/Symbol p} g^2'
 
 reset
