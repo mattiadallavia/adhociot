@@ -4,16 +4,19 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[italian]{babel}
+\usepackage{float}
 \usepackage{graphicx}
-\usepackage{subcaption} 
+\usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{amsthm}
-\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{xfrac}
 
 \setlength{\parskip}{0.5em}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
+\newtheorem{proposition}{Proposizione}
 
 \title{Un algoritmo di routing di consegna ad-hoc nel cotesto dell'IoT}
 \date{2018\\ Dicembre}
@@ -31,35 +34,55 @@
 
 Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
 
-% LPWAN
+% WSN - Wireless Sensor Network
+% MANET - Mobile Ad-hoc Network
+% LPWAN - Low Power Wide Area Network
 
 La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la limitata disponibilità di energia: questi dispositivi sono infatti normalmente alimentati a batteria. Le principali soluzioni di connettività orbitano quindi attorno a questa recessità, focalizzandosi sul limitare i tempi di attività di trasmissione e ricezione.
 
 La topologia adottata è quella a stella: ciascun elemento della rete comunica esculivamente con un gateway centrale.
 
+\section{Introduzione}
+
 \section{Modello della rete}
 
-In questa sezione viene proposto un modello della rete. Sono individuate le caratteristiche spaziali e temporali attorno alle quali questa tesi si concentra. Infine viene fornita una definizione formale di rete basata su un grafo pesato.
+Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione viene descritto un modello che ne schematizza le caratteristiche fondamentali.
 
 \subsection{Modello topologico}
 
-Si compone di:
+Dal punto di vista spaziale, la rete è composta dai seguenti oggetti:
 
 \begin{enumerate}
-\item Un nodo centrale detto \emph{sink} che costituisce l'unico destinatario finale di tutti i dati.
-\item Un numero $n$ di nodi satellite, con portata $p$ comune.
-\item Un disco (regione di spazio) di raggio $r$ centrato nel \emph{sink}, detto ambiente, dove sono distribuiti i satelliti.
+\item Un numero $n$ di nodi satellite (i sensori), ciascuno identificato da un indice $i \in \{1, \dots, n\}$ univoco.
+\item Un nodo centrale detto \emph{sink}, di indice $i = 0$.
+\item Un disco (regione di spazio) di raggio $r$, detto \emph{ambiente}, dove sono distribuiti i satelliti.
 \end{enumerate}
 
-A ciascun satellite è assegnato un indice $i \in \{1, \dots, n\}$ univoco e ed è posizionato alle coordinate (a lui ignote) $(x, y)$ nell'ambiente. Al nodo \emph{sink} è riservato l'indice $i = 0$ ed è sempre posizionato al centro dell'ambiente.
+Tutti i nodi hanno una portata (del segnale radio) $p$. Il nodo \emph{sink}, posizionato al centro dell'ambiente, costituisce il destinatario finale di tutti i messaggi. Questo nodo svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante.
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics{model.pdf}
-\caption{Schema di una possibile rete.}
+\caption{Rete di 3 satelliti, di cui 2 connessi al \emph{sink}.}
 \end{figure}
 
-Appare subito evidente che la portata $p$ e il raggio dell'ambiente $r$ influenzano in maniera interdipendente il modello. Risultano quindi naturale ridurle mediante le seguenti definizioni:
+\subsection{Grafo della rete}
+
+Spesso si farà riferimento al \emph{grafo della rete}, definito come segue:
+
+\begin{definition}
+Siano $V = \{0, \dots, n \}$ gli indici dei nodi (\emph{sink} + $n$ satelliti). Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
+$$ E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\} $$
+Chiamaremo $R = (V, E)$ il \emph{grafo della rete}.
+\end{definition}
+
+La funzione $dist(i, j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate. Nel caso queste non siano note, la distanza potrebbe essere stimata grazie alla potenza di ricezione dei messaggi.
+
+Chiamaremo $C \subseteq R$ il sottografo contenente il \emph{sink} e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al \emph{sink}. Se $C = R$ diremo che la rete è \emph{completamente connessa}.
+
+\subsection{Relazioni caratteristiche}
+
+Appare subito evidente che la portata e il raggio dell'ambiente influenzano in maniera interdipendente il modello. In particolare, fissati $r_0$ e $p_0$, è possibile definire una classe di reti dove $r = m \cdot r_0, \ p = m \cdot p_0$ con $m \in \mathbb{Q}_{>0}$ e dove le posizioni relative dei nodi sono conservate. Queste reti sono equivalenti a meno di un fattore di scala. È utile quindi definire il concetto di \emph{guadagno}, per identificare tutte quelle reti appartenenti a classi distinte.
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno lineare} $g$ è il loro rapporto:
@@ -72,21 +95,17 @@ $$ G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2 $$
 dove $g$ è il \emph{guadagno lineare}.
 \end{definition}
 
-Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, prendendo $p$ come unità di misura.
+Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, usando $p$ come unità di misura.
 
-Spesso in questa tesi si farà riferimento al \emph{grafo della rete}, definito come segue:
+Definiamo infine una speciale relazione tra $n$ e $g$ che sarà di centrale importanza per l'analisi delle proprietà di $R$:
 
 \begin{definition}
-Siano $V = \{1, \dots, n \}$ gli indici degli $n$ nodi. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
-$$ E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\} $$
-dove $dist(i, j)$ è la distanza geometrica delle coordinate.\\
-Chiamaremo $G = (V, E)$ il \emph{grafo della rete}.
+Sia $n$ il numero di satelliti e $g$ il \emph{guadagno lineare}, chiamaiamo \emph{densità di guadagno superficiale} $d$ la relazione:
+$$ d = \frac{n}{g^2} = \frac{n}{G} $$
+Dove $G$ è il \emph{guadagno superficiale}.
 \end{definition}
 
-Il valore $w$ (peso dell'arco) fa riferimento alla distanza tra la coppia di nodi.
-In questa definizione (come nelle successive simulazioni) si ricorre all'uso delle coordinate per il suo calcolo. In realtà non si è fatta l'ipotesi che la posizione dei nodi sia nota, in questo caso distanza andrà stimata grazie alla potenza di ricezione dei messaggi.
-
-Questo oggetto rappresenta l'immagine di una rete e costituisce l'unico input per l'analisi e la simulazione della stessa.
+Questo rapporto ci da un'informazione sulla quantità di nodi per unità di superificie.
 
 \subsection{Modello temporale}
 
@@ -99,9 +118,15 @@ Sono stati individuati i seguenti istanti:
 \item $t_f =$ istante dell'ultima trasmissione.
 \end{enumerate}
 
+\begin{figure}[H]
+\centering
+\includegraphics{timeline.pdf}
+\caption{}
+\end{figure}
+
 \section{Analisi}
 
-Muniti di una definizione formale di rete, carattarizzata dal grafo $G$ legato alla coppia $(n, g)$, andiamo ora ad individuare dei criteri qualitativi con i quali valutarla.
+Muniti di una definizione formale di rete, carattarizzata dal grafo $R$ legato alla coppia $(n, g)$, andiamo ora ad individuare dei criteri qualitativi con i quali valutarla.
 
 \subsection{Metriche}
 
@@ -112,31 +137,54 @@ Sia $D$ l'insieme dei possibili \emph{grafi di rete}, ciascuno associato ad una 
 $$ c \colon D \to [0, 1] $$
 \end{definition}
 
-Questa risponde alla domanda: Dato un grafo $G \in D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi la quantità (percentuale) dei nodi nel sottografo contenente il \emph{sink}.
+Questa risponde alla domanda: Dato un grafo $R \in D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi la quantità (percentuale) dei nodi nel sottografo $C$ dei \emph{connessi al sink}.
 
-Considerando solamente i nodi connessi direttamente (da un solo salto) al \emph{sink}, questa funzione è definibile semplicemente considerando i nodi che cadono nel disco di portata del \emph{sink}, e risulta
-\begin{equation}
-c^{*}(n, g) = \frac{\pi p^2}{\pi r^2} = \frac{1}{g^2} = \frac{1}{G}
-\end{equation}
+Quale sarà il \emph{rapporto di connessione} al variare dei parametri $n$ e $p$? Questa domanda non trova una risposta univoca, in quanto esso fondamentalmente dipende dallo specifico \emph{grafo di rete} $R$.
 
-Se $g = 1$ la porata del \emph{sink} coprirà l'intero ambiente e quindi tutti i satelliti saranno ad esso direttamente connessi, ovvero $c^{*}(n, 1) = 1 \ \forall g \in D$. 
+Banalmente, se fissiamo $g = 1$, la porata del \emph{sink} coprirà l'intero ambiente e quindi tutti i satelliti saranno ad esso direttamente connessi, ovvero $c(R) = 1 \ \forall R$ con $g = 1$.
 
-\begin{definition}
-Sia $N = \{1, \dots, m\}$ un intervallo di numero di nodi e sia $D = \{x \in \mathbb{Q} \mid 0 \leq x \leq d\}$ un intervallo di guadagni. Chiameremo \emph{probabilità di connessione} $p$ la funzione
-$$ p \colon N \times D \to [0, 1] $$
-\end{definition}
+Posto invece $g > 1$, tutti i nodi potrebbero cadere nel disco di portata del \emph{sink} e quindi risultare $c(R_1) = 1$, oppure viceversa potrebboro essere tutti a distanza $> p$ dal \emph{sink} e perciò risultare $c(R_2) = 0$.
 
-\subsection{Simulazione}
+Nelle prossime sezioni approcceremo il problema con due distite strategie, tentando di fornire una risposta alla suddetta domanda.
 
-Quale sarà il \emph{rapporto di connessione} al variare dei parametri $n$ e $p$? Questa domanda non trova una risposta univoca, in quanto esso dipende dal \emph{grafo della rete}, ovvero dallo specifica disposizione dei nodi nell'ambiente.
+\subsection{Rete a reticolo uniforme}
 
-Posto $g > 1$, tutti i nodi potrebbero cadere nel disco di portata del \emph{sink} e quindi risultare $c(G_1) = 1$, oppure viceversa potrebboro essere tutti a distanza $> p$ dal \emph{sink} e perciò risultare $c(G_2) = 0$.
+Ipotizzando che i nodi siano disposti in un reticolo uniforme, è possibile determinare la soglia per una rete completamente connessa.
 
-Il valore di $c(n, g)$ risulta perciò impredicibile e fondamentalmente vincolato ad uno specifico grafo $G$.
+Chiameremo \emph{rete a reticolo uniforme} $R_r$ il grafo di rete con queste caratteristiche.
 
-La strategia utilizzata in questa tesi sarà quindi generare una sequenza di reti $G_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(G_i)$ per la sequenza verrà prodotta una stima $\tilde{c}(n, r)$.
+\begin{figure}[H]
+\centering
+\includegraphics{model_unif.pdf}
+\caption{}
+\end{figure}
 
-\begin{figure}[h]
+\begin{proposition}
+Sia $R_r$ un \emph{grafo di rete} associato alla coppia $(n, g)$, dove i nodi sono disposti in un reticolo uniforme. Allora
+$$ c(R_r) = 1 \ \text{se e solo se} \ n \geq \frac{4}{\pi} \left(\frac{2r}{p}\right)^2 = \frac{16}{\pi} G $$
+Dove $G = g^2$ è il \emph{guadagno superficiale}.
+$$ \text{In altre parole} \ d \geq \frac{16}{\pi} \simeq 5.09 $$
+\end{proposition}
+
+Questo risultato si ottiene facilmente considerando la porzione di area del cerchio di raggio $g = \sfrac{r}{p}$ inscritto in un quadrato di lato $2g = \sfrac{2r}{p}$. La proporzione tra l'area del quadrato e del cerchio inscritto è costante a $\sfrac{4}{\pi}$ mentre l'area del quadrato vale $(2g)^2 = 4G$. La disuguaglianza assicura infine che la distanza tra ogni coppia di nodi in asse sia $\leq p$.
+
+Si ha quindi che in una rete $R_r$, per garantire la totale connessione, le coppie $(n, g)$ vanno scelte secondo la relazione $n \geq \sfrac{16}{\pi} g^2$.
+
+\begin{figure}[H]
+\centering
+\includegraphics{ret_locus.pdf}
+\caption{Luogo delle coppie $(n, g)$ per cui $c(R_r) = 1$}
+\end{figure}
+
+\subsection{Simulazione di reti campione}
+
+L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(n, g)$.
+
+Da notare che questa stima non fornirà un informazione su quali probabilmente saranno i valori di $\tilde{c}(n, g)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
+
+Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n \in \{0, 50, 100, 150, \dots, 1000\}$ e $g \in \{0, 1, 2, \dots, 20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40000$ campioni.
+
+\begin{figure}[H]
 \begin{subfigure}[b]{0.5\textwidth}
 \includegraphics[width=\textwidth]{conn_sim.pdf}
 \caption{}
@@ -148,8 +196,26 @@ La strategia utilizzata in questa tesi sarà quindi generare una sequenza di ret
 \caption{Risultato della simulazione.}%
 \end{figure}
 
-\begin{equation}
-\tilde{c}(d) = 0.47 \cdot tanh(0.58 \cdot d - 2.29) + 0.53
-\end{equation}
+Come è ragionevole immaginare, al crescere di $g$ il \emph{rapporto di connessione} cala repentinamente, nello specifico è inversamente proporzionale al \emph{guadagno superficiale} $G = g^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti cresce la probabilità che si formino dei percorsi al \emph{sink}.
+
+Interpolando il dataset sulla funzione $\tilde{c}(d) = s \cdot tanh(w \cdot d + t) + q$ (determinata empiricamente) si ottiene:
+
+$$ \tilde{c}(n, g) = 0.49 \cdot tanh(d - 4.53) + 0.51 $$
+
+Dove $d$ è la \emph{densità di guadagno superficiale} $d = \frac{n}{G}$.
+
+\begin{figure}[H]
+\centering
+\includegraphics{conn_den.pdf}
+\caption{}
+\end{figure}
+
+Da questo grafico si puo vedere come un \emph{rapporto di connessione} medio $\tilde{c} \geq 0.9$ si può ottenere con $d \gtrsim 5.6$. Un risultato del tutto in linea con quello ottenuto per le \emph{reti a reticolo uniforme}.
+
+\section{L'algoritmo}
+
+\section{Prestazioni}
+
+\section{Scenario applicativo}
 
 \end{document}
