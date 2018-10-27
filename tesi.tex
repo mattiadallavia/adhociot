@@ -26,6 +26,8 @@
 
 \maketitle
 
+\clearpage
+
 \tableofcontents
 
 \section{Premessa}
@@ -46,7 +48,7 @@ La topologia adottata è quella a stella: ciascun elemento della rete comunica e
 
 \section{Modello della rete}
 
-Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione viene descritto un modello che ne schematizza le caratteristiche fondamentali.
+Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione verrà descritto un modello che ne schematizza le caratteristiche fondamentali.
 
 \subsection{Modello topologico}
 
@@ -72,7 +74,9 @@ Spesso si farà riferimento al \emph{grafo della rete}, definito come segue:
 
 \begin{definition}
 Siano $V = \{0, \dots, n \}$ gli indici dei nodi (\emph{sink} + $n$ satelliti). Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
-$$ E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\} $$
+\begin{displaymath}
+E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\}
+\end{displaymath}
 Chiamaremo $R = (V, E)$ il \emph{grafo della rete}.
 \end{definition}
 
@@ -86,12 +90,16 @@ Appare subito evidente che la portata e il raggio dell'ambiente influenzano in m
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno lineare} $g$ è il loro rapporto:
-$$ g = \frac{r}{p} $$
+\begin{displaymath}
+g = \frac{r}{p}
+\end{displaymath}
 \end{definition}
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno superficiale} $G$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
-$$ G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2 $$
+\begin{displaymath}
+G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2
+\end{displaymath}
 dove $g$ è il \emph{guadagno lineare}.
 \end{definition}
 
@@ -101,7 +109,9 @@ Definiamo infine una speciale relazione tra $n$ e $g$ che sarà di centrale impo
 
 \begin{definition}
 Sia $n$ il numero di satelliti e $g$ il \emph{guadagno lineare}, chiamaiamo \emph{densità di guadagno superficiale} $d$ la relazione:
-$$ d = \frac{n}{g^2} = \frac{n}{G} $$
+\begin{displaymath}
+d = \frac{n}{g^2} = \frac{n}{G}
+\end{displaymath}
 Dove $G$ è il \emph{guadagno superficiale}.
 \end{definition}
 
@@ -124,6 +134,10 @@ Sono stati individuati i seguenti istanti:
 \caption{}
 \end{figure}
 
+\subsection{Modello di canale}
+
+% modello radio
+
 \section{Analisi}
 
 Muniti di una definizione formale di rete, carattarizzata dal grafo $R$ legato alla coppia $(n, g)$, andiamo ora ad individuare dei criteri qualitativi con i quali valutarla.
@@ -134,7 +148,9 @@ Per fare ciò si ricorrerà all'uso delle seguenti definizioni:
 
 \begin{definition}
 Sia $D$ l'insieme dei possibili \emph{grafi di rete}, ciascuno associato ad una coppia $(n, g)$ dove $n \in \mathbb{N}$ e $r \in \mathbb{Q}_{>0}$. Chiameremo \emph{rapporto di connessione} la funzione
-$$ c \colon D \to [0, 1] $$
+\begin{displaymath}
+c \colon D \to [0, 1]
+\end{displaymath}
 \end{definition}
 
 Questa risponde alla domanda: Dato un grafo $R \in D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi la quantità (percentuale) dei nodi nel sottografo $C$ dei \emph{connessi al sink}.
@@ -146,6 +162,20 @@ Banalmente, se fissiamo $g = 1$, la porata del \emph{sink} coprirà l'intero amb
 Posto invece $g > 1$, tutti i nodi potrebbero cadere nel disco di portata del \emph{sink} e quindi risultare $c(R_1) = 1$, oppure viceversa potrebboro essere tutti a distanza $> p$ dal \emph{sink} e perciò risultare $c(R_2) = 0$.
 
 Nelle prossime sezioni approcceremo il problema con due distite strategie, tentando di fornire una risposta alla suddetta domanda.
+
+\subsection{Rete a dorsali}
+
+Chiamiamo una \emph{rete a dorsali} un grafo dove i satelliti sono disposti in linea su $l$ raggi. I nodi sono disposti a catena e crescono all'aumentare di $r$, offrendo un considerevole vantaggio di copertura.
+
+\begin{figure}[H]
+\centering
+\includegraphics{model_backb.pdf}
+\caption{}
+\end{figure}
+
+In una rete con $l$ direttive, è possibile coprire un ambiente con guadagno $g$ con $n = l \cdot g$ nodi.
+
+Questa disposizione fornisce di gran lunga il maggior vantaggio in termini di copertura in profondità con una densità superficiale $d = \sfrac{n}{G} = \sfrac{l \cdot g}{g^2} = \sfrac{l}{g}$.
 
 \subsection{Rete a reticolo uniforme}
 
@@ -161,9 +191,13 @@ Chiameremo \emph{rete a reticolo uniforme} $R_r$ il grafo di rete con queste car
 
 \begin{proposition}
 Sia $R_r$ un \emph{grafo di rete} associato alla coppia $(n, g)$, dove i nodi sono disposti in un reticolo uniforme. Allora
-$$ c(R_r) = 1 \ \text{se e solo se} \ n \geq \frac{4}{\pi} \left(\frac{2r}{p}\right)^2 = \frac{16}{\pi} G $$
+\begin{displaymath}
+c(R_r) = 1 \ \text{se e solo se} \ n \geq \frac{4}{\pi} \left(\frac{2r}{p}\right)^2 = \frac{16}{\pi} G
+\end{displaymath}
 Dove $G = g^2$ è il \emph{guadagno superficiale}.
-$$ \text{In altre parole} \ d \geq \frac{16}{\pi} \simeq 5.09 $$
+\begin{displaymath}
+\text{In altre parole} \ d \geq \frac{16}{\pi} \simeq 5.09
+\end{displaymath}
 \end{proposition}
 
 Questo risultato si ottiene facilmente considerando la porzione di area del cerchio di raggio $g = \sfrac{r}{p}$ inscritto in un quadrato di lato $2g = \sfrac{2r}{p}$. La proporzione tra l'area del quadrato e del cerchio inscritto è costante a $\sfrac{4}{\pi}$ mentre l'area del quadrato vale $(2g)^2 = 4G$. La disuguaglianza assicura infine che la distanza tra ogni coppia di nodi in asse sia $\leq p$.
@@ -178,11 +212,11 @@ Si ha quindi che in una rete $R_r$, per garantire la totale connessione, le copp
 
 \subsection{Simulazione di reti campione}
 
-L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(n, g)$.
+L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(d)$.
 
 Da notare che questa stima non fornirà un informazione su quali probabilmente saranno i valori di $\tilde{c}(n, g)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
 
-Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n \in \{0, 50, 100, 150, \dots, 1000\}$ e $g \in \{0, 1, 2, \dots, 20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40000$ campioni.
+Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n \in \{0, 50, 100, 150, \dots, 1000\}$ e $g \in \{0, 1, 2, \dots, 20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ campioni.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{0.5\textwidth}
@@ -199,9 +233,9 @@ Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n
 Come è ragionevole immaginare, al crescere di $g$ il \emph{rapporto di connessione} cala repentinamente, nello specifico è inversamente proporzionale al \emph{guadagno superficiale} $G = g^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti cresce la probabilità che si formino dei percorsi al \emph{sink}.
 
 Interpolando il dataset sulla funzione $\tilde{c}(d) = s \cdot tanh(w \cdot d + t) + q$ (determinata empiricamente) si ottiene:
-
-$$ \tilde{c}(n, g) = 0.49 \cdot tanh(d - 4.53) + 0.51 $$
-
+\begin{displaymath}
+\tilde{c}(n, g) = 0.49 \cdot tanh(d - 4.53) + 0.51
+\end{displaymath}
 Dove $d$ è la \emph{densità di guadagno superficiale} $d = \frac{n}{G}$.
 
 \begin{figure}[H]
@@ -214,7 +248,117 @@ Da questo grafico si puo vedere come un \emph{rapporto di connessione} medio $\t
 
 \section{L'algoritmo}
 
-\section{Prestazioni}
+L'algoritmo di routing è stato ideato attorno attorno ad alcuni specifici presupposti:
+
+\begin{enumerate}
+\item Infrastruttura ad-hoc
+\item Minimizzare le trasmissioni
+\item Configurare la rete in assenza di un coordinamento prestabilito
+\item Affidabilità
+\item Semplicità della routine di nodo
+\end{enumerate}
+
+\subsection{Principio di funzionamento}
+
+L'algoritmo opera a macchia d'olio: A $t=0$ il \emph{sink} da inizio alle trasmissioni con un messaggio vuoto di discovery. Le trasmissioni a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il \emph{grafo di rete} viene esplorato, determinando implicitamente un albero che collega ciascun satellite al \emph{sink} ed assegnando ad ogni nodo la propria profondità (\emph{depth}).
+
+Il vantaggio in efficienza è frutto della duplice valenza che assume ogni trasmissione: Consideriamo l'invio del messaggio $m$ da parte del nodo $i$ di profondità $p$, questa corrisponde all'inoltro del dato verso i nodi di profondità $p-1$, nella direzione del \emph{sink}. Inoltre, se si tratta della prima trasmissione del nodo $i$, essa funge da notifica agli eventuali nodi di profondità $p+1$, che verranno attivati. Viceversa, se il messaggio $m$ proviene da un nodo di profondità $> p$, si sta effettuando una ritrasmissione. In questo caso l'invio funge da riscontro di $m$ ai nodi di profondità $p+1$.
+
+\begin{figure}[H]
+\centering
+\includegraphics{tx.pdf}
+\caption{}
+\end{figure}
+
+\subsection{Formato del messaggio}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| l | l | l |}
+\hline
+\texttt{index} & int & Indice del nodo \\ \hline
+\texttt{state} & int & Stato del nodo \\ \hline
+\texttt{depth} & int & \\ \hline
+\texttt{channel} & int & \\ \hline
+\texttt{wait} & int & \\ \hline
+\texttt{attempts} & int & \\ \hline
+\texttt{messages} & stack & Pila dei messaggi schedulati \\ \hline
+\end{tabular}
+\caption{}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| l | l | l |}
+\hline
+\texttt{number} & int & \\ \hline
+\texttt{node\_confirm} & int & \\ \hline
+\texttt{channel\_confirm} & int & \\ \hline
+\texttt{payload} & data & \\ \hline
+\end{tabular}
+\caption{}
+\end{table}
+
+\subsection{Routine di ricezione}
+
+In nodo $i$ riceve, all'istante $t_r$, il mesaggio $m$ dal nodo $j$.
+
+Se $state(i) =$ \texttt{WAITING}, il nodo viene attivato ($state(i) =$ \texttt{ACTIVE}), abilitando quindi $i$ a trasmettere.
+
+La profondità viene ricalcolata come $depth(i) = min(depth(i),\ depth(j)+1)$
+
+Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(i,\ m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
+
+\begin{figure}[H]
+\centering
+\includegraphics{rx_farther.pdf}
+\caption{}
+\end{figure}
+
+Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo un riscontro per un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al \emph{sink}, possiamo quindi procedere a eliminarlo dalla stack: $remove(i,\ m)$.
+
+\begin{figure}[H]
+\centering
+\includegraphics{rx_closer.pdf}
+\caption{}
+\end{figure}
+
+\subsection{Ritrasmissione}
+
+Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore delle trasmissioni senza successo $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo frame disponibile $wait(i) = frame(t)$.
+
+Inviato un messaggio, finché non si riceve un riscontro valido, si assume che la trasmissione non sia andata a buon fine. Perciò si incrementa il contatore dei tentativi di trasmissione $attempts(i)$\textit{++} e si rischedula una ritrasmissione mediante \emph{exponential backoff} al frame:
+\begin{displaymath}
+wait(i) = frame(t) + rand(1,\ 2^a)
+\end{displaymath}
+con $a = attempts(i)$ e $rand(a,\ b)$ un numero casuale tra $a$ e $b$.
+
+\subsection{Contesa di canale}
+
+Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = channel(i)$, significa che un altro nodo adiacente (di profondità $depth(i)$) ha consegnato con successo un messaggio sul canale $channel(i)$. È perciò necessario selezionare un nuovo canale: $channel(i)$\textit{++}.
+
+\subsection{Routine di trasmissione}
+
+% complessità
+% efficienza
+% ciclo di vita
+% collisioni / contesa / exponential backoff
+% gestione di canale
+% schedulazione
+% riscontro
+% nozione di profindità
+% relay
+% stack dei messaggi
+% ciascun messaggio può essere di discovery,riscontro,consegna
+% formato del messaggio
+
+\section{Simulazione}
+
+% time loop
+
+\subsection{Esempio 1}
+
+\subsection{Prestazioni}
 
 \section{Scenario applicativo}
 
