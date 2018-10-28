@@ -119,7 +119,7 @@ Questo rapporto ci da un'informazione sulla quantità di nodi per unità di supe
 
 \subsection{Modello temporale}
 
-Si è fatta l'ipotesi che tutti i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di operare in modo coordinato.
+Si ipotizza che tutti i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di operare in modo coordinato.
 
 Sono stati individuati i seguenti istanti:
 
@@ -134,7 +134,7 @@ Sono stati individuati i seguenti istanti:
 \caption{}
 \end{figure}
 
-\subsection{Modello di canale}
+\subsection{Canale}
 
 % modello radio
 
@@ -266,46 +266,98 @@ Il vantaggio in efficienza è frutto della duplice valenza che assume ogni trasm
 
 \begin{figure}[H]
 \centering
+\includegraphics{net_example.pdf}
+\caption{}
+\end{figure}
+
+\subsection{Variabili di stato}
+
+Ciascun nodo fa uso dei seguenti campi:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| l | l | l |}
+\multicolumn{1}{l}{Nome} &
+\multicolumn{1}{l}{Tipo} &
+\multicolumn{1}{l}{Valore iniziale} \\ \hline
+\texttt{index} & int & $i$ \\ \hline
+\texttt{state} & int & $waiting$ \\ \hline
+\texttt{depth} & int & $unknown$ \\ \hline
+\texttt{channel} & int & $0$ \\ \hline
+\texttt{attempts} & int & $0$ \\ \hline
+\texttt{wait} & int & $frame(t)$ \\ \hline
+\texttt{messages} & stack & $\{m\}$ \\ \hline
+\end{tabular}
+\caption{}
+\end{table}
+
+\texttt{index} è un identificativo univoco, assegnato a priori.
+
+\texttt{state} controlla la modalità di funzionamento del nodo. Inizialemnte assume il valore di $waiting$: il satellite è in attesa di venire attivato da un messaggio discovery. Una volta attivato ($state(i) = active$), viene abilitata la routine di trasmissione.
+
+\texttt{depth} indica la profondità di $i$, ovvero il numero di archi che lo collega al \emph{sink}. Viene determinata alla prima ricezione come:
+\begin{displaymath}
+depth(i) = depth(j) + 1
+\end{displaymath}
+
+\texttt{channel} seleziona il canale di trasmissione, è inizializzato a $0$ ed incrementato fino a che non viene consegnato con successo un messaggio.
+
+\texttt{attempts} conteggia il numero di tentativi di trasmissione non ancora confermati. Serve a calcolare il frame di ritrasmissione mediante l'exponential backoff.
+
+\texttt{wait} è il numero del frame al quale si è pianificata la prossima trasmissione.
+
+\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). A $t=0$ viene inizializzata con un messaggio $m$ con $number(m) = i$, questo garantisce l'unicità dell'identificatore del messaggio.
+
+\subsection{Messaggio}
+
+Ogni messaggio $m$, inviato dal nodo $i$ di profondità $p$, svolge implicitamente almeno uno di questi ruoli:
+
+\begin{enumerate}
+\item \emph{consegna} del payload ad un nodo di profondità $p-1$
+\item \emph{esplorazione} dei nodi a profondità $p+1$, che, ricevendo $m$ si attivano.
+\item \emph{riscontro} della ricezione di $m$ al nodi di origine di profondità $p+1$.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
 \includegraphics{tx.pdf}
 \caption{}
 \end{figure}
 
-\subsection{Formato del messaggio}
+Oltre ovviamente al \emph{payload}, sono inviate le seguenti informazioni:
 
 \begin{table}[H]
 \centering
 \begin{tabular}{| l | l | l |}
-\hline
-\texttt{index} & int & Indice del nodo \\ \hline
-\texttt{state} & int & Stato del nodo \\ \hline
-\texttt{depth} & int & \\ \hline
-\texttt{channel} & int & \\ \hline
-\texttt{wait} & int & \\ \hline
-\texttt{attempts} & int & \\ \hline
-\texttt{messages} & stack & Pila dei messaggi schedulati \\ \hline
+\multicolumn{1}{l}{Nome} &
+\multicolumn{1}{l}{Tipo} &
+\multicolumn{1}{l}{Valore iniziale} \\ \hline
+\texttt{number} & int & $n$ \\ \hline
+\texttt{depth} & int & $d$ \\ \hline
+\texttt{node\_confirm} & int & $null$ \\ \hline
+\texttt{channel\_confirm} & int & $null$ \\ \hline
 \end{tabular}
 \caption{}
 \end{table}
 
-\begin{table}[H]
-\centering
-\begin{tabular}{| l | l | l |}
-\hline
-\texttt{number} & int & \\ \hline
-\texttt{node\_confirm} & int & \\ \hline
-\texttt{channel\_confirm} & int & \\ \hline
-\texttt{payload} & data & \\ \hline
-\end{tabular}
-\caption{}
-\end{table}
+\texttt{number} è un identificatore univoco del messaggio. È inizializzato con l'indice del nodo di origine.
+
+\texttt{depth} è la profondità del nodo che invia il messaggio.
+
+\texttt{node\_confirm} è l'indice del satellite da cui il messaggio è stato ricevuto. Funge da acknowledge ai nodi a $p-1$.
+
+\texttt{channel\_confirm} è il canale su cui il messaggio è stato ricevuto. Serve ai nodi a $p-1$ per spartirsi mutualmente i canali.
 
 \subsection{Routine di ricezione}
 
 In nodo $i$ riceve, all'istante $t_r$, il mesaggio $m$ dal nodo $j$.
 
-Se $state(i) =$ \texttt{WAITING}, il nodo viene attivato ($state(i) =$ \texttt{ACTIVE}), abilitando quindi $i$ a trasmettere.
+Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere.
 
-La profondità viene ricalcolata come $depth(i) = min(depth(i),\ depth(j)+1)$
+La profondità viene ricalcolata come
+\begin{displaymath}
+depth(i) = min(depth(i),\ depth(j)+1)
+\end{displaymath}
 
 Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(i,\ m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
 
@@ -323,7 +375,12 @@ Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo un risco
 \caption{}
 \end{figure}
 
-\subsection{Ritrasmissione}
+\subsection{Schedulazione}
+
+I satelliti appena attivati da un messaggio di discovery dal nodo $j$ corrono il rischio di effettuare la prima trasmissione sullo stesso frame e canale. Per mitigare questo fenomeno, i nodi appena attivati schedulano la propria trasmissione mediante un criterio euristico basato sulla distanza da $j$ (eventualmente stimata mediante la potenza ricevuta):
+\begin{displaymath}
+wait(i) = frame(t) + dist(i,\ j)
+\end{displaymath}
 
 Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore delle trasmissioni senza successo $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo frame disponibile $wait(i) = frame(t)$.
 
