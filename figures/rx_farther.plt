@@ -1,4 +1,4 @@
-# set terminal pdf size 3in,1in font 'Times,16'
+# set terminal pdf size 3in,1.5in font 'Times,16' dl 1.5
 
 unset key
 unset tics
@@ -17,7 +17,7 @@ set label 4 '{/:Italic p + 1}' at -3,0.8 center
 set label 5 '{/:Italic i}' at -1,-0.8 center
 set label 6 '{/:Italic j}' at -3,-0.8 center
 
-set object 1 circle at 0,0 size 2 dt 3 fc rgb 'black'
+set object 1 circle at 0,0 size 2 dt 4 fc rgb 'black'
 
 set arrow 1 from -2.8,0 to -1.2,0
 
