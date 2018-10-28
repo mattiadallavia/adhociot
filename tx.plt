@@ -23,7 +23,7 @@ set object 2 circle at -2,0 size 2 dt 3 fc rgb 'black'
 set arrow 1 from -2.8,0 to -1.2,0
 set arrow 2 from -3.2,0 to -4.8,0
 
-set label 7 '{/:Italic dati}' at -2,0 center boxed front
-set label 8 '{/:Italic ack}' at -4,0 center boxed front
+set label 7 '{/:Italic consegna}' at -2,0 center boxed front
+set label 8 '{/:Italic esp. / riscontro}' at -4,0 center boxed front
 
 plot NaN
