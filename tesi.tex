@@ -117,16 +117,15 @@ Dove $G$ è il \emph{guadagno superficiale}.
 
 Questo rapporto ci da un'informazione sulla quantità di nodi per unità di superificie.
 
-\subsection{Modello temporale}
+\subsection{Tempo}
 
 Si ipotizza che tutti i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di operare in modo coordinato.
 
-Sono stati individuati i seguenti istanti:
+Per semplicità misureremo il tempo in modo che la durata di una trasmissione coincida con un quanto temporale. Una trasmissione iniziata a $t$ terminerà quindi entro $t+1$.
 
-\begin{enumerate}
-\item $t_0 =$ tempo di accensione coordinata di tutti i nodi;
-\item $t_f =$ istante dell'ultima trasmissione.
-\end{enumerate}
+Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiameremo $frame(t) =  \left\lfloor\frac{t}{3}\right\rfloor$ il frame associato all'istante $t$.
+
+Ciascun \emph{frame} è suddiviso in 3 slot, indicizzati $0,\,1 \text{ e } 2$. Chiameremo $slot(t) = t \bmod 3$ lo slot associato all'istante $t$.
 
 \begin{figure}[H]
 \centering
@@ -134,7 +133,25 @@ Sono stati individuati i seguenti istanti:
 \caption{}
 \end{figure}
 
+Questa suddivisione sarà in seguito giustificata per il multiplexing temporale, parte del meccanismo di collision avoidance.
+
+Per il resto della tesi ci riferemo a $t=0$ come l'istante iniziale di accensione della rete e a $t$ come l'istante corrente.
+
 \subsection{Canale}
+
+Il \emph{canale} è un numero naturale. Esso costituisce un'astrazione per il multiplexing di frequenza o un qualsiasi altro tipo di multiplexing che permette a due moduli di trasmettere contemporaneamente senza interferenze.
+
+Ipotizziamo che all'istante $t$ stanno trasmettendo i due nodi $i$ e $j$. Se questi stanno trasmettendo sullo stesso canale ($channel(i) = channel(j)$) parleremo di \emph{collisione}, altrimenti entrambi i messaggi saranno consegnati con successo.
+
+Da notare che, trattandosi di comunicazione wireless, due o più trasmissioni contemporanee sullo stesso canale non necessariamente collideranno in tutti i punti dello spazio.
+
+\begin{figure}[H]
+\centering
+\includegraphics{figures/collision.pdf}
+\caption{}
+\end{figure}
+
+In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di collisione} e perciò non riceverà il messaggio. $q$ invece è raggiusto solamente dal segnale di $j$ e perciò non soffrirà dell'interferenza.
 
 % modello radio
 
