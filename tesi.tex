@@ -46,21 +46,27 @@ La topologia adottata è quella a stella: ciascun elemento della rete comunica e
 
 \section{Introduzione}
 
-\section{Modello della rete}
+\section{Scenario applicativo}
+
+\section{Modello}
 
 Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione verrà descritto un modello che ne schematizza le caratteristiche fondamentali.
 
-\subsection{Modello topologico}
+\subsection{Nodi e ambiente}
 
-Dal punto di vista spaziale, la rete è composta dai seguenti oggetti:
+% topologia
+% punto di vista spaziale
+
+Consideriamo una rete composta dai seguenti oggetti:
 
 \begin{enumerate}
 \item Un numero $n$ di nodi satellite (i sensori), ciascuno identificato da un indice $i \in \{1, \dots, n\}$ univoco.
 \item Un nodo centrale detto \emph{sink}, di indice $i = 0$.
-\item Un disco (regione di spazio) di raggio $r$, detto \emph{ambiente}, dove sono distribuiti i satelliti.
 \end{enumerate}
 
-Tutti i nodi hanno una portata (del segnale radio) $p$. Il nodo \emph{sink}, posizionato al centro dell'ambiente, costituisce il destinatario finale di tutti i messaggi. Questo nodo svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante.
+Tutti i nodi hanno una portata (del segnale radio) $p$. Il nodo \emph{sink} costituisce il destinatario finale di tutti i messaggi. Questo nodo svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante.
+
+Chiameremo \emph{ambiente} un disco (regione di spazio) di raggio $r$ centrato nel \emph{sink}, nel quale sono distribuiti i satelliti.
 
 \begin{figure}[H]
 \centering
@@ -68,39 +74,99 @@ Tutti i nodi hanno una portata (del segnale radio) $p$. Il nodo \emph{sink}, pos
 \caption{Rete di 3 satelliti, di cui 2 connessi al \emph{sink}.}
 \end{figure}
 
-\subsection{Grafo della rete}
+\subsection{Layout di rete}
 
-Spesso si farà riferimento al \emph{grafo della rete}, definito come segue:
+Con \emph{layout di una rete} ci riferiamo ad una specifica configurazione spaziale di $n$ satelliti di portata $p$ in un ambiente $r$. Parliamo quindi della ``fotografia'' di una rete, che ritrae le coordinate di ciascun nodo e le caratteristiche dell'ambiente in cui sono disposti.
+
+Ne diamo una definizione formale:
 
 \begin{definition}
-Siano $V = \{0, \dots, n \}$ gli indici dei nodi (\emph{sink} + $n$ satelliti). Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
+Sia
 \begin{displaymath}
-E = \{ (i, j, w) \ \text{dove} \ i, j \in V \ \text{e} \ w = dist(i, j) \mid dist(i, j) \le r \ \wedge \ i \neq j\}
+N = \{(0,\,0,\,0),\ (1,\,x_1,\,y_1),\ \dots,\ (i,\,x_i,\,y_i),\ \dots,\ (n,\,x_n,\,y_n)\}\end{displaymath}
+un insieme di $n+1$ nodi, di indice $i$ e coordinate $x_i,\,y_i$. Chiamiamo \emph{layout di rete} la tripla
+\begin{displaymath}
+L = (r,\,p,\,N)
 \end{displaymath}
-Chiamaremo $R = (V, E)$ il \emph{grafo della rete}.
+dove $r$ è il raggio dell'ambiente e $p$ la portata dei nodi.
 \end{definition}
 
-La funzione $dist(i, j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate. Nel caso queste non siano note, la distanza potrebbe essere stimata grazie alla potenza di ricezione dei messaggi.
+Inoltre, $|N| = n+1$, poiché contiene gli $n$ satelliti e il \emph{sink}.
 
-Chiamaremo $C \subseteq R$ il sottografo contenente il \emph{sink} e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al \emph{sink}. Se $C = R$ diremo che la rete è \emph{completamente connessa}.
+% In numero di nodi $n$ è implicitamente la cardinalità di $N$.
 
-\subsection{Relazioni caratteristiche}
+Da notare che il \emph{sink} ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq r$.
 
-Appare subito evidente che la portata e il raggio dell'ambiente influenzano in maniera interdipendente il modello. In particolare, fissati $r_0$ e $p_0$, è possibile definire una classe di reti dove $r = m \cdot r_0, \ p = m \cdot p_0$ con $m \in \mathbb{Q}_{>0}$ e dove le posizioni relative dei nodi sono conservate. Queste reti sono equivalenti a meno di un fattore di scala. È utile quindi definire il concetto di \emph{guadagno}, per identificare tutte quelle reti appartenenti a classi distinte.
+\subsection{Grafo di rete}
+
+Noto un \emph{layout di rete} $L$, da esso si può estrapolare un grafo pesato. Il grafo descrive la connettività della rete, tenendo conto solamente delle distanze tra i nodi connessi e tralasciando le loro posizioni.
+
+Questo tipo di descrizione della rete si avvicina di più con quella a disposizione agli algoritmi di routing. Le coordinate dei nodi sono spesso infatti ignote, mentre le distanze sono stimabili.
+
+Diamo anche per il grafo una definizione formale:
 
 \begin{definition}
-Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno lineare} $g$ è il loro rapporto:
+Siano $V = \{0,\,\dots,\,n\}$ gli indici di $n+1$ nodi con portata $p$. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
 \begin{displaymath}
-g = \frac{r}{p}
+E = \{ (i,\,j,\,w) \text{ dove } w = \frac{dist(i,\,j)}{p} \mid dist(i,\,j) \le p \ \wedge \ i \neq j\}
+\end{displaymath}
+dove $i$ e $j$ sono due indici qualsiasi.\\
+Chiamaremo $G = (V,\,E)$ il \emph{grafo di rete}.
+\end{definition}
+
+%  associato al \emph{layout} $L$
+
+La funzione $dist(i,\,j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate. Nel caso queste non siano note, la distanza potrebbe essere valutata grazie alla potenza di ricezione dei messaggi.
+
+Chiamaremo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il \emph{sink} e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al \emph{sink}. Se $C = R$ diremo che è \emph{completamente connesso}.
+
+Diremo che $G = graph(L)$ è il grafo associato al \emph{layout} $L$ se questo è calcolato sulle coordinate dei nodi di $L$ e sulla loro portata.
+
+Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di \emph{layout} non risulta affatto superfluo. Basando la propria descizione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio, noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini potremmo dire che la funzione $graph(L)$ non è suriettiva. A luce di questo, chiameremo \emph{realistico} un grafo a cui è associato almeno un layout.
+
+Dato un \emph{grafo realistico} $G$, esistono in realtà infiniti \emph{layout equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato $L$ di portata $p$ e raggio ambiente $r$, chiamiamo \emph{layout in scala} $m$ tutti i \emph{layout} $L_m$ tali che
+\begin{displaymath}
+\left\{\begin{array}{l}
+p_m=m \cdot p\\ 
+r_m=m \cdot r
+\end{array}\right.
+\end{displaymath}
+e le coordinate di tutti i nodi
+\begin{displaymath}
+\left\{\begin{array}{l}
+x_{m,i}=m \cdot x_i\\ 
+y_{m,i}=m \cdot y_i
+\end{array}\right.
+\end{displaymath}
+con $m \in \mathbb{Q}_{>0}$. I \emph{layout in scala} $m$ sono tutti \emph{equivalenti} poiché
+\begin{displaymath}
+w_m = \frac{dist(i_m,\,j_m)}{p_m} = \frac{dist(i,\,j) \cdot m}{p \cdot m} = \frac{dist(i,\,j)}{p} = w
+\end{displaymath}
+ovvero le distanze normalizzate si conservano.
+
+\subsection{Dimensione e densità}
+
+% relazioni caratteristiche
+
+% Appare subito evidente che la portata e il raggio dell'ambiente influenzano in maniera interdipendente il modello. In particolare, fissati $r_0$ e $p_0$, è possibile definire una classe di reti dove $r = m \cdot r_0, \ p = m \cdot p_0$ con $m \in \mathbb{Q}_{>0}$ e dove le posizioni relative dei nodi sono conservate. Queste reti sono equivalenti a meno di un fattore di scala. È utile quindi definire il concetto di \emph{guadagno}, per identificare tutte quelle reti appartenenti a classi distinte.
+
+È perciò evidente che $m$ caratterizza una classe di equivalenza dei \emph{layout}. In altre parole, se due layout hanno lo stesso rapporto $m$ verranno sicuramente mappati nello stesso grafo.
+
+Formalizziamo ora questo concetto mediante le seguenti definizioni:
+
+\begin{definition}
+Sia $r$ il raggio ambiente e $p$ la portata dei nodi. La \emph{dimensione (radiale)} $d$ è il loro rapporto:
+\begin{displaymath}
+d = \frac{r}{p}
 \end{displaymath}
 \end{definition}
 
 \begin{definition}
-Sia $r$ il raggio ambiente e $p$ la portata dei nodi. Il \emph{guadagno superficiale} $G$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
+Sia $r$ il raggio ambiente e $p$ la portata dei nodi. La \emph{dimensione superficiale} $D$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
 \begin{displaymath}
-G = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = g^2
+D = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = d^2
 \end{displaymath}
-dove $g$ è il \emph{guadagno lineare}.
+dove $d$ è la \emph{dimensione radiale}.
 \end{definition}
 
 Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, usando $p$ come unità di misura.
@@ -433,7 +499,5 @@ Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = cha
 \subsection{Esempio 1}
 
 \subsection{Prestazioni}
-
-\section{Scenario applicativo}
 
 \end{document}
