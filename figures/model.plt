@@ -1,31 +1,31 @@
 # set terminal pdf size 3.5in,3.5in font 'Times,16' dl 1.5
 
+$nodes << EOD
+-4 1 1
+-7 -1 2
+4 8 3
+2 -3 4
+EOD
+
 unset tics
 unset key
 unset border
-
 set size square
-set xrange [-1:1]
-set yrange [-1:1]
+set xrange [-10:10]
+set yrange [-10:10]
+set style textbox opaque noborder margin 2,2
 
-set object 1 circle at 0,0 size 1 fc rgb 'black'
-set object 2 circle at 0,0 size 0.3 dt 2 fc rgb 'black'
-set object 3 circle at -0.25,0 size 0.3 dt 2 fc rgb 'black'
-set object 4 circle at -0.35,-0.2 size 0.3 dt 2 fc rgb 'black'
-set object 5 circle at 0.6,0.2 size 0.3 dt 2 fc rgb 'black'
+set object 1 circle at 0,0 size 10 fc rgb 'black'
 
-set label 1 '' at 0,0 point pt 3
-set label 2 '' at -0.25,0 point pt 3
-set label 3 '' at -0.35,-0.2 point pt 3
-set label 4 '' at 0.6,0.2 point pt 3
+set label 1 '{/:Bold S}' at 0,0 boxed center front
+set object 2 circle at 0,0 size 5 dt 2 fc 'black'
 
-set arrow 1 from 0,0 to sqrt(2)/2,(-sqrt(2)/2)
-set arrow 2 from 0,0 to 0.3*sqrt(2)/2,0.3*sqrt(2)/2
+set arrow 1 from 0,0 to 10,0
+set arrow 2 from 4,8 to 9,8
 
-set object 6 circle at 0.6*sqrt(2)/2,(-0.6*sqrt(2)/2) front size char 1 fs solid fc rgb 'white'
-set label 5 '{/:Italic r}' at 0.6*sqrt(2)/2,(-0.6*sqrt(2)/2) center front
+set label 2 '{/:Italic r}' at 7,0 boxed center front
+set label 3 '{/:Italic p}' at 6.5,8 boxed center front
 
-set object 7 circle at 0.15*sqrt(2)/2,0.15*sqrt(2)/2 front size char 1 fs solid fc rgb 'white'
-set label 6 '{/:Italic p}' at 0.15*sqrt(2)/2,0.15*sqrt(2)/2 center front
-
-plot NaN
+plot '$nodes' pt 7 ps 2 lc 'white', \
+     '$nodes' pt 3 lc 'black', \
+     '$nodes' using 1:2:(5) with circles dt 2 fc 'black'
