@@ -23,7 +23,7 @@ set object 2 circle at 0,0 size 5 dt 2 fc 'black'
 set arrow 1 from 0,0 to 10,0
 set arrow 2 from 4,8 to 9,8
 
-set label 2 '{/:Italic r}' at 7,0 boxed center front
+set label 2 '{/:Italic a}' at 7,0 boxed center front
 set label 3 '{/:Italic p}' at 6.5,8 boxed center front
 
 plot '$nodes' pt 7 ps 2 lc 'white', \
