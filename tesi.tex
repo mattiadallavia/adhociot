@@ -82,12 +82,12 @@ Ne diamo una definizione formale:
 
 \begin{definition}
 Sia
-\begin{displaymath}
-N = \{(0,\,0,\,0),\ (1,\,x_1,\,y_1),\ \dots,\ (i,\,x_i,\,y_i),\ \dots,\ (n,\,x_n,\,y_n)\}\end{displaymath}
+\begin{equation*}
+N = \{(0,\,0,\,0),\ (1,\,x_1,\,y_1),\ \dots,\ (i,\,x_i,\,y_i),\ \dots,\ (n,\,x_n,\,y_n)\}\end{equation*}
 un insieme di $n+1$ nodi, di indice $i$ e coordinate $x_i,\,y_i$. Chiamiamo \emph{layout di rete} la tripla
-\begin{displaymath}
+\begin{equation*}
 L = (r,\,p,\,N)
-\end{displaymath}
+\end{equation*}
 dove $r$ è il raggio dell'ambiente e $p$ la portata dei nodi.
 \end{definition}
 
@@ -101,15 +101,21 @@ Da notare che il \emph{sink} ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tu
 
 Noto un \emph{layout di rete} $L$, da esso si può estrapolare un grafo pesato. Il grafo descrive la connettività della rete, tenendo conto solamente delle distanze tra i nodi connessi e tralasciando le loro posizioni.
 
+\begin{figure}[H]
+\centering
+\includegraphics{figures/graph.pdf}
+\caption{}
+\end{figure}
+
 Questo tipo di descrizione della rete si avvicina di più con quella a disposizione agli algoritmi di routing. Le coordinate dei nodi sono spesso infatti ignote, mentre le distanze sono stimabili.
 
 Diamo anche per il grafo una definizione formale:
 
 \begin{definition}
 Siano $V = \{0,\,\dots,\,n\}$ gli indici di $n+1$ nodi con portata $p$. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
-\begin{displaymath}
-E = \{ (i,\,j,\,w) \text{ dove } w = \frac{dist(i,\,j)}{p} \mid dist(i,\,j) \le p \ \wedge \ i \neq j\}
-\end{displaymath}
+\begin{equation*}
+E = \{ (i,\,j,\,w) \text{ dove } w = \frac{dist(i,\,j)}{p} \mid w \le 1 \ \wedge \ i \neq j\}
+\end{equation*}
 dove $i$ e $j$ sono due indici qualsiasi.\\
 Chiamaremo $G = (V,\,E)$ il \emph{grafo di rete}.
 \end{definition}
@@ -125,23 +131,19 @@ Diremo che $G = graph(L)$ è il grafo associato al \emph{layout} $L$ se questo �
 Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di \emph{layout} non risulta affatto superfluo. Basando la propria descizione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio, noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini potremmo dire che la funzione $graph(L)$ non è suriettiva. A luce di questo, chiameremo \emph{realistico} un grafo a cui è associato almeno un layout.
 
 Dato un \emph{grafo realistico} $G$, esistono in realtà infiniti \emph{layout equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato $L$ di portata $p$ e raggio ambiente $r$, chiamiamo \emph{layout in scala} $m$ tutti i \emph{layout} $L_m$ tali che
-\begin{displaymath}
-\left\{\begin{array}{l}
-p_m=m \cdot p\\ 
+\begin{align*}
+p_m=m \cdot p\\
 r_m=m \cdot r
-\end{array}\right.
-\end{displaymath}
+\end{align*}
 e le coordinate di tutti i nodi
-\begin{displaymath}
-\left\{\begin{array}{l}
+\begin{align*}
 x_{m,i}=m \cdot x_i\\ 
 y_{m,i}=m \cdot y_i
-\end{array}\right.
-\end{displaymath}
+\end{align*}
 con $m \in \mathbb{Q}_{>0}$. I \emph{layout in scala} $m$ sono tutti \emph{equivalenti} poiché
-\begin{displaymath}
+\begin{equation*}
 w_m = \frac{dist(i_m,\,j_m)}{p_m} = \frac{dist(i,\,j) \cdot m}{p \cdot m} = \frac{dist(i,\,j)}{p} = w
-\end{displaymath}
+\end{equation*}
 ovvero le distanze normalizzate si conservano.
 
 \subsection{Dimensione e densità}
@@ -156,16 +158,16 @@ Formalizziamo ora questo concetto mediante le seguenti definizioni:
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. La \emph{dimensione (radiale)} $d$ è il loro rapporto:
-\begin{displaymath}
+\begin{equation*}
 d = \frac{r}{p}
-\end{displaymath}
+\end{equation*}
 \end{definition}
 
 \begin{definition}
 Sia $r$ il raggio ambiente e $p$ la portata dei nodi. La \emph{dimensione superficiale} $D$ è il rapporto tra l'area coperta da un singolo nodo e l'area totale dell'ambiente:
-\begin{displaymath}
+\begin{equation*}
 D = \frac{\pi r^2}{\pi p^2} = \left(\frac{r}{p}\right)^2 = d^2
-\end{displaymath}
+\end{equation*}
 dove $d$ è la \emph{dimensione radiale}.
 \end{definition}
 
@@ -175,9 +177,9 @@ Definiamo infine una speciale relazione tra $n$ e $g$ che sarà di centrale impo
 
 \begin{definition}
 Sia $n$ il numero di satelliti e $g$ il \emph{guadagno lineare}, chiamaiamo \emph{densità di guadagno superficiale} $d$ la relazione:
-\begin{displaymath}
+\begin{equation*}
 d = \frac{n}{g^2} = \frac{n}{G}
-\end{displaymath}
+\end{equation*}
 Dove $G$ è il \emph{guadagno superficiale}.
 \end{definition}
 
@@ -231,9 +233,9 @@ Per fare ciò si ricorrerà all'uso delle seguenti definizioni:
 
 \begin{definition}
 Sia $D$ l'insieme dei possibili \emph{grafi di rete}, ciascuno associato ad una coppia $(n, g)$ dove $n \in \mathbb{N}$ e $r \in \mathbb{Q}_{>0}$. Chiameremo \emph{rapporto di connessione} la funzione
-\begin{displaymath}
+\begin{equation*}
 c \colon D \to [0, 1]
-\end{displaymath}
+\end{equation*}
 \end{definition}
 
 Questa risponde alla domanda: Dato un grafo $R \in D$, quanti dei satelliti della rete risultano connessi al nodo \emph{sink}? Ci da quindi la quantità (percentuale) dei nodi nel sottografo $C$ dei \emph{connessi al sink}.
@@ -274,13 +276,13 @@ Chiameremo \emph{rete a reticolo uniforme} $R_r$ il grafo di rete con queste car
 
 \begin{proposition}
 Sia $R_r$ un \emph{grafo di rete} associato alla coppia $(n, g)$, dove i nodi sono disposti in un reticolo uniforme. Allora
-\begin{displaymath}
+\begin{equation*}
 c(R_r) = 1 \ \text{se e solo se} \ n \geq \frac{4}{\pi} \left(\frac{2r}{p}\right)^2 = \frac{16}{\pi} G
-\end{displaymath}
+\end{equation*}
 Dove $G = g^2$ è il \emph{guadagno superficiale}.
-\begin{displaymath}
+\begin{equation*}
 \text{In altre parole} \ d \geq \frac{16}{\pi} \simeq 5.09
-\end{displaymath}
+\end{equation*}
 \end{proposition}
 
 Questo risultato si ottiene facilmente considerando la porzione di area del cerchio di raggio $g = \sfrac{r}{p}$ inscritto in un quadrato di lato $2g = \sfrac{2r}{p}$. La proporzione tra l'area del quadrato e del cerchio inscritto è costante a $\sfrac{4}{\pi}$ mentre l'area del quadrato vale $(2g)^2 = 4G$. La disuguaglianza assicura infine che la distanza tra ogni coppia di nodi in asse sia $\leq p$.
@@ -316,9 +318,9 @@ Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n
 Come è ragionevole immaginare, al crescere di $g$ il \emph{rapporto di connessione} cala repentinamente, nello specifico è inversamente proporzionale al \emph{guadagno superficiale} $G = g^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti cresce la probabilità che si formino dei percorsi al \emph{sink}.
 
 Interpolando il dataset sulla funzione $\tilde{c}(d) = s \cdot tanh(w \cdot d + t) + q$ (determinata empiricamente) si ottiene:
-\begin{displaymath}
+\begin{equation*}
 \tilde{c}(n, g) = 0.49 \cdot tanh(d - 4.53) + 0.51
-\end{displaymath}
+\end{equation*}
 Dove $d$ è la \emph{densità di guadagno superficiale} $d = \frac{n}{G}$.
 
 \begin{figure}[H]
@@ -379,9 +381,9 @@ Ciascun nodo fa uso dei seguenti campi:
 \texttt{state} controlla la modalità di funzionamento del nodo. Inizialemnte assume il valore di $waiting$: il satellite è in attesa di venire attivato da un messaggio discovery. Una volta attivato ($state(i) = active$), viene abilitata la routine di trasmissione.
 
 \texttt{depth} indica la profondità di $i$, ovvero il numero di archi che lo collega al \emph{sink}. Viene determinata alla prima ricezione come:
-\begin{displaymath}
+\begin{equation*}
 depth(i) = depth(j) + 1
-\end{displaymath}
+\end{equation*}
 
 \texttt{channel} seleziona il canale di trasmissione, è inizializzato a $0$ ed incrementato fino a che non viene consegnato con successo un messaggio.
 
@@ -438,9 +440,9 @@ In nodo $i$ riceve, all'istante $t_r$, il mesaggio $m$ dal nodo $j$.
 Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere.
 
 La profondità viene ricalcolata come
-\begin{displaymath}
+\begin{equation*}
 depth(i) = min(depth(i),\ depth(j)+1)
-\end{displaymath}
+\end{equation*}
 
 Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(i,\ m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
 
@@ -461,16 +463,16 @@ Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo un risco
 \subsection{Schedulazione}
 
 I satelliti appena attivati da un messaggio di discovery dal nodo $j$ corrono il rischio di effettuare la prima trasmissione sullo stesso frame e canale. Per mitigare questo fenomeno, i nodi appena attivati schedulano la propria trasmissione mediante un criterio euristico basato sulla distanza da $j$ (eventualmente stimata mediante la potenza ricevuta):
-\begin{displaymath}
+\begin{equation*}
 wait(i) = frame(t) + dist(i,\ j)
-\end{displaymath}
+\end{equation*}
 
 Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore delle trasmissioni senza successo $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo frame disponibile $wait(i) = frame(t)$.
 
 Inviato un messaggio, finché non si riceve un riscontro valido, si assume che la trasmissione non sia andata a buon fine. Perciò si incrementa il contatore dei tentativi di trasmissione $attempts(i)$\textit{++} e si rischedula una ritrasmissione mediante \emph{exponential backoff} al frame:
-\begin{displaymath}
+\begin{equation*}
 wait(i) = frame(t) + rand(1,\ 2^a)
-\end{displaymath}
+\end{equation*}
 con $a = attempts(i)$ e $rand(a,\ b)$ un numero casuale tra $a$ e $b$.
 
 \subsection{Contesa di canale}
