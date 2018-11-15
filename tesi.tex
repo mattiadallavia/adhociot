@@ -66,16 +66,9 @@ Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensor
 % topologia
 % punto di vista spaziale
 
-Consideriamo una rete composta dai seguenti oggetti:
+Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori.
 
-\begin{enumerate}
-\item $n$ nodi satellite (i sensori), ciascuno identificato da un indice $i \in \{1, \dots, n\}$ univoco.
-\item Un nodo centrale detto \emph{sink}, di indice $i = 0$.
-\end{enumerate}
-
-Tutti i nodi hanno la stessa portata (del segnale) $p$. Il nodo \emph{sink} costituisce il destinatario finale di tutti i messaggi. Questo nodo svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante.
-
-Chiameremo \emph{ambiente} un disco (regione di spazio) di raggio $a$ centrato nel \emph{sink}, nel quale sono distribuiti i satelliti.
+Chiamiamo \emph{portata} (del segnale) la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel \emph{sink}, nel quale sono distribuiti i satelliti.
 
 \begin{figure}[H]
 \centering
@@ -103,7 +96,7 @@ dove $a$ è il raggio dell'ambiente e $p$ la portata dei nodi.
 
 Da notare che il \emph{sink} ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq a$.
 
-Vincolando i parametri $a$, $p$ e $n$ otteniemo un sottoinsieme di \emph{layout} dove solo le coordinate dei nodi rimangono indeterminate. Chiameremo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole, ci chiederemo: Fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul \emph{layout}?
+Vincolando i parametri $a$, $p$ e $n$ otteniamo un sottoinsieme di \emph{layout} dove solo le coordinate dei nodi rimangono indeterminate. Chiameremo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole, ci chiederemo: Fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul \emph{layout}?
 
 \subsection{Grafo di rete}
 
@@ -129,7 +122,9 @@ Chiamiamo $G = (V,\,E)$ il \emph{grafo di rete}.
 
 %  associato al \emph{layout} $L$
 
-La funzione $dist(i,\,j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate. Nel caso queste non siano note, la distanza potrebbe essere valutata grazie alla potenza di ricezione dei messaggi.
+La funzione $dist(i,\,j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate.
+
+% Nel caso queste non siano note, la distanza potrebbe essere valutata grazie alla potenza di ricezione dei messaggi.
 
 Chiamaremo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il \emph{sink} e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al \emph{sink}. Se $C = R$ diremo che è \emph{completamente connesso}.
 
@@ -137,7 +132,7 @@ Diremo che $G = graph(L)$ è il grafo associato al \emph{layout} $L$ se questo �
 
 Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di \emph{layout} non risulta affatto superfluo. Basando la propria descizione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio, noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini potremmo dire che la funzione $graph(L)$ non è suriettiva. A luce di questo, chiameremo \emph{realistico} un grafo a cui è associato almeno un layout.
 
-Dato un \emph{grafo realistico} $G$, esistono in realtà infiniti \emph{layout equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato
+Dato un \emph{grafo realistico} $G$, esistono in realtà infiniti layout \emph{topologicamente equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato
 \begin{equation*}
 L = (a,\,p,\,\{(0,\,0,\,0),\,(1,\,x_1,\,y_1),\,\dots,\,(i,\,x_i,\,y_i),\,\dots,\,(n,\,x_n,\,y_n)\})
 \end{equation*}
@@ -145,7 +140,7 @@ chiamiamo \emph{layout in scala} $m$ il \emph{layout}
 \begin{equation*}
 scale(L,\,m) = (a\,\cdot\,m,\,p\,\cdot\,m,\,\{(0,\,0,\,0),\,\dots,\,(i,\,x_i\,\cdot\,m,\,y_i\,\cdot\,m),\,\dots\})
 \end{equation*}
-con $m \in \mathbb{Q}_{>0}$. I \emph{layout in scala} sono tutti \emph{equivalenti} poiché
+con $m \in \mathbb{Q}_{>0}$. I \emph{layout in scala} sono tutti \emph{topologicamente equivalenti} poiché
 \begin{equation*}
 w_m = \frac{dist(i_m,\,j_m)}{p_m} = \frac{dist(i,\,j)\,\cdot\,m}{p\,\cdot\,m} = \frac{dist(i,\,j)}{p} = w
 \end{equation*}
@@ -154,7 +149,7 @@ ovvero i pesi degli archi si conservano. Consideriamo ad esempio
 L_5 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
 L_{15} = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
 \end{align*}
-questi layout sono \emph{equivalenti}, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono quindi mappati nello stesso grafo
+questi layout sono \emph{topologicamente equivalenti}, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono quindi mappati nello stesso grafo
 \begin{equation*}
 graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1,\,0.82),\,(0,\,2,\,0.72)\})
 \end{equation*}
@@ -168,7 +163,7 @@ Ci rendiamo quindi conto che sarà sufficiente studiare il sottoinsieme $layout(
 
 % Formalizziamo ora questo concetto mediante le seguenti definizioni:
 
-Alla luce di quanto appreso nella sezione precedente, introduciamo ora il concetto di \emph{dimensione del layout}. Questo esprime il raggio ambiente in unità di portate, ovvero quanto è più grande $a$ rispetto a $p$. In altre parole è il raggio ambiente normalizzato.
+Alla luce di quanto appreso nella sezione precedente, introduciamo ora il concetto di \emph{dimensione del layout}. Questo esprime il raggio ambiente utilizzando la portata come unità di misura. In altre parole potremmo dire che è il raggio ambiente normalizzato su $p$.
 
 \begin{definition}
 Sia $a$ il raggio ambiente e $p$ la portata dei nodi. La \emph{dimensione radiale} $d$ è il loro rapporto:
