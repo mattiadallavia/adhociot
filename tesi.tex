@@ -59,12 +59,6 @@
 % https://www.semtech.com/lora/ecosystem/networks
 % https://www.thethingsnetwork.org
 
-% Bundling Mobile Base Station and Wireless
-% https://www.cnsr.ictas.vt.edu/publication/INFOCOM13_Xie.pdf
-
-% UAV Relay Network to Support WSN Connectivity
-% https://www.researchgate.net/profile/Edison_Pignaton_de_Freitas/publication/221003869_UAV_relay_network_to_support_WSN_connectivity/links/0deec525d7ace73789000000/UAV-relay-network-to-support-WSN-connectivity.pdf
-
 Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite dispositivi di piccole dimensioni disseminati geograficamente. Sono ormai mature alcune tecnologie di trasmissione radio a basso consumo e larga portata, prima tra tutti LoRa, che sta prendendo piede come lo standard de facto. Di conseguenza, molte imprese di telecomunicazioni si stanno adoperando per offrire soluzioni di connettività. Questi nuovi operatori di rete hanno il compito di mettere a disposizione un'infrastruttura. Questa funge da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò di una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Nella prossima sezione verrà descritto un paradigma alternativo, con l'intento di offrire una copertura estesa e flessibile, immediatamente disponibile e a fronte di un limitato investimento.
 
 % Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
@@ -102,6 +96,32 @@ Queste reti si compongono di quattro classi di oggetti:
 Gli operatori di rete forniscono perciò la propria copertura installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connettività a Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway. La copertura è perciò vincolata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
 \subsection{Operatore nomadico}
+
+% Distributed Mobile Sink Routing for Wireless Sensor Networks A Survey
+% http://www.redpel.com/Distributed%20Mobile%20Sink%20Routing%20for%20Wireless%20Sensor%20Networks%20A%20Survey.pdf
+
+% Rendezvous Design Algorithms for Wireless Sensor Networks with a Mobile Base Station
+% http://www.cse.msu.edu/~glxing/docs/mobility-mobihoc.pdf
+
+% Fundamental Results on Base Station Movement Problem for Sensor Networks
+% https://pdfs.semanticscholar.org/2249/a2eb7ed265368af52c7cdaf50dbf244691ec.pdf
+
+% Bundling Mobile Base Station and Wireless
+% https://www.cnsr.ictas.vt.edu/publication/INFOCOM13_Xie.pdf
+
+% UAV Relay Network to Support WSN Connectivity
+% https://www.researchgate.net/profile/Edison_Pignaton_de_Freitas/publication/221003869_UAV_relay_network_to_support_WSN_connectivity/links/0deec525d7ace73789000000/UAV-relay-network-to-support-WSN-connectivity.pdf
+
+Classicamente, nelle reti wireless, i client vengono considerati oggetti mobili mentre l'infrastruttura è assunta statica. In questo elaborato proponiamo invece un modello dove l'infrastruttura è nomadica: le stazioni radio base sono montate su veicoli che attraversano il territorio. Quest'idea nasce da una semplice osservazione: la frequenza di raccolta dati dai sensori è in generale molto bassa, limitandosi spesso ad un campione al giorno. È quindi superfluo installare dei Gateway fissi disponibili in ogni momento, è sufficiente che un veicolo di raccolta dati passi con una data frequenza in prossimità dei sensori.
+
+Per aumentare ulteriormente la copertura viene utilizzato un routing ad-hoc: in caso di necessità, il messaggio vene ritrasmesso dai nodi della rete fino alla destinazione.
+
+\begin{figure}[H]
+\centering
+\includegraphics{figures/nomadic.pdf}
+\caption{}
+\end{figure}
+
 % insfrastruttura su veicolo
 % che copertura si ottiene
 
