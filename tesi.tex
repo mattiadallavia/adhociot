@@ -48,6 +48,9 @@
 % rilevanza, apprezzando, opportunità, maturando
 % ecosistema
 % prestazioni di tutto rispetto
+% tesi, elaborato
+% infrastruttura/architettura di rete
+% rete di transito
 
 % WSN - Wireless Sensor Network
 % MANET - Mobile Ad-hoc Network
@@ -56,17 +59,49 @@
 % https://www.semtech.com/lora/ecosystem/networks
 % https://www.thethingsnetwork.org
 
+% Bundling Mobile Base Station and Wireless
+% https://www.cnsr.ictas.vt.edu/publication/INFOCOM13_Xie.pdf
+
+% UAV Relay Network to Support WSN Connectivity
+% https://www.researchgate.net/profile/Edison_Pignaton_de_Freitas/publication/221003869_UAV_relay_network_to_support_WSN_connectivity/links/0deec525d7ace73789000000/UAV-relay-network-to-support-WSN-connectivity.pdf
+
 Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite dispositivi di piccole dimensioni disseminati geograficamente. Sono ormai mature alcune tecnologie di trasmissione radio a basso consumo e larga portata, prima tra tutti LoRa, che sta prendendo piede come lo standard de facto. Di conseguenza, molte imprese di telecomunicazioni si stanno adoperando per offrire soluzioni di connettività. Questi nuovi operatori di rete hanno il compito di mettere a disposizione un'infrastruttura. Questa funge da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò di una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Nella prossima sezione verrà descritto un paradigma alternativo, con l'intento di offrire una copertura estesa e flessibile, immediatamente disponibile e a fronte di un limitato investimento.
 
 % Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
 
 % La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la limitata disponibilità di energia: questi dispositivi sono infatti normalmente alimentati a batteria. Le principali soluzioni di connettività orbitano quindi attorno a questa recessità, focalizzandosi sul limitare i tempi di attività di trasmissione e ricezione.
 
-% La topologia adottata è quella a stella: ciascun elemento della rete comunica esculivamente con un gateway centrale.
+\section{Operatori di rete}
 
-\section{Scenario applicativo}
-% operatore mobile
-% sensori sul territorio
+In questa sezione descriveremo innanzitutto l'architettura di una rete LoRaWAN, la soluzione più adottata dal mercato. Proseguendo con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano impratiche o eccessivamente costose.
+
+\subsection{Operatori LoRaWAN}
+
+% https://www.thethingsnetwork.org/docs/lorawan/
+% https://www.link-labs.com/blog/what-is-lorawan
+
+LoRaWAN è un protocollo MAC basato sul livello fisico LoRa. Questa combinazione di harware e software offre una soluzione completa, adottata dalla grande magioranza dei fornitori di servizi di connettività.
+
+Queste reti si compongono di quattro classi di oggetti:
+
+\begin{enumerate}
+\item End node: i sensori, dotati di modulo radio LoRa.
+\item Gateway: stazioni radio base, ricevono le trasmissioni dei sensori.
+\item Network Server: connesso ai gateway tramite rete cablata o ponti radio, smista il traffico di dati ricevuto inoltrandolo ai relativi server dei clienti.
+\item Application Server: parte del sistema informativo del cliente, consuma i dati raccolti.
+\end{enumerate}
+
+% https://www.thethingsnetwork.org/docs/lorawan/LoRaWAN-Overview.png
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=4.5in]{figures/lorawan.png}
+\caption{}
+\end{figure}
+
+Gli operatori di rete forniscono perciò la propria copertura installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connettività a Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway. La copertura è perciò vincolata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
+
+\subsection{Operatore nomadico}
 % insfrastruttura su veicolo
 % che copertura si ottiene
 
