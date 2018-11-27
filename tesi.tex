@@ -25,6 +25,20 @@
 % un paradigma ad-hoc per la consegna di dati in una rete di sensori
 % radio, wireless, senza infrastruttura, efficiente, modello, ideazione e analisi, concezione e studio
 
+% quadro, tassello mancante, divario
+% rilevanza, apprezzando, opportunità, maturando
+% ecosistema
+% prestazioni di tutto rispetto
+% tesi, elaborato
+% infrastruttura/architettura di rete
+% rete di transito
+% costellazione
+% finalità
+
+% WSN - Wireless Sensor Network
+% MANET - Mobile Ad-hoc Network
+% LPWAN - Low Power Wide Area Network
+
 \begin{document}
 
 \maketitle
@@ -44,22 +58,10 @@
 %    operatori di rete
 % 4. paradigma alternativo
 
-% quadro, tassello mancante, divario
-% rilevanza, apprezzando, opportunità, maturando
-% ecosistema
-% prestazioni di tutto rispetto
-% tesi, elaborato
-% infrastruttura/architettura di rete
-% rete di transito
-
-% WSN - Wireless Sensor Network
-% MANET - Mobile Ad-hoc Network
-% LPWAN - Low Power Wide Area Network
-
 % https://www.semtech.com/lora/ecosystem/networks
 % https://www.thethingsnetwork.org
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite dispositivi di piccole dimensioni disseminati geograficamente. Sono ormai mature alcune tecnologie di trasmissione radio a basso consumo e larga portata, prima tra tutti LoRa, che sta prendendo piede come lo standard de facto. Di conseguenza, molte imprese di telecomunicazioni si stanno adoperando per offrire soluzioni di connettività. Questi nuovi operatori di rete hanno il compito di mettere a disposizione un'infrastruttura. Questa funge da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò di una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Nella prossima sezione verrà descritto un paradigma alternativo, con l'intento di offrire una copertura estesa e flessibile, immediatamente disponibile e a fronte di un limitato investimento.
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite dispositivi di piccole dimensioni disseminati geograficamente. Sono ormai mature alcune tecnologie di trasmissione radio a basso consumo e larga portata, prima tra tutti LoRa, che sta prendendo piede come lo standard de facto. Di conseguenza, molte imprese di telecomunicazioni si stanno adoperando per offrire soluzioni di connettività. Questi nuovi operatori di rete hanno il compito di mettere a disposizione un'infrastruttura. Questa funge da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò di una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. In questa tesi esploreremo un paradigma alternativo con l'obiettivo di offrire una copertura estesa e flessibile, immediatamente disponibile e a fronte di un limitato investimento.
 
 % Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
 
@@ -97,6 +99,12 @@ Gli operatori di rete forniscono perciò la propria copertura installando sul te
 
 \subsection{Operatore nomadico}
 
+% Multi-hop Wireless Sensor Networks with Mobile Sink 
+% https://www.researchgate.net/profile/Zoltan_Vincze2/publication/221325180_Multi-hop_wireless_sensor_networks_with_mobile_sink/links/5625d60508aed3d3f1371ae1/Multi-hop-wireless-sensor-networks-with-mobile-sink.pdf
+
+% Sink Mobility Protocols for Data Collection in Wireless Sensor Networks
+% https://s3.amazonaws.com/academia.edu.documents/44967178/Sink_mobility_protocols_for_data_collect20160421-712-1fa74k0.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1543013097&Signature=m6%2BZ6pn30NH1ZcCy%2FYhBh%2FzlyDc%3D&response-content-disposition=inline%3B%20filename%3DSink_mobility_protocols_for_data_collect.pdf
+
 % Distributed Mobile Sink Routing for Wireless Sensor Networks A Survey
 % http://www.redpel.com/Distributed%20Mobile%20Sink%20Routing%20for%20Wireless%20Sensor%20Networks%20A%20Survey.pdf
 
@@ -109,12 +117,9 @@ Gli operatori di rete forniscono perciò la propria copertura installando sul te
 % Bundling Mobile Base Station and Wireless
 % https://www.cnsr.ictas.vt.edu/publication/INFOCOM13_Xie.pdf
 
-% UAV Relay Network to Support WSN Connectivity
-% https://www.researchgate.net/profile/Edison_Pignaton_de_Freitas/publication/221003869_UAV_relay_network_to_support_WSN_connectivity/links/0deec525d7ace73789000000/UAV-relay-network-to-support-WSN-connectivity.pdf
+% http://research.protocollabs.com/osm-mobility/
 
-Classicamente, nelle reti wireless, i client vengono considerati oggetti mobili mentre l'infrastruttura è assunta statica. In questo elaborato proponiamo invece un modello dove l'infrastruttura è nomadica: le stazioni radio base sono montate su veicoli che attraversano il territorio. Quest'idea nasce da una semplice osservazione: la frequenza di raccolta dati dai sensori è in generale molto bassa, limitandosi spesso ad un campione al giorno. È quindi superfluo installare dei Gateway fissi disponibili in ogni momento, è sufficiente che un veicolo di raccolta dati passi con una data frequenza in prossimità dei sensori.
-
-Per aumentare ulteriormente la copertura viene utilizzato un routing ad-hoc: in caso di necessità, il messaggio vene ritrasmesso dai nodi della rete fino alla destinazione.
+In alternativa alla collocazione statica dei gateway esiste l'idea, nota in letteratura come \emph{sink mobility}, di un'infrastruttura mobile che cambia posizione all'interno del territorio. Immaginiamo di seguito un operatore che raccoglie dati dai sensori mediante stazioni radio base installate su veicoli in movimento. Per estendere la copertura oltre la cella mobile, adottiamo un instadamento multi-hop: Qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino alla destinazione.
 
 \begin{figure}[H]
 \centering
@@ -122,10 +127,11 @@ Per aumentare ulteriormente la copertura viene utilizzato un routing ad-hoc: in 
 \caption{}
 \end{figure}
 
-% insfrastruttura su veicolo
-% che copertura si ottiene
+L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: In una rete di sensori ad-hoc, la concentrazione del traffico nelle vicinaze dei sink fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i sink diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori.
 
-% finalità
+Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: La frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di sink a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
+
+Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle giuste condizioni, un'alternativa economica e flessibile alle soluzioni classiche. A luce di ciò, proseguiremo in questo elaborato fornendo dapprima una descrizione formale del problema proseguendo poi con una sua analisi e con la proposta di un algoritmo di instradamento confacente.
 
 \section{Modello}
 
