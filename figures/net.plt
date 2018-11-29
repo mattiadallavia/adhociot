@@ -1,19 +1,15 @@
-load 'net.dat'
-
-set size square
+unset tics
 unset key
 unset border
-set xrange [-radius:radius]
-set yrange [-radius:radius]
-set xtics axis radius/5, radius/5, radius scale 0 left offset 0.2, 1
-unset ytics
+set style textbox opaque noborder margin 2,2
+set size square
+set xrange [-env:env]
+set yrange [-env:env]
 
-do for [i = (radius/5):radius:(radius/5)] {
-	set object i circle size i dashtype 3 fillcolor rgb '#444444'
-}
+set object 1 circle size env
 
-plot '$arcs' with lines lc rgb 'black', \
-	 '$weights' with points ps 3.5 pt 7 lc rgb 'white', \
-	 '$weights' with labels tc rgb 'black', \
-	 '$vertices' with points ps 3.5 pt 7 lc rgb 'black', \
-	 '$vertices' with labels tc rgb 'white'
+plot '$arcs' with lines lc 'black', \
+     '$weights' with labels boxed center font ':Italic', \
+     '$vertices' pt 7 ps 3 lc 'white', \
+     '$vertices' pt 3 lc 'black', \
+     '$vertices' with labels boxed offset 0,-1 center font ':Italic'

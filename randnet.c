@@ -219,7 +219,7 @@ void plot(struct point *layout, float *graph, int n, int env)
 	fprintf(plotout, "$weights << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %f\n", (layout[i].x + layout[j].x) / 2.0, (layout[i].y + layout[j].y) / 2.0, graph[i*n+j]);
+		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %.1f\n", (layout[i].x + layout[j].x) / 2.0, (layout[i].y + layout[j].y) / 2.0, graph[i*n+j]);
 	}
 	fprintf(plotout, "EOD\n");
 }
