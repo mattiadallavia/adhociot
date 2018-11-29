@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <time.h>
+#include <string.h>
 #include <math.h>
 
 #define DIST(X1, Y1, X2, Y2) sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2))
@@ -18,7 +19,7 @@ void usage(char* name);
 
 void rand_layout(struct point *layout, int n, int env);
 int layout2graph(struct point *layout, float *graph, int n, int range);
-int visit(float *graph, int n, int range, int vertex, int *visited);
+int visit(float *graph, int n, int vertex, int *visited);
 
 void print_layout(struct point *layout, int n, int env);
 void print_graph(float *graph, int n);
@@ -28,12 +29,14 @@ FILE *plotout;
 
 static int flag_plot = 0;
 static int flag_layout = 0;
+static int flag_conn = 0;
 
 static struct option long_options[] =
 {
-    {"seed",   required_argument, 0, 's'},
-    {"plot",   required_argument, 0, 'p'},
-    {"layout", no_argument,       0, 'l'},
+    {"seed",      required_argument, 0, 's'},
+    {"plot",      required_argument, 0, 'p'},
+    {"layout",    no_argument,       0, 'l'},
+    {"connected", no_argument,       0, 'c'},
     {0, 0, 0, 0}
 };
 
@@ -43,10 +46,13 @@ int main(int argc, char **argv)
 	int n, env, range;
 	struct point *layout;
 	float *graph;
+	int att = 0;
+	int conn;
+	int *visited;
 	int seed = time(0);
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "s:p:l", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "s:p:lc", long_options, 0)) != -1)
 	{
 		switch(opt)
 		{
@@ -59,6 +65,9 @@ int main(int argc, char **argv)
 				break;
 			case 'l':
 				flag_layout = 1;
+				break;
+			case 'c':
+				flag_conn = 1;
 				break;
 			case '?':
 				return 1;
@@ -78,16 +87,21 @@ int main(int argc, char **argv)
 
 	layout = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (float));
+	visited = malloc(n * sizeof (int));
 	srand(seed);
 
-	rand_layout(layout+1, n-1, env);
-	layout2graph(layout, graph, n, range);
+	do {
+		rand_layout(layout+1, n-1, env);
+		layout2graph(layout, graph, n, range);
 
-	// visited = malloc(n * sizeof (int));
-	// memset(visited, 0, n * sizeof (int));
-	// visit(graph, n, range, 0, visited) != n); // not all n are reachable
+		memset(visited, 0, n * sizeof (int));
+		conn = visit(graph, n, 0, visited);
 
-	printf("%d %d %d %d\n", n, env, range, seed);
+		att++;
+	}
+	while (flag_conn && (conn != n));
+
+	printf("%d %d %d %d %d %d\n", n, env, range, conn, att, seed);
 	print_graph(graph, n);
 
 	if (flag_layout) print_layout(layout, n, env);
@@ -100,6 +114,7 @@ void usage(char* name)
 	fprintf(stderr, " -s, --seed S           specify custom seed\n");
 	fprintf(stderr, " -l, --layout           print layout\n");
 	fprintf(stderr, " -p, --plot FILENAME    write plot data file\n");
+	fprintf(stderr, " -c, --connected        ensure fully connected graph\n");
 }
 
 void rand_layout(struct point *layout, int n, int env)
@@ -127,7 +142,7 @@ int layout2graph(struct point *layout, float *graph, int n, int range)
 	}
 }
 
-int visit(float *graph, int n, int range, int vertex, int *visited)
+int visit(float *graph, int n, int vertex, int *visited)
 {
 	int i, v = 1;
 	visited[vertex] = 1;
@@ -135,7 +150,7 @@ int visit(float *graph, int n, int range, int vertex, int *visited)
 	for (i = 0; i < n; i++)
 	{
 		// if i is reachable from vertex and i has not been visited yet
-		if (IN_RANGE(vertex, i, graph, n) && (!visited[i])) v += visit(graph, n, range, i, visited);
+		if (IN_RANGE(vertex, i, graph, n) && (!visited[i])) v += visit(graph, n, i, visited);
 	}
 
 	return v;
