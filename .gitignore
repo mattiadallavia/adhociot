@@ -1,6 +1,6 @@
 sim
 stat
-randnet
+net
 
 *.dat
 *.log
