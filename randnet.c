@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <time.h>
 #include <math.h>
 
@@ -23,41 +24,59 @@ void plot_net(struct point *layout, float *graph, int n, int env);
 
 FILE *plotout;
 
-int main(int argc, char *argv[])
+static int flag_verbose = 0;
+static int flag_plot = 0;
+
+static struct option long_options[] =
 {
+	// flags
+    {"verbose", no_argument, &flag_verbose, 1},
+    {"brief",   no_argument, &flag_verbose, 0},
+
+    // options
+    {"plot",    required_argument, 0, 'p'},
+    {"seed",    required_argument, 0, 's'},
+    {0, 0, 0, 0}
+};
+
+int main(int argc, char **argv)
+{
+	int opt;
 	int n, env, range;
 	struct point *layout;
 	float *graph;
-	int c;
-	int f_plotnet = 0;
 
 	srand(time(0));
 
-	// mandatory arguments
-	if (argc < 4)
-	{
-		fprintf(stderr, "usage: %s <number of nodes> <radius of env.> <range>\n"
-		                "                 [-p filename]\n", argv[0]);
-		return 1;
-	}
-
-	n = atoi(argv[1]);
-	env = atoi(argv[2]);
-	range = atoi(argv[3]);
-
 	// optional arguments
-	while ((c = getopt(argc-3, &argv[3], "p:")) != -1)
+	while ((opt = getopt_long(argc, argv, "p:s:", long_options, 0)) != -1)
 	{
-		switch(c)
+		switch(opt)
 		{
 			case 'p':
-				f_plotnet = 1;
+				flag_plot = 1;
 				plotout = fopen(optarg, "w");
+				break;
+			case 's':
+				srand(atoi(optarg));
 				break;
 			case '?':
 				return 1;
 		}
 	}
+
+	// mandatory arguments
+	if (argc - optind < 3)
+	{
+		fprintf(stderr, "usage: %s NODES ENV RANGE\n", argv[0]);
+		fprintf(stderr, " -s, --seed S            specify custom seed\n");
+		fprintf(stderr, " -p, --plot FILENAME     write plot data file\n");
+		return 1;
+	}
+
+	n = atoi(argv[optind++]);
+	env = atoi(argv[optind++]);
+	range = atoi(argv[optind++]);
 
 	layout = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (float));
@@ -72,7 +91,7 @@ int main(int argc, char *argv[])
 	print_layout(layout, n, env);
 	print_graph(graph, n);
 
-	if (f_plotnet) plot_net(layout, graph, n, env);
+	if (flag_plot) plot_net(layout, graph, n, env);
 }
 
 void rand_layout(struct point *layout, int n, int env)
