@@ -14,6 +14,8 @@ struct point
 	int y;
 };
 
+void usage(char* name);
+
 void rand_layout(struct point *layout, int n, int env);
 int layout2graph(struct point *layout, float *graph, int n, int range);
 int visit(float *graph, int n, int range, int vertex, int *visited);
@@ -68,9 +70,7 @@ int main(int argc, char **argv)
 	// mandatory arguments
 	if (argc - optind < 3)
 	{
-		fprintf(stderr, "usage: %s NODES ENV RANGE\n", argv[0]);
-		fprintf(stderr, " -s, --seed S            specify custom seed\n");
-		fprintf(stderr, " -p, --plot FILENAME     write plot data file\n");
+		usage(argv[0]);
 		return 1;
 	}
 
@@ -92,6 +92,13 @@ int main(int argc, char **argv)
 	print_graph(graph, n);
 
 	if (flag_plot) plot_net(layout, graph, n, env);
+}
+
+void usage(char* name)
+{
+	fprintf(stderr, "usage: %s NODES ENV RANGE\n", name);
+	fprintf(stderr, " -s, --seed S            specify custom seed\n");
+	fprintf(stderr, " -p, --plot FILENAME     write plot data file\n");
 }
 
 void rand_layout(struct point *layout, int n, int env)
