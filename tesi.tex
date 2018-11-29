@@ -34,6 +34,7 @@
 % rete di transito
 % costellazione
 % finalità
+% sensori
 
 % WSN - Wireless Sensor Network
 % MANET - Mobile Ad-hoc Network
@@ -61,29 +62,33 @@
 % https://www.semtech.com/lora/ecosystem/networks
 % https://www.thethingsnetwork.org
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite dispositivi di piccole dimensioni disseminati geograficamente. Sono ormai mature alcune tecnologie di trasmissione radio a basso consumo e larga portata, prima tra tutti LoRa, che sta prendendo piede come lo standard de facto. Di conseguenza, molte imprese di telecomunicazioni si stanno adoperando per offrire soluzioni di connettività. Questi nuovi operatori di rete hanno il compito di mettere a disposizione un'infrastruttura. Questa funge da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò di una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. In questa tesi esploreremo un paradigma alternativo con l'obiettivo di offrire una copertura estesa e flessibile, immediatamente disponibile e a fronte di un limitato investimento.
+% tecnologie di trasmissione radio a basso consumo e larga portata
+
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile realizzando una rete di dispositivi dotati di moduli radio a basso consumo e a larga portata. Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche. Queste fungono da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. In questa tesi esploreremo un paradigma alternativo con l'obiettivo di offrire una copertura estesa e flessibile, immediatamente disponibile ad un costo inferiore.
 
 % Per rispondere al crescente interesse nei confronti dell'IoT, una nuova categoria di tecnologie di comunicazione wireless sta emergendo. Reti di sensori o oggetti autonomi pongono nuovi vincoli e necessità rispetto ai classici approcci di connettività. Al contempo, alcuni aspetti ritenuti classicamnete cruciali nella valutazione di una rete, assumono un'importanza secondaria e lasciano quindi spazio a nuovi modelli di funzionamento.
 
 % La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la limitata disponibilità di energia: questi dispositivi sono infatti normalmente alimentati a batteria. Le principali soluzioni di connettività orbitano quindi attorno a questa recessità, focalizzandosi sul limitare i tempi di attività di trasmissione e ricezione.
 
-\section{Operatori di rete}
+\section{Architetture di rete}
 
-In questa sezione descriveremo innanzitutto l'architettura di una rete LoRaWAN, la soluzione più adottata dal mercato. Proseguendo con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano impratiche o eccessivamente costose.
+In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio di organizzazione classica di una rete di sensori. Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
 
-\subsection{Operatori LoRaWAN}
+\subsection{LoRa}
 
 % https://www.thethingsnetwork.org/docs/lorawan/
 % https://www.link-labs.com/blog/what-is-lorawan
 
-LoRaWAN è un protocollo MAC basato sul livello fisico LoRa. Questa combinazione di harware e software offre una soluzione completa, adottata dalla grande magioranza dei fornitori di servizi di connettività.
+% LoRa excels in embedded roles by sacrificing data rates (kilobits/second) in exchange for very long ranges (several miles) and high endurance (years on AA batteries).
 
-Queste reti si compongono di quattro classi di oggetti:
+LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio ($\geq 10$km in zone rurali) con un consumo minimo di energia. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività.
+
+Una rete LoRaWAN si compone di quattro classi di oggetti:
 
 \begin{enumerate}
-\item End node: i sensori, dotati di modulo radio LoRa.
+\item End nodes: i sensori, dotati di modulo radio LoRa.
 \item Gateway: stazioni radio base, ricevono le trasmissioni dei sensori.
-\item Network Server: connesso ai gateway tramite rete cablata o ponti radio, smista il traffico di dati ricevuto inoltrandolo ai relativi server dei clienti.
+\item Network Server: connesso ai gateway, smista il traffico di dati ricevuto inoltrandolo ai relativi server dei clienti.
 \item Application Server: parte del sistema informativo del cliente, consuma i dati raccolti.
 \end{enumerate}
 
@@ -95,9 +100,9 @@ Queste reti si compongono di quattro classi di oggetti:
 \caption{}
 \end{figure}
 
-Gli operatori di rete forniscono perciò la propria copertura installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connettività a Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway. La copertura è perciò vincolata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
+Gli operatori forniscono perciò il proprio servizio installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
-\subsection{Operatore nomadico}
+\subsection{Infrastruttura nomadica}
 
 % Multi-hop Wireless Sensor Networks with Mobile Sink 
 % https://www.researchgate.net/profile/Zoltan_Vincze2/publication/221325180_Multi-hop_wireless_sensor_networks_with_mobile_sink/links/5625d60508aed3d3f1371ae1/Multi-hop-wireless-sensor-networks-with-mobile-sink.pdf
@@ -131,11 +136,11 @@ L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione d
 
 Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: La frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di sink a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
 
-Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle giuste condizioni, un'alternativa economica e flessibile alle soluzioni classiche. A luce di ciò, proseguiremo in questo elaborato fornendo dapprima una descrizione formale del problema proseguendo poi con una sua analisi e con la proposta di un algoritmo di instradamento confacente.
+Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle giuste condizioni, un'alternativa economica e flessibile alle soluzioni classiche. Alla luce di ciò, proseguiremo in questo elaborato fornendo dapprima una descrizione formale del problema, proseguendo poi con una sua analisi e con la proposta di un algoritmo di instradamento confacente.
 
 \section{Modello}
 
-Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione verrà descritto un modello che ne schematizza le caratteristiche fondamentali. Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
+Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali. Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
 
 \subsection{Nodi e ambiente}
 
@@ -151,6 +156,8 @@ Chiamiamo \emph{portata} (del segnale) la distanza massima $p$ a cui è possibil
 \includegraphics{figures/model.pdf}
 \caption{Rete di 4 satelliti, di cui 3 raggiungibili dal \emph{sink}.}
 \end{figure}
+
+Questa descrizione trascura la dimensione temporale e di conseguenza gli spostamenti relativi dei nodi. Ipotizziamo infatti che la magnitudine dei movimenti nel lasso di tempo delle comunicazioni sia trascurabile rispetto alla portata.
 
 \subsection{Layout di rete}
 
