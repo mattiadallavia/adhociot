@@ -35,10 +35,13 @@
 % costellazione
 % finalità
 % sensori
+% rendezvous
 
 % WSN - Wireless Sensor Network
 % MANET - Mobile Ad-hoc Network
 % LPWAN - Low Power Wide Area Network
+
+% http://research.protocollabs.com/osm-mobility/
 
 \begin{document}
 
@@ -76,14 +79,9 @@ In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio
 
 \subsection{LoRa}
 
-% https://www.thethingsnetwork.org/docs/lorawan/
-% https://www.link-labs.com/blog/what-is-lorawan
+LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività.
 
-% LoRa excels in embedded roles by sacrificing data rates (kilobits/second) in exchange for very long ranges (several miles) and high endurance (years on AA batteries).
-
-LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio ($\geq 10$km in zone rurali) con un consumo minimo di energia. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività.
-
-Una rete LoRaWAN si compone di quattro classi di oggetti:
+Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 
 \begin{enumerate}
 \item End nodes: i sensori, dotati di modulo radio LoRa.
@@ -92,39 +90,19 @@ Una rete LoRaWAN si compone di quattro classi di oggetti:
 \item Application Server: parte del sistema informativo del cliente, consuma i dati raccolti.
 \end{enumerate}
 
-% https://www.thethingsnetwork.org/docs/lorawan/LoRaWAN-Overview.png
-
 \begin{figure}[H]
 \centering
 \includegraphics[width=4.5in]{figures/lorawan.png}
 \caption{}
 \end{figure}
 
-Gli operatori forniscono perciò il proprio servizio installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
+% https://www.thethingsnetwork.org/docs/lorawan/LoRaWAN-Overview.png
+
+Gli operatori forniscono perciò il proprio servizio installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
 \subsection{Infrastruttura nomadica}
 
-% Multi-hop Wireless Sensor Networks with Mobile Sink 
-% https://www.researchgate.net/profile/Zoltan_Vincze2/publication/221325180_Multi-hop_wireless_sensor_networks_with_mobile_sink/links/5625d60508aed3d3f1371ae1/Multi-hop-wireless-sensor-networks-with-mobile-sink.pdf
-
-% Sink Mobility Protocols for Data Collection in Wireless Sensor Networks
-% https://s3.amazonaws.com/academia.edu.documents/44967178/Sink_mobility_protocols_for_data_collect20160421-712-1fa74k0.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1543013097&Signature=m6%2BZ6pn30NH1ZcCy%2FYhBh%2FzlyDc%3D&response-content-disposition=inline%3B%20filename%3DSink_mobility_protocols_for_data_collect.pdf
-
-% Distributed Mobile Sink Routing for Wireless Sensor Networks A Survey
-% http://www.redpel.com/Distributed%20Mobile%20Sink%20Routing%20for%20Wireless%20Sensor%20Networks%20A%20Survey.pdf
-
-% Rendezvous Design Algorithms for Wireless Sensor Networks with a Mobile Base Station
-% http://www.cse.msu.edu/~glxing/docs/mobility-mobihoc.pdf
-
-% Fundamental Results on Base Station Movement Problem for Sensor Networks
-% https://pdfs.semanticscholar.org/2249/a2eb7ed265368af52c7cdaf50dbf244691ec.pdf
-
-% Bundling Mobile Base Station and Wireless
-% https://www.cnsr.ictas.vt.edu/publication/INFOCOM13_Xie.pdf
-
-% http://research.protocollabs.com/osm-mobility/
-
-In alternativa alla collocazione statica dei gateway esiste l'idea, nota in letteratura come \emph{sink mobility}, di un'infrastruttura mobile che cambia posizione all'interno del territorio. Immaginiamo di seguito un operatore che raccoglie dati dai sensori mediante stazioni radio base installate su veicoli in movimento. Per estendere la copertura oltre la cella mobile, adottiamo un instadamento multi-hop: Qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino alla destinazione.
+In alternativa alla collocazione statica dei gateway esiste l'idea, nota in letteratura come \emph{sink mobility}, di un'infrastruttura mobile che cambia posizione all'interno del territorio \cite{sinkmob}. Immaginiamo di seguito un operatore che raccoglie dati dai sensori mediante stazioni radio base installate su veicoli in movimento. Per estendere la copertura oltre la cella mobile, adottiamo un instadamento multi-hop: Qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino alla destinazione.
 
 \begin{figure}[H]
 \centering
@@ -132,7 +110,7 @@ In alternativa alla collocazione statica dei gateway esiste l'idea, nota in lett
 \caption{}
 \end{figure}
 
-L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: In una rete di sensori ad-hoc, la concentrazione del traffico nelle vicinaze dei sink fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i sink diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori.
+L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: In una rete di sensori ad-hoc, la concentrazione del traffico nelle vicinaze dei sink fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i sink diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
 
 Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: La frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di sink a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
 
@@ -589,5 +567,37 @@ Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = cha
 \subsection{Esempio 1}
 
 \subsection{Prestazioni}
+
+\begin{thebibliography}{0}
+
+\bibitem{loraspec}
+\textit{LoRaWAN 1.1 Specification}.
+LoRa Alliance, 2017.
+
+\bibitem{loraperf}
+Ramon Sanchez-Iborra, Jesus Sanchez-Gomez, Juan Ballesta-Viñas, Maria-Dolores Cano, Antonio F. Skarmeta.
+\textit{Performance Evaluation of LoRa Considering Scenario Conditions}. 
+Sensors, 2018.
+
+\bibitem{sinkmob}
+Chatzigiannakis, Ioannis, Athanasios Kinalis, Sotiris E. Nikoletseas.
+\textit{Sink mobility protocols for data collection in wireless sensor networks}.
+MOBIWAC, 2006.
+
+\bibitem{moblife1}
+Z. Maria Wang, Stefano Basagni, Emanuel Melachrinoudis, Chiara Petrioli.
+\textit{Exploiting Sink Mobility for Maximizing Sensor Networks Lifetime}.
+Proceedings of the 38th Annual Hawaii International Conference on System Sciences, 2005.
+
+\bibitem{moblife2}
+Jun Luo, Jean-Pierre Hubaux.
+\textit{Joint mobility and routing for lifetime elongation in wireless sensor networks}.
+Proceedings IEEE 24th Annual Joint Conference of the IEEE Computer and Communications Societies, 2005.
+
+% Knuth: Computers and Typesetting,
+% \\\texttt{http://www-cs-faculty.stanford.edu/\~{}uno/abcde.html}
+
+\end{thebibliography}
+
 
 \end{document}
