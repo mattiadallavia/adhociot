@@ -9,19 +9,12 @@
 #define NODE_ACTIVE    1 // ready to transmit message or to relay other client's messages
 
 #define STACK_MAX 100
-#define MAX_ATTEMPTS 1000000
 
 #define FRAME(T) (T / 3)
 #define SLOT(T) (T % 3)
 
 #define DIST(X1, Y1, X2, Y2) sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2))
-#define IN_RANGE(A, B, GRAPH, N, RANGE) ((A != B) && (GRAPH[A*N+B] <= RANGE))
-
-struct point
-{
-	int x;
-	int y;
-};
+#define IN_RANGE(A, B, GRAPH, N) ((A != B) && (GRAPH[A*N+B] <= 1))
 
 struct message
 {
@@ -50,56 +43,30 @@ struct statistics
 	int collisions;
 };
 
-struct statistics alg(struct node *nodes, int *graph, int n, int range);
+struct statistics alg(struct node *nodes, float *graph, int n);
 
 struct message peek(struct node *n);
 int find(struct node *n, int number);
 void push(struct node *n, struct message m);
 void delete(struct node *n, unsigned int pos);
 
+void parse_graph(float *graph, int n);
+
 void print_nodes(struct node *nodes, int n);
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-	int c, n, conn, radius, range, attempts = 0;
-	int f_printnet = 0;
-	struct statistics stats;
-	struct point *points;
+	int n, env, range;
+	float *graph;
 	struct node *nodes;
-	int *graph;
-	int *visited;
+	struct statistics stats;
 
-	srand(time(0));
+	scanf("%d %d %d %*d %*d %*d\n", &n, &env, &range);
 
-	// mandatory arguments
-	if (argc < 4)
-	{
-		fprintf(stderr, "usage: %s <number of nodes> <radius of grid> <range> [-p filename.png]\n", argv[0]);
-		return 1;
-	}
-
-	n = atoi(argv[1]);
-	radius = atoi(argv[2]);
-	range = atoi(argv[3]);
-
-	// optional arguments
-	while ((c = getopt(argc-3, &argv[3], "p:")) != -1)
-	{
-		switch(c)
-		{
-			case 'p':
-				f_printnet = 1;
-				netout = fopen(optarg, "w");
-				break;
-			case '?':
-				return 1;
-		}
-	}
-
-	nodes = calloc(n, sizeof (struct node));
-	points = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (int));
-	visited = malloc(n * sizeof (int));
+	nodes = calloc(n, sizeof (struct node));
+
+	parse_graph(graph, n);
 
 	// nodes initialization
 	for (int i=1; i<n; i++)
@@ -111,43 +78,15 @@ int main(int argc, char *argv[])
 		nodes[i].messages[0].channel_confirm = -1;
 	}
 
-	// the sink is always in the center
-	points[0].x = 0;
-	points[0].y = 0;
+	stats = alg(nodes, graph, n);
 
-	// attempt to generate random topology and graph
-	do {
-		attempts++;
-		if (attempts > MAX_ATTEMPTS)
-		{
-			fprintf(stderr, "couldn't generate connected graph\n");
-			return 1;
-		}
-
-		memset(visited, 0, n * sizeof (int));
-
-		rand_points(points+1, n-1, radius);
-		points2graph(points, graph, n);
-	}
-	while (visit(graph, n, range, 0, visited) != n); // not all nodes are reachable
-
-	printf("topology gen. after %d attempts:\n", attempts);
-	print_points(points, n, radius);
-
-	printf("\ngraph of the network:\n");
-	print_graph(graph, n, range);
-
-	stats = alg(nodes, graph, n, range);
-
-	if (f_printnet) plot_net(points, graph, nodes, n, radius, range);
-
-	printf("\nfinal time: t=%d\n", stats.t);
+	printf("final time: t=%d\n", stats.t);
 	printf("messages transmitted: %d\n", stats.tx);
 	printf("messages received: %d\n", stats.rx);
 	printf("collisions: %d\n", stats.collisions);
 }
 
-struct statistics alg(struct node *nodes, int *graph, int n, int range)
+struct statistics alg(struct node *nodes, float *graph, int n)
 {
 	int i, dist, pos, coll, disp;
 	int i_tx, i_rx;
@@ -185,7 +124,7 @@ struct statistics alg(struct node *nodes, int *graph, int n, int range)
 		// there are no more messages to dispatch
 		if (disp == 0) return stats;
 
-		printf("\nt=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
+		printf("t=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
 		print_nodes(nodes, n);
 
 		// dispatch all transmissions in t
@@ -202,7 +141,7 @@ struct statistics alg(struct node *nodes, int *graph, int n, int range)
 
 			// transmit to all connected nodes
 			// node who are transmitting cannot receive at the same time
-			for (i_rx = 0; i_rx < n; i_rx++) if (IN_RANGE(i_tx, i_rx, graph, n, range) && !nodes[i_rx].transmitting)
+			for (i_rx = 0; i_rx < n; i_rx++) if (IN_RANGE(i_tx, i_rx, graph, n) && !nodes[i_rx].transmitting)
 			{
 				n_rx = &nodes[i_rx];
 
@@ -211,7 +150,7 @@ struct statistics alg(struct node *nodes, int *graph, int n, int range)
 				for (i = 0; i < n; i++)
 				{
 					// is there anyone else connected to me transmitting on the same channel at the same time?
-					if ((i != i_tx) && IN_RANGE(i, i_rx, graph, n, range) && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
+					if ((i != i_tx) && IN_RANGE(i, i_rx, graph, n) && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
 					{
 						coll = 1;
 						stats.collisions++;
@@ -292,6 +231,8 @@ struct statistics alg(struct node *nodes, int *graph, int n, int range)
 		// end current transmissions
 		for (i = 0; i < n; i++) nodes[i].transmitting = 0;
 
+		printf("\n");
+
 		stats.t++; // all messages dispatched for t, go to t+1
 	}
 }
@@ -325,6 +266,13 @@ void delete(struct node *n, unsigned int pos)
 
 	n->messages_len--;
 	for (i = pos; i < n->messages_len; i++) n->messages[i] = n->messages[i+1];
+}
+
+void parse_graph(float *graph, int n)
+{
+	int i;
+
+	for (i = 0; i < n*n; i++) scanf("%f", &graph[i]);
 }
 
 void print_nodes(struct node *nodes, int n)
