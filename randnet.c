@@ -5,8 +5,6 @@
 #include <time.h>
 #include <math.h>
 
-#define MAX_ATTEMPTS 1000000
-
 #define DIST(X1, Y1, X2, Y2) sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2))
 #define IN_RANGE(A, B, GRAPH, N, RANGE) ((A != B) && (GRAPH[A*N+B] <= RANGE))
 
@@ -28,11 +26,11 @@ FILE *netout;
 
 int main(int argc, char *argv[])
 {
-	int c, n, conn, radius, range, attempts = 0;
+	int c, n, conn, radius, range;
 	int f_printnet = 0;
 	struct point *points;
 	int *graph;
-	int *visited;
+	// int *visited;
 
 	srand(time(0));
 
@@ -63,25 +61,14 @@ int main(int argc, char *argv[])
 
 	points = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (int));
-	visited = malloc(n * sizeof (int));
+	// visited = malloc(n * sizeof (int));
 
-	// attempt to generate random topology and graph
-	do {
-		attempts++;
-		if (attempts > MAX_ATTEMPTS)
-		{
-			fprintf(stderr, "couldn't generate connected graph\n");
-			return 1;
-		}
+	rand_points(points+1, n-1, radius);
+	points2graph(points, graph, n);
 
-		memset(visited, 0, n * sizeof (int));
+	// memset(visited, 0, n * sizeof (int));
+	// visit(graph, n, range, 0, visited) != n); // not all nodes are reachable
 
-		rand_points(points+1, n-1, radius);
-		points2graph(points, graph, n);
-	}
-	while (visit(graph, n, range, 0, visited) != n); // not all nodes are reachable
-
-	printf("topology gen. after %d attempts:\n", attempts);
 	print_points(points, n, radius);
 
 	printf("\ngraph of the network:\n");
