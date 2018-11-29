@@ -22,19 +22,12 @@
 \date{2018\\ Dicembre}
 \author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
 
-% un paradigma ad-hoc per la consegna di dati in una rete di sensori
-% radio, wireless, senza infrastruttura, efficiente, modello, ideazione e analisi, concezione e studio
-
 % quadro, tassello mancante, divario
 % rilevanza, apprezzando, opportunità, maturando
 % ecosistema
-% prestazioni di tutto rispetto
-% tesi, elaborato
-% infrastruttura/architettura di rete
+% prestazioni
 % rete di transito
 % costellazione
-% finalità
-% sensori
 % rendezvous
 
 % WSN - Wireless Sensor Network
@@ -51,21 +44,7 @@
 
 \tableofcontents
 
-% premessa, avvisi al lettore
-
 \section{Introduzione}
-
-% 1. mercato: domanda di applicazioni delle wsn
-% 2. soluzioni tecnologiche, trasmissione, LoRa
-% 3. operatori di rete, infrastruttura, soluzioni di connettività
-%    anatomia delle soluzioni proposte
-%    operatori di rete
-% 4. paradigma alternativo
-
-% https://www.semtech.com/lora/ecosystem/networks
-% https://www.thethingsnetwork.org
-
-% tecnologie di trasmissione radio a basso consumo e larga portata
 
 Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile realizzando una rete di dispositivi dotati di moduli radio a basso consumo e a larga portata. Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche. Queste fungono da intermediario tra i sensori e il sistema informativo del cliente, catturando le trasmissioni radio e trasportandole sino ad un server. L'anatomia di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di stazioni radio base installate sul territorio, connesse in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. In questa tesi esploreremo un paradigma alternativo con l'obiettivo di offrire una copertura estesa e flessibile, immediatamente disponibile ad un costo inferiore.
 
@@ -121,9 +100,6 @@ Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle gi
 Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali. Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
 
 \subsection{Nodi e ambiente}
-
-% topologia
-% punto di vista spaziale
 
 Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori.
 
