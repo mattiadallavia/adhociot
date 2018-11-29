@@ -11,6 +11,7 @@
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{xfrac}
+\usepackage{url}
 
 \setlength{\parskip}{0.5em}
 
@@ -58,7 +59,7 @@ In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio
 
 \subsection{LoRa}
 
-LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività.
+LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata da molti fornitori di servizi di connettività \cite{netprov}.
 
 Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 
@@ -550,6 +551,10 @@ Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = cha
 \textit{LoRaWAN 1.1 Specification}.
 LoRa Alliance, 2017.
 
+\bibitem{netprov}
+\textit{LoRa Network Providers}.
+\url{https://www.semtech.com/lora/ecosystem/networks}.
+
 \bibitem{loraperf}
 Ramon Sanchez-Iborra, Jesus Sanchez-Gomez, Juan Ballesta-Viñas, Maria-Dolores Cano, Antonio F. Skarmeta.
 \textit{Performance Evaluation of LoRa Considering Scenario Conditions}. 
@@ -569,9 +574,6 @@ Proceedings of the 38th Annual Hawaii International Conference on System Science
 Jun Luo, Jean-Pierre Hubaux.
 \textit{Joint mobility and routing for lifetime elongation in wireless sensor networks}.
 Proceedings IEEE 24th Annual Joint Conference of the IEEE Computer and Communications Societies, 2005.
-
-% Knuth: Computers and Typesetting,
-% \\\texttt{http://www-cs-faculty.stanford.edu/\~{}uno/abcde.html}
 
 \end{thebibliography}
 
