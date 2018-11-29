@@ -1,5 +1,6 @@
 sim
 stat
+randnet
 
 *.dat
 *.log
