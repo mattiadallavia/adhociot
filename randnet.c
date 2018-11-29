@@ -26,18 +26,14 @@ void plot(struct point *layout, float *graph, int n, int env);
 
 FILE *plotout;
 
-static int flag_verbose = 0;
 static int flag_plot = 0;
+static int flag_layout = 0;
 
 static struct option long_options[] =
 {
-	// flags
-    {"verbose", no_argument, &flag_verbose, 1},
-    {"brief",   no_argument, &flag_verbose, 0},
-
-    // options
-    {"plot",    required_argument, 0, 'p'},
-    {"seed",    required_argument, 0, 's'},
+    {"seed",   required_argument, 0, 's'},
+    {"plot",   required_argument, 0, 'p'},
+    {"layout", no_argument,       0, 'l'},
     {0, 0, 0, 0}
 };
 
@@ -47,20 +43,22 @@ int main(int argc, char **argv)
 	int n, env, range;
 	struct point *layout;
 	float *graph;
-
-	srand(time(0));
+	int seed = time(0);
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "p:s:", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "s:p:l", long_options, 0)) != -1)
 	{
 		switch(opt)
 		{
+			case 's':
+				seed = atoi(optarg);
+				break;
 			case 'p':
 				flag_plot = 1;
 				plotout = fopen(optarg, "w");
 				break;
-			case 's':
-				srand(atoi(optarg));
+			case 'l':
+				flag_layout = 1;
 				break;
 			case '?':
 				return 1;
@@ -80,25 +78,28 @@ int main(int argc, char **argv)
 
 	layout = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (float));
-	// visited = malloc(n * sizeof (int));
+	srand(seed);
 
 	rand_layout(layout+1, n-1, env);
 	layout2graph(layout, graph, n, range);
 
+	// visited = malloc(n * sizeof (int));
 	// memset(visited, 0, n * sizeof (int));
 	// visit(graph, n, range, 0, visited) != n); // not all n are reachable
 
-	print_layout(layout, n, env);
+	printf("%d %d %d %d\n", n, env, range, seed);
 	print_graph(graph, n);
 
+	if (flag_layout) print_layout(layout, n, env);
 	if (flag_plot) plot(layout, graph, n, env);
 }
 
 void usage(char* name)
 {
 	fprintf(stderr, "usage: %s NODES ENV RANGE\n", name);
-	fprintf(stderr, " -s, --seed S            specify custom seed\n");
-	fprintf(stderr, " -p, --plot FILENAME     write plot data file\n");
+	fprintf(stderr, " -s, --seed S           specify custom seed\n");
+	fprintf(stderr, " -l, --layout           print layout\n");
+	fprintf(stderr, " -p, --plot FILENAME    write plot data file\n");
 }
 
 void rand_layout(struct point *layout, int n, int env)
@@ -158,7 +159,7 @@ void print_layout(struct point *layout, int n, int env)
 			}
 
 			// reached the end without finding one
-			if (k == n) (round(DIST(i, j, env, env)) > env) ? printf("  ") : printf(" -");
+			if (k == n) (round(DIST(i, j, env, env)) > env) ? printf("  ") : printf(" .");
 		}
 		
 		printf("\n");
@@ -173,8 +174,7 @@ void print_graph(float *graph, int n)
 	{
 		for (int j = 0; j<n; j++)
 		{
-			if (IN_RANGE(i, j, graph, n)) printf(" %.1f", graph[i*n+j]);
-			else printf(" ---");
+			printf("%.2f ", graph[i*n+j]);
 		}
 
 		printf("\n");
