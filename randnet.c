@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <time.h>
 #include <math.h>
 
@@ -14,35 +13,36 @@ struct point
 	int y;
 };
 
-void rand_points(struct point *points, int n, int radius);
-int points2graph(struct point *points, int *graph, int n);
+void rand_layout(struct point *layout, int n, int env);
+int layout2graph(struct point *layout, int *graph, int n);
 int visit(int *graph, int n, int range, int vertex, int *visited);
 
-void print_points(struct point *points, int n, int radius);
+void print_layout(struct point *layout, int n, int env);
 void print_graph(int *graph, int n, int range);
-void plot_net(struct point *points, int *graph, int n, int radius, int range);
+void plot_net(struct point *layout, int *graph, int n, int env, int range);
 
-FILE *netout;
+FILE *plotout;
 
 int main(int argc, char *argv[])
 {
-	int c, n, conn, radius, range;
-	int f_printnet = 0;
-	struct point *points;
+	int n, env, range;
+	struct point *layout;
 	int *graph;
-	// int *visited;
+	int c;
+	int f_plotnet = 0;
 
 	srand(time(0));
 
 	// mandatory arguments
 	if (argc < 4)
 	{
-		fprintf(stderr, "usage: %s <number of nodes> <radius of grid> <range> [-p filename.png]\n", argv[0]);
+		fprintf(stderr, "usage: %s <number of nodes> <radius of env.> <range>\n"
+		                "                 [-p filename]\n", argv[0]);
 		return 1;
 	}
 
 	n = atoi(argv[1]);
-	radius = atoi(argv[2]);
+	env = atoi(argv[2]);
 	range = atoi(argv[3]);
 
 	// optional arguments
@@ -51,54 +51,52 @@ int main(int argc, char *argv[])
 		switch(c)
 		{
 			case 'p':
-				f_printnet = 1;
-				netout = fopen(optarg, "w");
+				f_plotnet = 1;
+				plotout = fopen(optarg, "w");
 				break;
 			case '?':
 				return 1;
 		}
 	}
 
-	points = malloc(n * sizeof (struct point));
+	layout = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (int));
 	// visited = malloc(n * sizeof (int));
 
-	rand_points(points+1, n-1, radius);
-	points2graph(points, graph, n);
+	rand_layout(layout+1, n-1, env);
+	layout2graph(layout, graph, n);
 
 	// memset(visited, 0, n * sizeof (int));
-	// visit(graph, n, range, 0, visited) != n); // not all nodes are reachable
+	// visit(graph, n, range, 0, visited) != n); // not all n are reachable
 
-	print_points(points, n, radius);
-
-	printf("\ngraph of the network:\n");
+	print_layout(layout, n, env);
 	print_graph(graph, n, range);
 
-	if (f_printnet) plot_net(points, graph, n, radius, range);
+	if (f_plotnet) plot_net(layout, graph, n, env, range);
 }
 
-void rand_points(struct point *points, int n, int radius)
+void rand_layout(struct point *layout, int n, int env)
 {
 	int i;
 	float r, a;
 
 	for (i = 0; i < n; i++)
 	{
-		r = radius * sqrt(((float)rand()) / RAND_MAX);
+		r = env * sqrt(((float)rand()) / RAND_MAX);
 		a = 2*M_PI * ((float)rand()) / RAND_MAX;
 
-		points[i].x = round(r * cos(a));
-		points[i].y = round(r * sin(a));
+		layout[i].x = round(r * cos(a));
+		layout[i].y = round(r * sin(a));
 	}
 }
 
-int points2graph(struct point *points, int *graph, int n)
+int layout2graph(struct point *layout, int *graph, int n)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
 	{
-		graph[i*n+j] = graph[j*n+i] = round(DIST(points[i].x, points[i].y, points[j].x, points[j].y));
+		graph[i*n+j] = graph[j*n+i] = round(DIST(layout[i].x, layout[i].y, layout[j].x, layout[j].y));
 	}
 }
 
@@ -116,9 +114,9 @@ int visit(int *graph, int n, int range, int vertex, int *visited)
 	return v;
 }
 
-void print_points(struct point *points, int n, int radius)
+void print_layout(struct point *layout, int n, int env)
 {
-	int i, j, k, l=2*radius+1;
+	int i, j, k, l=2*env+1;
 
 	for (i = 0; i < l; i++) // row
 	{
@@ -126,7 +124,7 @@ void print_points(struct point *points, int n, int radius)
 		{
 			for (k = 0; k < n; k++)
 			{
-				if ((points[k].x == (j-radius)) && (points[k].y == -(i-radius)))
+				if ((layout[k].x == (j-env)) && (layout[k].y == -(i-env)))
 				{
 					printf("%2d", k);
 					break;
@@ -134,39 +132,39 @@ void print_points(struct point *points, int n, int radius)
 			}
 
 			// reached the end without finding one
-			if (k == n) (round(DIST(i, j, radius, radius)) > radius) ? printf("  ") : printf(" -");
+			if (k == n) (round(DIST(i, j, env, env)) > env) ? printf("  ") : printf(" -");
 		}
 		
 		printf("\n");
 	}
 }
 
-void plot_net(struct point *points, int *graph, int n, int radius, int range)
+void plot_net(struct point *layout, int *graph, int n, int env, int range)
 {
 	int i, j;
 
-	fprintf(netout, "radius = %d\n\n", radius);
+	fprintf(plotout, "env = %d\n\n", env);
 
-	fprintf(netout, "$vertices << EOD\n");
+	fprintf(plotout, "$vertices << EOD\n");
 	for (i = 0; i < n; i++)
 	{
-		fprintf(netout, "%d %d %d\n", points[i].x, points[i].y, i);
+		fprintf(plotout, "%d %d %d\n", layout[i].x, layout[i].y, i);
 	}
-	fprintf(netout, "EOD\n\n");
+	fprintf(plotout, "EOD\n\n");
 
-	fprintf(netout, "$arcs << EOD\n");
+	fprintf(plotout, "$arcs << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%d %d\n%d %d\n\n", points[i].x, points[i].y, points[j].x, points[j].y);
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(plotout, "%d %d\n%d %d\n\n", layout[i].x, layout[i].y, layout[j].x, layout[j].y);
 	}
-	fprintf(netout, "EOD\n\n");
+	fprintf(plotout, "EOD\n\n");
 
-	fprintf(netout, "$weights << EOD\n");
+	fprintf(plotout, "$weights << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n, range)) fprintf(netout, "%f %f %d\n", (points[i].x + points[j].x) / 2.0, (points[i].y + points[j].y) / 2.0, graph[i*n+j]);
+		if (IN_RANGE(i, j, graph, n, range)) fprintf(plotout, "%f %f %d\n", (layout[i].x + layout[j].x) / 2.0, (layout[i].y + layout[j].y) / 2.0, graph[i*n+j]);
 	}
-	fprintf(netout, "EOD\n");
+	fprintf(plotout, "EOD\n");
 }
 
 void print_graph(int *graph, int n, int range)
