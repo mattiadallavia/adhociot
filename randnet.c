@@ -22,7 +22,7 @@ int visit(float *graph, int n, int range, int vertex, int *visited);
 
 void print_layout(struct point *layout, int n, int env);
 void print_graph(float *graph, int n);
-void plot_net(struct point *layout, float *graph, int n, int env);
+void plot(struct point *layout, float *graph, int n, int env);
 
 FILE *plotout;
 
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	print_layout(layout, n, env);
 	print_graph(graph, n);
 
-	if (flag_plot) plot_net(layout, graph, n, env);
+	if (flag_plot) plot(layout, graph, n, env);
 }
 
 void usage(char* name)
@@ -165,7 +165,23 @@ void print_layout(struct point *layout, int n, int env)
 	}
 }
 
-void plot_net(struct point *layout, float *graph, int n, int env)
+void print_graph(float *graph, int n)
+{
+	int i, j;
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j<n; j++)
+		{
+			if (IN_RANGE(i, j, graph, n)) printf(" %.1f", graph[i*n+j]);
+			else printf(" ---");
+		}
+
+		printf("\n");
+	}
+}
+
+void plot(struct point *layout, float *graph, int n, int env)
 {
 	int i, j;
 
@@ -191,20 +207,4 @@ void plot_net(struct point *layout, float *graph, int n, int env)
 		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %f\n", (layout[i].x + layout[j].x) / 2.0, (layout[i].y + layout[j].y) / 2.0, graph[i*n+j]);
 	}
 	fprintf(plotout, "EOD\n");
-}
-
-void print_graph(float *graph, int n)
-{
-	int i, j;
-
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j<n; j++)
-		{
-			if (IN_RANGE(i, j, graph, n)) printf(" %.1f", graph[i*n+j]);
-			else printf(" ---");
-		}
-
-		printf("\n");
-	}
 }
