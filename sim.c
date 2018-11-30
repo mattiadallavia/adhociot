@@ -8,8 +8,6 @@
 #define NODE_WAITING   0 // waiting to be activated by the reception of one packet
 #define NODE_ACTIVE    1 // ready to transmit message or to relay other client's messages
 
-#define STACK_MAX 100
-
 #define FRAME(T) (T / 3)
 #define SLOT(T) (T % 3)
 
@@ -31,7 +29,7 @@ struct node
 	int wait;
 	int attempts;
 	int transmitting;
-	struct message messages[STACK_MAX];
+	struct message messages[100];
 	int messages_len;
 };
 
@@ -44,18 +42,16 @@ struct statistics
 };
 
 struct statistics alg(struct node *nodes, float *graph, int n);
-
 struct message peek(struct node *n);
 int find(struct node *n, int number);
 void push(struct node *n, struct message m);
 void delete(struct node *n, unsigned int pos);
-
-void parse_graph(float *graph, int n);
-
+void read_graph(float *graph, int n);
 void print_nodes(struct node *nodes, int n);
 
 int main(int argc, char **argv)
 {
+	int i;
 	int n, env, range;
 	float *graph;
 	struct node *nodes;
@@ -63,13 +59,13 @@ int main(int argc, char **argv)
 
 	scanf("%d %d %d %*d %*d %*d\n", &n, &env, &range);
 
-	graph = malloc(n * n * sizeof (int));
-	nodes = calloc(n, sizeof (struct node));
+	graph = malloc((n+1) * (n+1) * sizeof (float));
+	nodes = calloc((n+1), sizeof (struct node));
 
-	parse_graph(graph, n);
+	read_graph(graph, n+1);
 
 	// nodes initialization
-	for (int i=1; i<n; i++)
+	for (i = 1; i < (n+1); i++)
 	{
 		nodes[i].depth = -1;
 		nodes[i].messages_len = 1;
@@ -78,7 +74,7 @@ int main(int argc, char **argv)
 		nodes[i].messages[0].channel_confirm = -1;
 	}
 
-	stats = alg(nodes, graph, n);
+	stats = alg(nodes, graph, n+1);
 
 	printf("final time: t=%d\n", stats.t);
 	printf("messages transmitted: %d\n", stats.tx);
@@ -275,7 +271,7 @@ void delete(struct node *n, unsigned int pos)
 	for (i = pos; i < n->messages_len; i++) n->messages[i] = n->messages[i+1];
 }
 
-void parse_graph(float *graph, int n)
+void read_graph(float *graph, int n)
 {
 	int i;
 

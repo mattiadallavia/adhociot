@@ -13,9 +13,9 @@ struct point
 	int y;
 };
 
-void rand_layout(struct point *layout, int n, int env);
-void print_layout(struct point *layout, int n);
-void human_layout(struct point *layout, int n, int env);
+void rand_coord(struct point *coord, int n, int env);
+void print_coord(struct point *coord, int n);
+void human_layout(struct point *coord, int n, int env);
 
 static int flag_human = 0;
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 {
 	int opt;
 	int n, env, range;
-	struct point *layout;
+	struct point *coord;
 	int seed = time(0);
 
 	// optional arguments
@@ -60,22 +60,22 @@ int main(int argc, char **argv)
 	env = atoi(argv[optind++]);
 	range = atoi(argv[optind++]);
 
-	layout = malloc(n * sizeof (struct point));
+	coord = malloc((n+1) * sizeof (struct point));
 	srand(seed);
 
 	// sink at the center
-	layout[0].x = 0;
-	layout[0].y = 0;
+	coord[0].x = 0;
+	coord[0].y = 0;
 
-	rand_layout(layout+1, n-1, env);
+	rand_coord(coord+1, n, env);
 
 	printf("%d %d %d %d\n", n, env, range, seed);
-	print_layout(layout, n);
+	print_coord(coord, n+1);
 
-	if (flag_human) human_layout(layout, n, env);
+	if (flag_human) human_layout(coord, n+1, env);
 }
 
-void rand_layout(struct point *layout, int n, int env)
+void rand_coord(struct point *coord, int n, int env)
 {
 	int i;
 	float r, a;
@@ -85,22 +85,22 @@ void rand_layout(struct point *layout, int n, int env)
 		r = env * sqrt(((float)rand()) / RAND_MAX);
 		a = 2*M_PI * ((float)rand()) / RAND_MAX;
 
-		layout[i].x = round(r * cos(a));
-		layout[i].y = round(r * sin(a));
+		coord[i].x = round(r * cos(a));
+		coord[i].y = round(r * sin(a));
 	}
 }
 
-void print_layout(struct point *layout, int n)
+void print_coord(struct point *coord, int n)
 {
 	int i;
 
 	for (i = 0; i < n; i++)
 	{
-		printf("%d %d\n", layout[i].x, layout[i].y);
+		printf("%d %d\n", coord[i].x, coord[i].y);
 	}
 }
 
-void human_layout(struct point *layout, int n, int env)
+void human_layout(struct point *coord, int n, int env)
 {
 	int i, j, k, l = 2*env+1;
 
@@ -110,7 +110,7 @@ void human_layout(struct point *layout, int n, int env)
 		{
 			for (k = 0; k < n; k++)
 			{
-				if ((layout[k].x == (j-env)) && (layout[k].y == -(i-env)))
+				if ((coord[k].x == (j-env)) && (coord[k].y == -(i-env)))
 				{
 					printf("%2d", k);
 					break;

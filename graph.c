@@ -15,11 +15,11 @@ struct point
 	int y;
 };
 
-void read_layout(struct point *layout, int n);
-void layout2graph(struct point *layout, float *graph, int n, int range);
+void read_coord(struct point *coord, int n);
+void layout2graph(struct point *coord, float *graph, int n, int range);
 int visit(float *graph, int n, int vertex, int *visited);
 void print_graph(float *graph, int n);
-void plot(struct point *layout, float *graph, int n, int env);
+void plot(struct point *coord, float *graph, int n, int env);
 
 FILE *plotout;
 
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 {
 	int opt;
 	int n, env, range;
-	struct point *layout;
+	struct point *coord;
 	float *graph;
 	int conn;
 	int *visited;
@@ -59,38 +59,38 @@ int main(int argc, char **argv)
 
 	scanf("%d %d %d %*d\n", &n, &env, &range);
 
-	layout = malloc(n * sizeof (struct point));
-	graph = malloc(n * n * sizeof (float));
-	visited = calloc(n, sizeof (int));
+	coord = malloc((n+1) * sizeof (struct point));
+	graph = malloc((n+1) * (n+1) * sizeof (float));
+	visited = calloc(n+1, sizeof (int));
 
-	read_layout(layout, n);
+	read_coord(coord, n+1);
 	
-	layout2graph(layout, graph, n, range);
-	conn = visit(graph, n, 0, visited);
+	layout2graph(coord, graph, n+1, range);
+	conn = visit(graph, n+1, 0, visited) - 1;
 
 	printf("%d %d %d %d\n", n, env, range, conn);
-	print_graph(graph, n);
+	print_graph(graph, n+1);
 
-	if (flag_plot) plot(layout, graph, n, env);
+	if (flag_plot) plot(coord, graph, n+1, env);
 }
 
-void read_layout(struct point *layout, int n)
+void read_coord(struct point *coord, int n)
 {
 	int i;
 
 	for (i = 0; i < n; i++)
 	{
-		scanf("%d %d\n", &layout[i].x, &layout[i].y);
+		scanf("%d %d\n", &coord[i].x, &coord[i].y);
 	}
 }
 
-void layout2graph(struct point *layout, float *graph, int n, int range)
+void layout2graph(struct point *coord, float *graph, int n, int range)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
 	{
-		graph[i*n+j] = graph[j*n+i] = DIST(layout[i].x, layout[i].y, layout[j].x, layout[j].y) / range;
+		graph[i*n+j] = graph[j*n+i] = DIST(coord[i].x, coord[i].y, coord[j].x, coord[j].y) / range;
 	}
 }
 
@@ -123,7 +123,7 @@ void print_graph(float *graph, int n)
 	}
 }
 
-void plot(struct point *layout, float *graph, int n, int env)
+void plot(struct point *coord, float *graph, int n, int env)
 {
 	int i, j;
 
@@ -132,21 +132,21 @@ void plot(struct point *layout, float *graph, int n, int env)
 	fprintf(plotout, "$vertices << EOD\n");
 	for (i = 0; i < n; i++)
 	{
-		fprintf(plotout, "%d %d %d\n", layout[i].x, layout[i].y, i);
+		fprintf(plotout, "%d %d %d\n", coord[i].x, coord[i].y, i);
 	}
 	fprintf(plotout, "EOD\n\n");
 
 	fprintf(plotout, "$arcs << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%d %d\n%d %d\n\n", layout[i].x, layout[i].y, layout[j].x, layout[j].y);
+		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%d %d\n%d %d\n\n", coord[i].x, coord[i].y, coord[j].x, coord[j].y);
 	}
 	fprintf(plotout, "EOD\n\n");
 
 	fprintf(plotout, "$weights << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %.1f\n", (layout[i].x + layout[j].x) / 2.0, (layout[i].y + layout[j].y) / 2.0, graph[i*n+j]);
+		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %.1f\n", (coord[i].x + coord[j].x) / 2.0, (coord[i].y + coord[j].y) / 2.0, graph[i*n+j]);
 	}
 	fprintf(plotout, "EOD\n");
 }
