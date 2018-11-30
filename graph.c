@@ -17,26 +17,20 @@ struct point
 
 void usage(char* name);
 
-void rand_layout(struct point *layout, int n, int env);
-int layout2graph(struct point *layout, float *graph, int n, int range);
+void read_layout(struct point *layout, int n);
+void layout2graph(struct point *layout, float *graph, int n, int range);
 int visit(float *graph, int n, int vertex, int *visited);
 
-void print_layout(struct point *layout, int n, int env);
 void print_graph(float *graph, int n);
 void plot(struct point *layout, float *graph, int n, int env);
 
 FILE *plotout;
 
 static int flag_plot = 0;
-static int flag_layout = 0;
-static int flag_conn = 0;
 
 static struct option long_options[] =
 {
-    {"seed",      required_argument, 0, 's'},
     {"plot",      required_argument, 0, 'p'},
-    {"layout",    no_argument,       0, 'l'},
-    {"connected", no_argument,       0, 'c'},
     {0, 0, 0, 0}
 };
 
@@ -46,93 +40,57 @@ int main(int argc, char **argv)
 	int n, env, range;
 	struct point *layout;
 	float *graph;
-	int att = 0;
 	int conn;
 	int *visited;
-	int seed = time(0);
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "s:p:lc", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "p:", long_options, 0)) != -1)
 	{
 		switch(opt)
 		{
-			case 's':
-				seed = atoi(optarg);
-				break;
 			case 'p':
 				flag_plot = 1;
 				plotout = fopen(optarg, "w");
-				break;
-			case 'l':
-				flag_layout = 1;
-				break;
-			case 'c':
-				flag_conn = 1;
 				break;
 			case '?':
 				return 1;
 		}
 	}
 
-	// mandatory arguments
-	if (argc - optind < 3)
-	{
-		usage(argv[0]);
-		return 1;
-	}
-
-	n = atoi(argv[optind++]);
-	env = atoi(argv[optind++]);
-	range = atoi(argv[optind++]);
+	scanf("%d %d %d %*d\n", &n, &env, &range);
 
 	layout = malloc(n * sizeof (struct point));
 	graph = malloc(n * n * sizeof (float));
-	visited = malloc(n * sizeof (int));
-	srand(seed);
+	visited = calloc(n, sizeof (int));
 
-	do {
-		rand_layout(layout+1, n-1, env);
-		layout2graph(layout, graph, n, range);
+	read_layout(layout, n);
+	layout2graph(layout, graph, n, range);
 
-		memset(visited, 0, n * sizeof (int));
-		conn = visit(graph, n, 0, visited);
+	conn = visit(graph, n, 0, visited);
 
-		att++;
-	}
-	while (flag_conn && (conn != n));
-
-	printf("%d %d %d %d %d %d\n", n, env, range, conn, att, seed);
+	printf("%d %d %d %d\n", n, env, range, conn);
 	print_graph(graph, n);
 
-	if (flag_layout) print_layout(layout, n, env);
 	if (flag_plot) plot(layout, graph, n, env);
 }
 
 void usage(char* name)
 {
-	fprintf(stderr, "usage: %s NODES ENV RANGE\n", name);
-	fprintf(stderr, " -s, --seed S           specify custom seed\n");
-	fprintf(stderr, " -l, --layout           print layout\n");
+	fprintf(stderr, "usage: %s\n", name);
 	fprintf(stderr, " -p, --plot FILENAME    write plot data file\n");
-	fprintf(stderr, " -c, --connected        ensure fully connected graph\n");
 }
 
-void rand_layout(struct point *layout, int n, int env)
+void read_layout(struct point *layout, int n)
 {
 	int i;
-	float r, a;
 
 	for (i = 0; i < n; i++)
 	{
-		r = env * sqrt(((float)rand()) / RAND_MAX);
-		a = 2*M_PI * ((float)rand()) / RAND_MAX;
-
-		layout[i].x = round(r * cos(a));
-		layout[i].y = round(r * sin(a));
+		scanf("%d %d\n", &layout[i].x, &layout[i].y);
 	}
 }
 
-int layout2graph(struct point *layout, float *graph, int n, int range)
+void layout2graph(struct point *layout, float *graph, int n, int range)
 {
 	int i, j;
 
@@ -154,31 +112,6 @@ int visit(float *graph, int n, int vertex, int *visited)
 	}
 
 	return v;
-}
-
-void print_layout(struct point *layout, int n, int env)
-{
-	int i, j, k, l=2*env+1;
-
-	for (i = 0; i < l; i++) // row
-	{
-		for (j = 0; j < l; j++) // col
-		{
-			for (k = 0; k < n; k++)
-			{
-				if ((layout[k].x == (j-env)) && (layout[k].y == -(i-env)))
-				{
-					printf("%2d", k);
-					break;
-				}
-			}
-
-			// reached the end without finding one
-			if (k == n) (round(DIST(i, j, env, env)) > env) ? printf("  ") : printf(" .");
-		}
-		
-		printf("\n");
-	}
 }
 
 void print_graph(float *graph, int n)

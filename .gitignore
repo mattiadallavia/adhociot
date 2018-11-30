@@ -1,6 +1,7 @@
 sim
 stat
-net
+layout
+graph
 
 *.dat
 *.log
