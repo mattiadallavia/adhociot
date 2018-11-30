@@ -13,7 +13,6 @@ struct point
 	int y;
 };
 
-void usage(char* name);
 void rand_layout(struct point *layout, int n, int env);
 void print_layout(struct point *layout, int n);
 void human_layout(struct point *layout, int n, int env);
@@ -26,6 +25,10 @@ static struct option long_options[] =
     {"human",     no_argument,       0, 'h'},
     {0, 0, 0, 0}
 };
+
+// usage: ./layout NODES ENV RANGE
+//  -s, --seed S    specify custom seed
+//  -h, --human     print visual layout
 
 int main(int argc, char **argv)
 {
@@ -51,11 +54,7 @@ int main(int argc, char **argv)
 	}
 
 	// mandatory arguments
-	if (argc - optind < 3)
-	{
-		usage(argv[0]);
-		return 1;
-	}
+	if (argc - optind < 3) return 1;
 
 	n = atoi(argv[optind++]);
 	env = atoi(argv[optind++]);
@@ -74,13 +73,6 @@ int main(int argc, char **argv)
 	print_layout(layout, n);
 
 	if (flag_human) human_layout(layout, n, env);
-}
-
-void usage(char* name)
-{
-	fprintf(stderr, "usage: %s NODES ENV RANGE\n", name);
-	fprintf(stderr, " -s, --seed S    specify custom seed\n");
-	fprintf(stderr, " -h, --human     print visual layout\n");
 }
 
 void rand_layout(struct point *layout, int n, int env)

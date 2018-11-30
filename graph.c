@@ -15,12 +15,9 @@ struct point
 	int y;
 };
 
-void usage(char* name);
-
 void read_layout(struct point *layout, int n);
 void layout2graph(struct point *layout, float *graph, int n, int range);
 int visit(float *graph, int n, int vertex, int *visited);
-
 void print_graph(float *graph, int n);
 void plot(struct point *layout, float *graph, int n, int env);
 
@@ -30,9 +27,12 @@ static int flag_plot = 0;
 
 static struct option long_options[] =
 {
-    {"plot",      required_argument, 0, 'p'},
+    {"plot", required_argument, 0, 'p'},
     {0, 0, 0, 0}
 };
+
+// usage: ./graph
+//  -p, --plot FILENAME    write plot data file
 
 int main(int argc, char **argv)
 {
@@ -64,20 +64,14 @@ int main(int argc, char **argv)
 	visited = calloc(n, sizeof (int));
 
 	read_layout(layout, n);
+	
 	layout2graph(layout, graph, n, range);
-
 	conn = visit(graph, n, 0, visited);
 
 	printf("%d %d %d %d\n", n, env, range, conn);
 	print_graph(graph, n);
 
 	if (flag_plot) plot(layout, graph, n, env);
-}
-
-void usage(char* name)
-{
-	fprintf(stderr, "usage: %s\n", name);
-	fprintf(stderr, " -p, --plot FILENAME    write plot data file\n");
 }
 
 void read_layout(struct point *layout, int n)
