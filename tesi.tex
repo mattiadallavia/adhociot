@@ -333,7 +333,7 @@ Si ha quindi che in una rete $R_r$, per garantire la totale connessione, le copp
 \caption{Luogo delle coppie $(n, g)$ per cui $c(R_r) = 1$}
 \end{figure}
 
-\subsection{Simulazione di reti}
+\subsection{Simulazione di layout}
 
 Per analizzare il comportamento medio di un campione eterogeneo di reti, generiamo dei \emph{layout} al variare di $n$ e $d$ scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
 
@@ -396,7 +396,7 @@ Per calcolare il \emph{grafo} associato al \emph{layout} dell'esempio precendete
 \end{BVerbatim}
 \end{figure}
 
-Per la creazione di un dataset utilizzaimo infine
+Per la creazione di un dataset al variare di $n$ e $d$ utilizzaimo infine
 
 \centerline{\texttt{stat n\_min n\_max n\_step d\_min d\_max d\_step p i}}
 
@@ -423,7 +423,7 @@ Eseguendo ad esempio \texttt{stat 100 300 100 6 10 2 1000 100} otteniamo:
 
 \subsection{Regressione dei dati}
 
-L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(d)$.
+% L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(d)$.
 
 Da notare che questa stima non fornirà un informazione su quali probabilmente saranno i valori di $\tilde{c}(n, g)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
 
