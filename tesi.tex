@@ -423,11 +423,11 @@ Eseguendo ad esempio \texttt{stat 100 300 100 6 10 2 1000 100} otteniamo:
 
 \subsection{Regressione dei dati}
 
+In questa sezione prendiamo in esame un dataset generato a partire da valori realistici di $n$ e $d$, con l'obiettivo di determinare una stima di $\tilde{c}(q)$. È importante notare che questa non fornirà un informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
+
+Nello specifico, il dataset esaminato è frutto dell'esecuzione di \texttt{stat 0 1000 50 0 20 1 1000 100}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
+
 % L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(d)$.
-
-Da notare che questa stima non fornirà un informazione su quali probabilmente saranno i valori di $\tilde{c}(n, g)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
-
-Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n \in \{0, 50, 100, 150, \dots, 1000\}$ e $g \in \{0, 1, 2, \dots, 20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ campioni.
 
 \begin{figure}[H]
 \begin{subfigure}[b]{0.5\textwidth}
@@ -438,24 +438,24 @@ Per questa simulazione sono stati generati 100 grafi $R_i$ per ogni valore di $n
 \includegraphics[width=\textwidth]{figures/conn_g.pdf}
 \caption{}
 \end{subfigure}
-\caption{Risultato della simulazione.}%
+\caption{Visualizzazione del dataset.}%
 \end{figure}
 
-Come è ragionevole immaginare, al crescere di $g$ il \emph{rapporto di connessione} cala repentinamente, nello specifico è inversamente proporzionale al \emph{guadagno superficiale} $G = g^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti cresce la probabilità che si formino dei percorsi al \emph{sink}.
+Come ci si poteva aspettare, al crescere di $d$ il \emph{rapporto di connessione} $c$ cala repentinamente, nello specifico è inversamente proporzionale alla \emph{dimensione superficiale} $D = d^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti cresce la probabilità che si formino dei percorsi al \emph{sink}.
 
-Interpolando il dataset sulla funzione $\tilde{c}(d) = s \cdot tanh(w \cdot d + t) + q$ (determinata empiricamente) si ottiene:
+Interpolando il dataset sulla funzione $\tilde{c}(q) = s \cdot tanh(w \cdot q + t) + u$ (determinata empiricamente) si ottiene:
 \begin{equation*}
-\tilde{c}(n, g) = 0.49 \cdot tanh(d - 4.53) + 0.51
+\tilde{c}(q) = 0.49 \cdot tanh(q - 4.53) + 0.51
 \end{equation*}
-Dove $d$ è la \emph{densità di guadagno superficiale} $d = \frac{n}{G}$.
+dove $q$ è la \emph{densità di nodi} $q = \frac{n}{D}$.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/conn_den.pdf}
-\caption{}
+\caption{Grafico di $\tilde{c}(q)$ a confronto con i dati sperimentali.}
 \end{figure}
 
-Da questo grafico si puo vedere come un \emph{rapporto di connessione} medio $\tilde{c} \geq 0.9$ si può ottenere con $d \gtrsim 5.6$. Un risultato del tutto in linea con quello ottenuto per le \emph{reti a reticolo uniforme}.
+Da questo grafico si evince che un \emph{rapporto di connessione} medio $\tilde{c} \geq 0.9$ si ottiene con $d \gtrsim 5.6$. Un risultato del tutto in linea con quello ottenuto per le \emph{reti a reticolo uniforme}.
 
 \section{L'algoritmo}
 
