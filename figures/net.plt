@@ -1,3 +1,5 @@
+# set terminal pdf size 3.5in,3.5in font 'Times,16' dl 1.5
+
 unset tics
 unset key
 unset border
