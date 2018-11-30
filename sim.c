@@ -88,8 +88,9 @@ int main(int argc, char **argv)
 
 struct statistics alg(struct node *nodes, float *graph, int n)
 {
-	int i, dist, pos, coll, disp;
+	int i, pos, coll, disp, disp_t;
 	int i_tx, i_rx;
+	float dist;
 	struct node *n_tx, *n_rx;
 	struct message m_tx, m_rx;
 	struct statistics stats;
@@ -106,23 +107,28 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 	while (1) // time loop
 	{
 		disp = 0;
+		disp_t = 0;
 
 		// check every active node for messages to dispatch
 		for (i = 0; i < n; i++) if ((nodes[i].state == NODE_ACTIVE) && (nodes[i].messages_len > 0))
 		{
-			// count nodes with messages to dispatch, now or in the future
-			disp++;
+			disp++; // count nodes with messages to dispatch, now or in the future
 
 			// if it is the right slot for this node
 			// and is scheduled for this (or a past) frame
 			if ((SLOT(stats.t) == SLOT(nodes[i].depth)) && (FRAME(stats.t) >= nodes[i].wait))
 			{
+				disp_t++; // messages to dispatch in this t
 				nodes[i].transmitting = 1;
 			}
 		}
 
-		// there are no more messages to dispatch
-		if (disp == 0) return stats;
+		if (disp == 0) return stats; // there are no more messages to dispatch
+		if (disp_t == 0)
+		{
+			stats.t++;
+			continue; // no mess. to disp. in this t
+		}
 
 		printf("t=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
 		print_nodes(nodes, n);
@@ -144,6 +150,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			for (i_rx = 0; i_rx < n; i_rx++) if (IN_RANGE(i_tx, i_rx, graph, n) && !nodes[i_rx].transmitting)
 			{
 				n_rx = &nodes[i_rx];
+				dist = graph[i_tx+n*i_rx];
 
 				// collision detection
 				coll = 0;
@@ -171,7 +178,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
-					n_rx->wait = FRAME(stats.t); // todo: wait a frame proportional to the distance
+					n_rx->wait = FRAME(stats.t) + (int) (dist*10); // wait a frame proportional to the distance
 					printf("node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
