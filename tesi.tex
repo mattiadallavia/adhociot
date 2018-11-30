@@ -655,253 +655,141 @@ chan.:  0  0  0  0  0
 mess.:  1  1  1  1  1 
 
 node 0 transmits message 0 on channel 0
-node 1 activated at depth 1, transmission scheduled for frame 0
-node 4 activated at depth 1, transmission scheduled for frame 0
+node 1 activated at depth 1, transmission scheduled for frame 7
+node 4 activated at depth 1, transmission scheduled for frame 8
 
-t=1 (frame 0, slot 1)
+t=22 (frame 7, slot 1)
 
      #  0  1  2  3  4 
-tran.:     *        * 
+tran.:     *          
 depth:  0  1        1 
 chan.:  0  0  0  0  0 
 mess.:  0  1  1  1  1 
 
 node 1 transmits message 1 on channel 0
-collision with message 4 from node 4 at node 0
-node 2 activated at depth 2, transmission scheduled for frame 0
-node 3 activated at depth 2, transmission scheduled for frame 0
-node 1 scheduled attempt n. 2 at frame 2
+added by node 0
+node 2 activated at depth 2, transmission scheduled for frame 17
+node 3 activated at depth 2, transmission scheduled for frame 15
+node 1 scheduled attempt n. 2 at frame 9
 
-node 4 transmits message 4 on channel 0
-collision with message 1 from node 1 at node 0
-node 4 scheduled attempt n. 2 at frame 1
-
-t=2 (frame 0, slot 2)
+t=24 (frame 8, slot 0)
 
      #  0  1  2  3  4 
-tran.:        *  *    
+tran.:  *             
 depth:  0  1  2  2  1 
 chan.:  0  0  0  0  0 
-mess.:  0  1  1  1  1 
+mess.:  1  1  1  1  1 
 
-node 2 transmits message 2 on channel 0
-collision with message 3 from node 3 at node 1
-node 2 scheduled attempt n. 2 at frame 2
+node 0 transmits message 1 on channel 0
+node 1 received an ack, transmission scheduled for frame 8
+message 1 removed from node 1
+channel 0 in use by node 1, node 4 selects channel 1
 
-node 3 transmits message 3 on channel 0
-collision with message 2 from node 2 at node 1
-node 3 scheduled attempt n. 2 at frame 2
-
-t=3 (frame 1, slot 0)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  0  0  0  0 
-mess.:  0  1  1  1  1 
-
-t=4 (frame 1, slot 1)
+t=25 (frame 8, slot 1)
 
      #  0  1  2  3  4 
 tran.:              * 
 depth:  0  1  2  2  1 
-chan.:  0  0  0  0  0 
-mess.:  0  1  1  1  1 
+chan.:  0  0  0  0  1 
+mess.:  0  0  1  1  1 
 
-node 4 transmits message 4 on channel 0
+node 4 transmits message 4 on channel 1
 added by node 0
-node 4 scheduled attempt n. 3 at frame 3
+node 4 scheduled attempt n. 2 at frame 9
 
-t=5 (frame 1, slot 2)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  0  0  0  0 
-mess.:  1  1  1  1  1 
-
-t=6 (frame 2, slot 0)
+t=27 (frame 9, slot 0)
 
      #  0  1  2  3  4 
 tran.:  *             
 depth:  0  1  2  2  1 
-chan.:  0  0  0  0  0 
-mess.:  1  1  1  1  1 
+chan.:  0  0  0  0  1 
+mess.:  1  0  1  1  1 
 
 node 0 transmits message 4 on channel 0
-channel 0 in use by node 4, node 1 selects channel 1
-node 4 received an ack, transmission scheduled for frame 2
+node 4 received an ack, transmission scheduled for frame 9
 message 4 removed from node 4
 
-t=7 (frame 2, slot 1)
-
-     #  0  1  2  3  4 
-tran.:     *          
-depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
-mess.:  0  1  1  1  0 
-
-node 1 transmits message 1 on channel 1
-added by node 0
-node 1 scheduled attempt n. 3 at frame 6
-
-t=8 (frame 2, slot 2)
-
-     #  0  1  2  3  4 
-tran.:        *  *    
-depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
-mess.:  1  1  1  1  0 
-
-node 2 transmits message 2 on channel 0
-collision with message 3 from node 3 at node 1
-node 2 scheduled attempt n. 3 at frame 5
-
-node 3 transmits message 3 on channel 0
-collision with message 2 from node 2 at node 1
-node 3 scheduled attempt n. 3 at frame 3
-
-t=9 (frame 3, slot 0)
-
-     #  0  1  2  3  4 
-tran.:  *             
-depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
-mess.:  1  1  1  1  0 
-
-node 0 transmits message 1 on channel 0
-node 1 received an ack, transmission scheduled for frame 3
-message 1 removed from node 1
-
-t=10 (frame 3, slot 1)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
-mess.:  0  0  1  1  0 
-
-t=11 (frame 3, slot 2)
+t=47 (frame 15, slot 2)
 
      #  0  1  2  3  4 
 tran.:           *    
 depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
+chan.:  0  0  0  0  1 
 mess.:  0  0  1  1  0 
 
 node 3 transmits message 3 on channel 0
 added by node 1
-node 3 scheduled attempt n. 4 at frame 5
+node 3 scheduled attempt n. 2 at frame 17
 
-t=12 (frame 4, slot 0)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
-mess.:  0  1  1  1  0 
-
-t=13 (frame 4, slot 1)
+t=49 (frame 16, slot 1)
 
      #  0  1  2  3  4 
 tran.:     *          
 depth:  0  1  2  2  1 
-chan.:  0  1  0  0  0 
+chan.:  0  0  0  0  1 
 mess.:  0  1  1  1  0 
 
-node 1 transmits message 3 on channel 1
+node 1 transmits message 3 on channel 0
 added by node 0
 channel 0 in use by node 3, node 2 selects channel 1
-node 3 received an ack, transmission scheduled for frame 4
+node 3 received an ack, transmission scheduled for frame 16
 message 3 removed from node 3
-node 1 scheduled attempt n. 2 at frame 6
+node 1 scheduled attempt n. 2 at frame 18
 
-t=14 (frame 4, slot 2)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
-mess.:  1  1  1  0  0 
-
-t=15 (frame 5, slot 0)
+t=51 (frame 17, slot 0)
 
      #  0  1  2  3  4 
 tran.:  *             
 depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
+chan.:  0  0  1  0  1 
 mess.:  1  1  1  0  0 
 
 node 0 transmits message 3 on channel 0
-node 1 received an ack, transmission scheduled for frame 5
+node 1 received an ack, transmission scheduled for frame 17
 message 3 removed from node 1
 
-t=16 (frame 5, slot 1)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
-mess.:  0  0  1  0  0 
-
-t=17 (frame 5, slot 2)
+t=53 (frame 17, slot 2)
 
      #  0  1  2  3  4 
 tran.:        *       
 depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
+chan.:  0  0  1  0  1 
 mess.:  0  0  1  0  0 
 
 node 2 transmits message 2 on channel 1
 added by node 1
-node 2 scheduled attempt n. 4 at frame 8
+node 2 scheduled attempt n. 2 at frame 19
 
-t=18 (frame 6, slot 0)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
-mess.:  0  1  1  0  0 
-
-t=19 (frame 6, slot 1)
+t=55 (frame 18, slot 1)
 
      #  0  1  2  3  4 
 tran.:     *          
 depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
+chan.:  0  0  1  0  1 
 mess.:  0  1  1  0  0 
 
-node 1 transmits message 2 on channel 1
+node 1 transmits message 2 on channel 0
 added by node 0
-node 2 received an ack, transmission scheduled for frame 6
+node 2 received an ack, transmission scheduled for frame 18
 message 2 removed from node 2
-node 1 scheduled attempt n. 2 at frame 8
+node 1 scheduled attempt n. 2 at frame 20
 
-t=20 (frame 6, slot 2)
-
-     #  0  1  2  3  4 
-tran.:                
-depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
-mess.:  1  1  0  0  0 
-
-t=21 (frame 7, slot 0)
+t=57 (frame 19, slot 0)
 
      #  0  1  2  3  4 
 tran.:  *             
 depth:  0  1  2  2  1 
-chan.:  0  1  1  0  0 
+chan.:  0  0  1  0  1 
 mess.:  1  1  0  0  0 
 
 node 0 transmits message 2 on channel 0
-node 1 received an ack, transmission scheduled for frame 7
+node 1 received an ack, transmission scheduled for frame 19
 message 2 removed from node 1
 
-final time: t=22
-messages transmitted: 17
-messages received: 24
-collisions: 6
+final time: t=58
+messages transmitted: 11
+messages received: 22
+collisions: 0
 \end{Verbatim}
 
 \appendix
