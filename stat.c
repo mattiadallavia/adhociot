@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 	int n, n_min, n_max, n_step;
 	float dim, dim_min, dim_max, dim_step;
 	int i, range, iter;
-	int conn, conn_sum, compl;
+	int conn, conn_sum;
 	char command[100];
 	FILE *pipe;
 
@@ -31,7 +31,6 @@ int main(int argc, char **argv)
 		for (n = n_min; n <= n_max; n += n_step)
 		{
 			conn_sum = 0;
-			compl = 0;
 
 			// random samples
 			for (i = 0; i < iter; i++)
@@ -43,11 +42,9 @@ int main(int argc, char **argv)
 				pclose(pipe);
 
 				conn_sum += conn;
-				compl += (conn == n);
 			}
 
-			printf("%f %d %f %f\n", dim, n, ((float)conn_sum) / (iter*n),
-			                                ((float)compl) / iter);
+			printf("%f %d %f\n", dim, n, ((float)conn_sum) / (iter*n));
 		}
 		printf("\n");
 	}
