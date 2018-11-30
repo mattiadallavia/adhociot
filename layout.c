@@ -18,9 +18,12 @@ void rand_layout(struct point *layout, int n, int env);
 void print_layout(struct point *layout, int n);
 void human_layout(struct point *layout, int n, int env);
 
+static int flag_human = 0;
+
 static struct option long_options[] =
 {
     {"seed",      required_argument, 0, 's'},
+    {"human",     no_argument,       0, 'h'},
     {0, 0, 0, 0}
 };
 
@@ -32,12 +35,15 @@ int main(int argc, char **argv)
 	int seed = time(0);
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "s:", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "s:h", long_options, 0)) != -1)
 	{
 		switch(opt)
 		{
 			case 's':
 				seed = atoi(optarg);
+				break;
+			case 'h':
+				flag_human = 1;
 				break;
 			case '?':
 				return 1;
@@ -62,12 +68,15 @@ int main(int argc, char **argv)
 
 	printf("%d %d %d %d\n", n, env, range, seed);
 	print_layout(layout, n);
+
+	if (flag_human) human_layout(layout, n, env);
 }
 
 void usage(char* name)
 {
 	fprintf(stderr, "usage: %s NODES ENV RANGE\n", name);
 	fprintf(stderr, " -s, --seed S    specify custom seed\n");
+	fprintf(stderr, " -h, --human     print visual layout\n");
 }
 
 void rand_layout(struct point *layout, int n, int env)
