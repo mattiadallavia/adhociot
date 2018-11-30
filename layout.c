@@ -64,6 +64,10 @@ int main(int argc, char **argv)
 	layout = malloc(n * sizeof (struct point));
 	srand(seed);
 
+	// sink at the center
+	layout[0].x = 0;
+	layout[0].y = 0;
+
 	rand_layout(layout+1, n-1, env);
 
 	printf("%d %d %d %d\n", n, env, range, seed);
