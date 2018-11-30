@@ -300,7 +300,7 @@ Posto invece $g > 1$, tutti i nodi potrebbero cadere nel disco di portata del \e
 
 Nelle prossime sezioni approcceremo il problema con due distite strategie, tentando di fornire una risposta alla suddetta domanda.
 
-\subsection{Rete a reticolo uniforme}
+\subsection{Layout a reticolo uniforme}
 
 Ipotizzando che i nodi siano disposti in un reticolo uniforme, è possibile determinare la soglia per una rete completamente connessa.
 
@@ -333,7 +333,7 @@ Si ha quindi che in una rete $R_r$, per garantire la totale connessione, le copp
 \caption{Luogo delle coppie $(n, g)$ per cui $c(R_r) = 1$}
 \end{figure}
 
-\subsection{Simulazione di layout}
+\subsection{Layout stocastico}
 
 Per analizzare il comportamento medio di un campione eterogeneo di reti, generiamo dei \emph{layout} al variare di $n$ e $d$ scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
 
@@ -421,7 +421,7 @@ Eseguendo ad esempio \texttt{stat 100 300 100 6 10 2 1000 100} otteniamo:
 \end{BVerbatim}
 \end{figure}
 
-\subsection{Regressione dei dati}
+\subsection{Stima}
 
 In questa sezione prendiamo in esame un dataset generato a partire da valori realistici di $n$ e $d$, con l'obiettivo di determinare una stima di $\tilde{c}(q)$. È importante notare che questa non fornirà un informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di reti eterogenee.
 
