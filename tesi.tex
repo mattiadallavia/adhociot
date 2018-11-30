@@ -12,12 +12,21 @@
 \usepackage{amssymb}
 \usepackage{xfrac}
 \usepackage{url}
+\usepackage{listings}
+\usepackage{fancyvrb}
 
 \setlength{\parskip}{0.5em}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
 \newtheorem{proposition}{Proposizione}
+
+\lstset{ 
+	basicstyle=\footnotesize, % the size of the fonts that are used for the code
+    language=C,               % the language of the code
+    numbers=left,             % where to put the line-numbers; possible values are (none, left, right)
+    tabsize=4,	              % sets default tabsize to 2 spaces
+}
 
 \title{Un paradigma per la raccolta dati in reti ad-hoc di sensori}
 \date{2018\\ Dicembre}
@@ -324,7 +333,95 @@ Si ha quindi che in una rete $R_r$, per garantire la totale connessione, le copp
 \caption{Luogo delle coppie $(n, g)$ per cui $c(R_r) = 1$}
 \end{figure}
 
-\subsection{Simulazione di reti campione}
+\subsection{Simulazione di reti}
+
+Per analizzare il comportamento medio di un campione eterogeneo di reti, generiamo dei \emph{layout} al variare di $n$ e $d$ scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
+
+I dati vengono prodotti mediante dei semplici programmi in linguaggio C, scritti sulla base del modello presentato in precedenza. Procediamo ora a presentarli con l'uso di alcuni esempi.
+
+\texttt{layout n a p ----seed s} genera un \emph{layout} $L = (a,\,p,\,N)$ dove $|N| = n$ e le coordinate $x_i,\,y_i$ sono estratte da una fonte di numeri pseudocasuali con seme $s$. Produce un output nella forma:
+
+\begin{figure}[H]
+\centering
+\begin{BVerbatim}
+n    a    p    s
+0    0
+x1   y1
+x2   y2
+ ...
+xn   yn
+\end{BVerbatim}
+\end{figure}
+
+Eseguendo ad esempio \texttt{layout 5 10 5 ----seed 6763} otteniamo:
+
+\begin{figure}[H]
+\centering
+\begin{BVerbatim}
+ 5    10    5    6763
+ 0     0
+ 3     3
+-4     4
+ 5    -3
+ 0     2
+\end{BVerbatim}
+\end{figure}
+
+\texttt{graph} legge in input un \emph{layout} $L$ e ne calcola il relativo \emph{grafo}. Produce un output nella forma:
+
+\begin{figure}[H]
+\centering
+\begin{BVerbatim}
+n    a    p    c
+0    g11  g12  ...  g1n
+g11  0    g21  ...  g2n
+ ...
+gn1  gn2  gn3  ...  0
+\end{BVerbatim}
+\end{figure}
+
+Il grafo è codificato mediante la sua matrice delle adiacenze. Il valore $g_{ij}$ esprime la distanza tra i nodi $i$ e $j$, se $g_{ij} \leq 1$ rappresenta un effettivo arco del grafo. $c$ è il numero di nodi \emph{connessi al sink}.
+
+Per calcolare il \emph{grafo} associato al \emph{layout} dell'esempio precendete eseguiamo \texttt{layout 5 10 5 ----seed 6763 | graph}, ottenendo:
+
+\begin{figure}[H]
+\centering
+\begin{BVerbatim}
+5     10    5     4
+0.00  0.85  1.13  1.17  0.40
+0.85  0.00  1.41  1.26  0.63
+1.13  1.41  0.00  2.28  0.89
+1.17  1.26  2.28  0.00  1.41
+0.40  0.63  0.89  1.41  0.00
+\end{BVerbatim}
+\end{figure}
+
+Per la creazione di un dataset utilizzaimo infine
+
+\centerline{\texttt{stat n\_min n\_max n\_step d\_min d\_max d\_step p i}}
+
+che calcola il \emph{rapporto di connessione} medio tra $i$ campioni per ciascun valore di $n \in \{n\_min,\,n\_min+n\_step,\,\dots,\,n\_max\}$ e $d \in \{d\_min,\,d\_min+d\_step,\,\dots,\,d\_max\}$. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
+
+Eseguendo ad esempio \texttt{stat 100 300 100 6 10 2 1000 100} otteniamo:
+
+\begin{figure}[H]
+\centering
+\begin{BVerbatim}
+ 6  100  0.010000
+ 6  200  0.445350
+ 6  300  1.000000
+
+ 8  100  0.020000
+ 8  200  0.206400
+ 8  300  0.843333
+
+10  100  0.013700
+10  200  0.020000
+10  300  0.058133
+\end{BVerbatim}
+\end{figure}
+
+\subsection{Regressione dei dati}
 
 L'idea è quella di produrre una sequenza di reti campione $R_i$, dove le coordinate dei nodi sono generate casualmente con probabilità uniforme. Calcolando il valor medio di $c(R_i)$ per ogni coppia di $(n, g)$, si è derivata una stima $\tilde{c}(d)$.
 
@@ -562,6 +659,5 @@ Jun Luo, Jean-Pierre Hubaux.
 Proceedings IEEE 24th Annual Joint Conference of the IEEE Computer and Communications Societies, 2005.
 
 \end{thebibliography}
-
 
 \end{document}
