@@ -1,12 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <getopt.h>
+
+static struct option long_options[] =
+{
+    {"seed", required_argument, 0, 's'},
+    {0, 0, 0, 0}
+};
 
 // usage: ./stat N_MIN   N_MAX   N_STEP
 //	             DIM_MIN DIM_MAX DIM_STEP
 //               RANGE   ITER
+//  -s, --seed S    specify custom seed
 
 int main(int argc, char **argv)
 {
+	int opt;
+	int seed = time(0);
 	int n, n_min, n_max, n_step;
 	float dim, dim_min, dim_max, dim_step;
 	int i, range, iter;
@@ -14,17 +25,30 @@ int main(int argc, char **argv)
 	char command[100];
 	FILE *pipe;
 
-	// mandatory arguments
-	if (argc < 9) return 1;
+	// optional arguments
+	while ((opt = getopt_long(argc, argv, "s:", long_options, 0)) != -1)
+	{
+		switch(opt)
+		{
+			case 's':
+				seed = atoi(optarg);
+				break;
+			case '?':
+				return 1;
+		}
+	}
 
-	n_min = atoi(argv[1]);
-	n_max = atoi(argv[2]);
-	n_step = atoi(argv[3]);
-	dim_min = atof(argv[4]);
-	dim_max = atof(argv[5]);
-	dim_step = atof(argv[6]);
-	range = atoi(argv[7]);
-	iter = atoi(argv[8]);
+	// mandatory arguments
+	if (argc - optind < 8) return 1;
+
+	n_min = atoi(argv[optind++]);
+	n_max = atoi(argv[optind++]);
+	n_step = atoi(argv[optind++]);
+	dim_min = atof(argv[optind++]);
+	dim_max = atof(argv[optind++]);
+	dim_step = atof(argv[optind++]);
+	range = atoi(argv[optind++]);
+	iter = atoi(argv[optind++]);
 
 	for (dim = dim_min; dim <= dim_max; dim += dim_step)
 	{
@@ -35,8 +59,8 @@ int main(int argc, char **argv)
 			// random samples
 			for (i = 0; i < iter; i++)
 			{
-				sprintf(command, "./layout %d %d %d | ./graph",
-				                 n, (int) dim*range, range);
+				sprintf(command, "./layout %d %d %d --seed %d | ./graph",
+				        n, (int) dim*range, range, seed++);
 				pipe = popen(command, "r");
 				fscanf(pipe, "%*d %*d %*d %d\n", &conn);
 				pclose(pipe);
