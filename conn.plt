@@ -1,4 +1,4 @@
-# ./conn 0 1000 50 0 20 1 1000 100
+# ./conn 0 1000 50 0 20 1 1000 100 --seed 1
 
 set multiplot layout 2, 2
 unset key

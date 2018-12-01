@@ -1,7 +1,7 @@
-sim
-stat
 layout
 graph
+conn
+sim
 
 *.dat
 *.log
@@ -12,3 +12,5 @@ graph
 *.toc
 *.fls
 *.fdb_latexmk
+
+!conn.dat
