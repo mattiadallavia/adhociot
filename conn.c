@@ -9,7 +9,7 @@ static struct option long_options[] =
     {0, 0, 0, 0}
 };
 
-// usage: ./stat N_MIN   N_MAX   N_STEP
+// usage: ./conn N_MIN   N_MAX   N_STEP
 //	             DIM_MIN DIM_MAX DIM_STEP
 //               RANGE   ITER
 //  -s, --seed S    specify custom seed
