@@ -107,32 +107,32 @@ Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle gi
 
 \section{Modello}
 
-Cosa si intende esattamente quando si fa riferimento ad una \emph{rete di sensori}? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali. Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
+Cosa intendiamo esattamente quando facciamo riferimento ad una rete di sensori? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali.
+
+% Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
 
 \subsection{Nodi e ambiente}
 
-Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di \emph{gateway} verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori.
+Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati satelliti, sono i veri e propri sensori.
 
-Chiamiamo \emph{portata} (del segnale) la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel \emph{sink}, nel quale sono distribuiti i satelliti.
+Chiamiamo \emph{portata} (del segnale) la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel sink, nel quale sono distribuiti i satelliti.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/model.pdf}
-\caption{Rete di 4 satelliti, di cui 3 raggiungibili dal \emph{sink}.}
+\caption{Rete di 4 satelliti, di cui 3 connessi al sink.}
 \end{figure}
 
 Questa descrizione trascura la dimensione temporale e di conseguenza gli spostamenti relativi dei nodi. Ipotizziamo infatti che la magnitudine dei movimenti nel lasso di tempo delle comunicazioni sia trascurabile rispetto alla portata.
 
 \subsection{Layout di rete}
 
-Con \emph{layout di rete} ci riferiamo ad una specifica configurazione spaziale di $n$ satelliti di portata $p$ in un ambiente di raggio $a$. Parliamo quindi della ``fotografia'' di una rete che ritrae le coordinate di ciascun nodo, la loro portata e l'ampiezza dell'ambiente in cui sono disposti.
-
-Ne diamo una definizione formale:
+Con \emph{layout di rete} ci riferiamo ad una specifica configurazione spaziale di $n$ satelliti con portata $p$ in un ambiente di raggio $a$. Parliamo quindi della ``fotografia'' di una rete che ritrae le coordinate di ciascun nodo, la loro portata e l'ampiezza dell'ambiente in cui sono disposti. Ne diamo una definizione formale:
 
 \begin{definition}
 Sia
 \begin{equation*}
-N = \{(0,\,0,\,0),\ (1,\,x_1,\,y_1),\ \dots,\ (i,\,x_i,\,y_i),\ \dots,\ (n,\,x_n,\,y_n)\}
+N = \{(0,\,0,\,0),\,(1,\,x_1,\,y_1),\,\dots,\,(i,\,x_i,\,y_i),\,\dots,\,(n,\,x_n,\,y_n)\}
 \end{equation*}
 un insieme di $n+1$ nodi, di indice $i$ e coordinate $x_i,\,y_i$. Chiamiamo \emph{layout di rete} la tripla
 \begin{equation*}
@@ -141,74 +141,68 @@ L = (a,\,p,\,N)
 dove $a$ è il raggio dell'ambiente e $p$ la portata dei nodi.
 \end{definition}
 
-Da notare che il \emph{sink} ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq a$.
+Da notare che il sink ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq a$.
 
-Vincolando i parametri $a$, $p$ e $n$ otteniamo un sottoinsieme di \emph{layout} dove solo le coordinate dei nodi rimangono indeterminate. Chiameremo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole, ci chiederemo: Fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul \emph{layout}?
+Vincolando i parametri $a$, $p$ e $n$ otteniamo un sottoinsieme di layout dove solo le coordinate dei satelliti rimangono indeterminate. Chiamiamo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole ci chiederemo: Fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul layout?
 
-\subsection{Grafo di rete}
+\subsection{Grafo di connettività}
 
-Noto un \emph{layout di rete} $L$, da esso si può estrapolare un grafo pesato. Il grafo descrive la connettività della rete, tenendo conto solamente delle distanze tra i nodi connessi tralasciando le loro posizioni.
+Noto un layout di rete $L$, da esso estrapoliamo un grafo. Questo descrive la connettività della rete, tenendo conto delle relazioni tra i nodi connessi tralasciando le loro posizioni.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/graph.pdf}
-\caption{}
+\caption{Esempio di grafo di connettività.}
 \end{figure}
 
-Questo tipo di descrizione della rete si avvicina di più con quella a disposizione degli algoritmi di routing. Le coordinate dei nodi sono spesso infatti ignote, mentre le distanze sono stimabili.
-
-Diamo anche per il grafo una definizione formale:
+Questo tipo di descrizione della rete si avvicina di più a quella a disposizione degli algoritmi di routing. Le coordinate dei nodi sono spesso infatti ignote, mentre le distanze sono stimabili sulla base della potenza del segnale ricevuto. Diamo anche per il grafo una definizione formale:
 
 \begin{definition}
 Siano $V = \{0,\,\dots,\,n\}$ gli indici di $n+1$ nodi con portata $p$. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
 \begin{equation*}
-E = \{ (i,\,j,\,w) \text{ dove } i,\,j \in V \text{ e } w = \frac{dist(i,\,j)}{p} \mid w \le 1 \ \wedge \ i \neq j\}
+E = \{ (i,\,j) \text{ dove } i,\,j \in V \mid dist(i,\,j) \le p \ \wedge \ i \neq j\}
 \end{equation*}
-Chiamiamo $G = (V,\,E)$ il \emph{grafo di rete}.
+chiamiamo $G = (V,\,E)$ il \emph{grafo di connettività}.
 \end{definition}
 
-%  associato al \emph{layout} $L$
+% E = \{ (i,\,j,\,w) \text{ dove } i,\,j \in V \text{ e } w = \frac{dist(i,\,j)}{p} \mid w \le 1 \ \wedge \ i \neq j\}
 
 La funzione $dist(i,\,j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate.
 
 % Nel caso queste non siano note, la distanza potrebbe essere valutata grazie alla potenza di ricezione dei messaggi.
 
-Chiamaremo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il \emph{sink} e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al \emph{sink}. Se $C = R$ diremo che è \emph{completamente connesso}.
+Diremo che $G = graph(L)$ è il grafo associato al layout $L$ se questo è calcolato sulle coordinate dei nodi di $L$ e sulla loro portata. Chiamiamo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il sink e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al sink. Se $G = C$ diremo che $G$ è \emph{completamente connesso}.
 
-Diremo che $G = graph(L)$ è il grafo associato al \emph{layout} $L$ se questo è calcolato sulle coordinate dei nodi di $L$ e sulla loro portata.
+Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di layout non risulta affatto superfluo. Basando la propria rappresentazione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio: noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini possiamo dire che la funzione $graph(L)$ non è suriettiva. Alla luce di questo, chiamiamo \emph{realistico} un grafo a cui è associato almeno un layout.
 
-Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di \emph{layout} non risulta affatto superfluo. Basando la propria descizione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio, noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini potremmo dire che la funzione $graph(L)$ non è suriettiva. A luce di questo, chiameremo \emph{realistico} un grafo a cui è associato almeno un layout.
-
-Dato un \emph{grafo realistico} $G$, esistono in realtà infiniti layout \emph{topologicamente equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato
+Dato un grafo realistico $G$, esistono in realtà infiniti layout \emph{topologicamente equivalenti} tali che $G = graph(L_i)$ che vengono mappati sullo stesso grafo. In altre parole $graph(L)$ non è iniettiva. In particolare, dato
 \begin{equation*}
 L = (a,\,p,\,\{(0,\,0,\,0),\,(1,\,x_1,\,y_1),\,\dots,\,(i,\,x_i,\,y_i),\,\dots,\,(n,\,x_n,\,y_n)\})
 \end{equation*}
-chiamiamo \emph{layout in scala} $m$ il \emph{layout}
+chiamiamo \emph{layout in scala} $m$ il layout
 \begin{equation*}
 scale(L,\,m) = (a\,\cdot\,m,\,p\,\cdot\,m,\,\{(0,\,0,\,0),\,\dots,\,(i,\,x_i\,\cdot\,m,\,y_i\,\cdot\,m),\,\dots\})
 \end{equation*}
-con $m \in \mathbb{Q}_{>0}$. I \emph{layout in scala} sono tutti \emph{topologicamente equivalenti} poiché
+con $m \in \mathbb{Q}_{>0}$. I layout in scala sono tutti topologicamente equivalenti poiché
 \begin{equation*}
-w_m = \frac{dist(i_m,\,j_m)}{p_m} = \frac{dist(i,\,j)\,\cdot\,m}{p\,\cdot\,m} = \frac{dist(i,\,j)}{p} = w
+\frac{dist(i_m,\,j_m)}{p_m} = \frac{dist(i,\,j)\,\cdot\,m}{p\,\cdot\,m} = \frac{dist(i,\,j)}{p}	
 \end{equation*}
-ovvero i pesi degli archi si conservano. Consideriamo ad esempio
+ovvero le distanze relative si conservano. Consideriamo ad esempio
 \begin{align*}
 L_5 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
 L_{15} = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
 \end{align*}
-questi layout sono \emph{topologicamente equivalenti}, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono quindi mappati nello stesso grafo
+questi layout sono topologicamente equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono perciò mappati nello stesso grafo
 \begin{equation*}
-graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1,\,0.82),\,(0,\,2,\,0.72)\})
+graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1),\,(0,\,2),\,(1,\,0),\,(2,\,0)\})
 \end{equation*}
-Ci rendiamo quindi conto che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \neq 1$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Cioè $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
+Ci rendiamo quindi conto che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
 
 \subsection{Dimensione e densità}
 
 % relazioni caratteristiche
 
 % Appare subito evidente che la portata e il raggio dell'ambiente influenzano in maniera interdipendente il modello. In particolare, fissati $r_0$ e $p_0$, è possibile definire una classe di reti dove $r = m \cdot r_0, \ p = m \cdot p_0$ con $m \in \mathbb{Q}_{>0}$ e dove le posizioni relative dei nodi sono conservate. Queste reti sono equivalenti a meno di un fattore di scala. È utile quindi definire il concetto di \emph{guadagno}, per identificare tutte quelle reti appartenenti a classi distinte.
-
-% Formalizziamo ora questo concetto mediante le seguenti definizioni:
 
 Alla luce di quanto appreso nella sezione precedente, introduciamo ora il concetto di \emph{dimensione del layout}. Questo esprime il raggio ambiente utilizzando la portata come unità di misura. In altre parole potremmo dire che è il raggio ambiente normalizzato su $p$.
 
@@ -226,14 +220,14 @@ D = \frac{\pi a^2}{\pi p^2} = \left(\frac{a}{p}\right)^2 = d^2
 \end{equation*}
 \end{definition}
 
-Nell'ottica dei \emph{layout in scala}, dato $L_p = (a,\,p,\,N)$, possiamo dire che $d$ è il raggio ambiente del layout equivalente $L_1 = (d,\,1,\,N)$. Come menzionato in precedenza sarà perciò sufficiente studiare i \emph{layout} al variare di $d$ ($layout(d,\,1,\,n)$) per coprire l'intero spazio dei \emph{grafi di rete}.
+Nell'ottica dei layout in scala, dato $L_p = (a,\,p,\,N)$, possiamo dire che $d$ è il raggio ambiente del layout equivalente $L_1 = (d,\,1,\,N)$. Come menzionato in precedenza sarà perciò sufficiente studiare i layout al variare di $d$ ($layout(d,\,1,\,n)$) per coprire l'intero spazio dei grafi di rete.
 
 % Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, usando $p$ come unità di misura.
 
 Definiamo infine una speciale relazione tra $n$ e $d$ che sarà di centrale importanza per l'analisi delle proprietà di $L$:
 
 \begin{definition}
-Sia $n$ il numero di satelliti e $d$ la \emph{dimensione radiale}, chiamaiamo \emph{densità di nodi} $q$ la relazione:
+Sia $n$ il numero di satelliti e $d$ la dimensione radiale, chiamiamo \emph{densità di nodi} $q$ la relazione:
 \begin{equation*}
 q = \frac{n}{d^2} = \frac{n}{D}
 \end{equation*}
@@ -243,35 +237,29 @@ Questo rapporto ci da un'informazione sulla quantità di nodi per unità di supe
 
 \subsection{Tempo}
 
-Si ipotizza che tutti i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di accendersi contemporaneamente e operare in modo coordinato.
-
-Per semplicità misureremo il tempo in modo che la durata di una trasmissione coincida con un quanto temporale. Una trasmissione iniziata a $t$ terminerà quindi entro $t+1$. Per il resto della tesi ci riferemo a $t=0$ come l'istante iniziale di accensione della rete e a $t$ come l'istante corrente.
-
-Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiameremo $frame(t) =  \left\lfloor\frac{t}{3}\right\rfloor$ il frame associato all'istante $t$. Ciascun \emph{frame} è suddiviso in 3 slot, indicizzati $0,\,1 \text{ e } 2$. Chiameremo $slot(t) = t \bmod 3$ lo slot associato all'istante $t$.
+Ipotizziamo che i nodi siano dotati di un orologio sincronizzato e siano perciò in grado di accendersi contemporaneamente e operare in modo coordinato. Per semplicità misureremo il tempo in modo che la durata di una trasmissione coincida con un quanto temporale. Una trasmissione iniziata a $t$ terminerà quindi entro $t+1$. Per il resto della tesi ci riferiremo a $t=0$ come l'istante iniziale di accensione della rete e a $t$ come l'istante corrente.
 
 \begin{figure}[H]
 \centering
-\includegraphics{figures/timeline.pdf}
-\caption{}
+\includegraphics{figures/time.pdf}
+\caption{Schema della suddivisione temporale.}
 \end{figure}
 
-Questa suddivisione sarà in seguito giustificata per il multiplexing temporale, parte del meccanismo di collision avoidance.
+Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiamiamo $frame(t) =  \left\lfloor\frac{t}{3}\right\rfloor$ il frame associato all'istante $t$. Ciascun frame è suddiviso in 3 \emph{slot}, indicizzati $0,\,1 \text{ e } 2$. Chiamiamo $slot(t) = t \bmod 3$ lo slot associato all'istante $t$. Questa suddivisione sarà in seguito giustificata come multiplazione temporale, parte del meccanismo di prevenzione delle collisioni.
 
 \subsection{Canale}
 
-Il \emph{canale} è un numero naturale. Esso costituisce un'astrazione per il multiplexing di frequenza o un qualsiasi altro tipo di multiplexing che permette a due moduli di trasmettere contemporaneamente senza interferenze.
+Il \emph{canale} è un numero naturale. Esso costituisce un'astrazione per il multiplexing di frequenza o un qualsiasi altro meccanismo di multiplazione che permetta a due moduli radio di trasmettere contemporaneamente senza interferenze.
 
-Ipotizziamo che all'istante $t$ stanno trasmettendo i due nodi $i$ e $j$. Se questi stanno trasmettendo sullo stesso canale ($channel(i) = channel(j)$) parleremo di \emph{collisione}, altrimenti entrambi i messaggi saranno consegnati con successo.
-
-Da notare che, trattandosi di comunicazione wireless, due o più trasmissioni contemporanee sullo stesso canale non necessariamente collideranno in tutti i punti dello spazio.
+Ipotizziamo che all'istante $t$ stiano trasmettendo i due nodi $i$ e $j$: se $k$ è connesso ad entrambi ($dist(k,\,i) \leq p,\,dist(k,\,j) \leq p$) e se le trasmissioni avvengono sullo stesso canale ($channel(i) = channel(j)$) parliamo di \emph{collisione} in $k$. Da notare che, trattandosi di comunicazione radio, due o più trasmissioni contemporanee sullo stesso canale non necessariamente collidono in tutti i punti dello spazio.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/collision.pdf}
-\caption{}
+\caption{Regione di interferenza.}
 \end{figure}
 
-In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di collisione} e perciò non riceverà il messaggio. $q$ invece è raggiusto solamente dal segnale di $j$ e perciò non soffrirà dell'interferenza.
+In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di interferenza} e perciò non riceverà il messaggio. $q$ invece è raggiunto solamente dal segnale di $j$ e perciò non soffrirà dell'interferenza.
 
 % modello radio
 

@@ -1,4 +1,4 @@
-# set terminal pdf size 3.5in,3.5in font 'Times,16' dl 1.5
+# set terminal pdf size 8cm,8cm font 'Times,16' dl 1.5
 
 $nodes << EOD
 -4 1 1
@@ -13,15 +13,16 @@ unset border
 set size square
 set xrange [-10:10]
 set yrange [-10:10]
-set style textbox opaque noborder margin 2,2
+set style textbox opaque noborder margin 1,1
+set style arrow 1 head filled size screen 0.03,15,45
 
-set object 1 circle at 0,0 size 10 fc rgb 'black'
+set object 1 circle at 0,0 size 10 fc 'black'
 
 set label 1 '{/:Bold S}' at 0,0 boxed center front
 set object 2 circle at 0,0 size 5 dt 2 fc 'black'
 
-set arrow 1 from 0,0 to 10,0
-set arrow 2 from 4,8 to 9,8
+set arrow 1 from 0,0 to 10,0 arrowstyle 1
+set arrow 2 from 4,8 to 9,8 arrowstyle 1
 
 set label 2 '{/:Italic a}' at 7,0 boxed center front
 set label 3 '{/:Italic p}' at 6.5,8 boxed center front
