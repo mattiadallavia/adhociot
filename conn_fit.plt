@@ -16,4 +16,4 @@ set cbrange [-0.2:0.2]
 
 splot 'conn.dat' using 1:2:($3 - c($1,$2,w_f,t_f,s_f,u_f)) with pm3d, \
       c(x,y,w_f,t_f,s_f,u_f) lc 'black', \
-      'stat.dat' using 1:2:3:($3 - c($1,$2,w_f,t_f,s_f,u_f)) palette
+      'conn.dat' using 1:2:3:($3 - c($1,$2,w_f,t_f,s_f,u_f)) palette
