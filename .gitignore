@@ -10,3 +10,5 @@ graph
 *.dvi
 *.eps
 *.toc
+*.fls
+*.fdb_latexmk
