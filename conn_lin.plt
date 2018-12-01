@@ -19,16 +19,21 @@ set multiplot layout 1, 2
 
 set grid
 unset key
-set xrange [0.5:7]
-set yrange [10:100]
+set xrange [0:20]
+set yrange [0:1000]
+
+set xlabel 'dim'
+set ylabel 'n'
 
 plot 'conn.dat' using ((($3 >= 0.45) && ($3 <= 0.55)) ? $1 : NaN):2:3, \
 	 'conn.dat' using ((($3 >= 0.85) && ($3 <= 0.95)) ? $1 : NaN):2:3, \
 	 p(x,w_t,t_t), \
 	 p(x,w_c,t_c)
 
-set xrange [0:7]
+set xrange [0:20]
 set yrange [-10:10]
+
+set ylabel 't'
 
 plot '+' using 1:((p(x,w_c,t_c)/$1**2)) with lines, \
 	 w_c, \
