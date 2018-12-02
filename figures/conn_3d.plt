@@ -1,4 +1,4 @@
-# set terminal pdf size 3in,3in font 'Times,16'
+# set terminal pdf size 7cm,7cm font 'Times,16'
 
 unset key
 set xlabel '{/:Italic d}' offset 0,0.8
