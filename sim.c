@@ -12,7 +12,6 @@
 #define FRAME(T) (T / 3)
 #define SLOT(T) (T % 3)
 
-#define DIST(X1, Y1, X2, Y2) sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2))
 #define IN_RANGE(A, B, GRAPH, N) ((A != B) && (GRAPH[A*N+B] <= 1))
 
 struct message
@@ -103,10 +102,7 @@ int main(int argc, char **argv)
 
 	stats = alg(nodes, graph, n+1);
 
-	printf("final time: t=%d\n", stats.t);
-	printf("messages transmitted: %d\n", stats.tx);
-	printf("messages received: %d\n", stats.rx);
-	printf("collisions: %d\n", stats.collisions);
+	printf("%d %d %d %d\n", stats.t-1, stats.tx, stats.rx, stats.collisions);
 }
 
 struct statistics alg(struct node *nodes, float *graph, int n)
