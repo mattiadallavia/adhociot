@@ -22,10 +22,10 @@
 \newtheorem{proposition}{Proposizione}
 
 \lstset{ 
-	basicstyle=\footnotesize, % the size of the fonts that are used for the code
+	basicstyle=\scriptsize, % the size of the fonts that are used for the code
     language=C,               % the language of the code
-    numbers=left,             % where to put the line-numbers; possible values are (none, left, right)
-    tabsize=4,	              % sets default tabsize to 2 spaces
+    numbers=left,             % where to put the line-numbers (none, left, right)
+    tabsize=4,	              % sets default tabsize to 4 spaces
 }
 
 \title{Un paradigma per la raccolta dati in reti ad-hoc di sensori}
@@ -433,7 +433,7 @@ dove $q$ è la densità di nodi $q = \frac{n}{D}$.
 
 Da questo grafico si evince che un rapporto di connessione medio $\tilde{c} \geq 0.9$ si ottiene quando $d \gtrsim 5.6$. Un risultato del tutto in linea con quello ottenuto per i layout a reticolo uniforme.
 
-\section{L'algoritmo}
+\section{Algoritmo}
 
 L'algoritmo di routing è stato ideato attorno attorno ad alcuni specifici presupposti:
 
@@ -621,7 +621,7 @@ L = (8,\,5,\,\{(0,\,0,\,0),\,(1,\,2,\,3),\,(2,\,-1,\,7),\,(3,\,6,\,3),\,(4,\,-4,
 
 \texttt{cat a.layout | graph | sim}
 
-\begin{Verbatim}[fontsize=\footnotesize]
+\begin{Verbatim}[fontsize=\scriptsize]
 t=0 (frame 0, slot 0)
 
      #  0  1  2  3  4 
@@ -782,8 +782,6 @@ collisions: 0
 
 \subsection{sim.c}
 \lstinputlisting{sim.c}
-
-\section{Dataset}
 
 \begin{thebibliography}{0}
 

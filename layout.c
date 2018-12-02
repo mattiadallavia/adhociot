@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	// optional arguments
 	while ((opt = getopt_long(argc, argv, "s:h", long_options, 0)) != -1)
 	{
-		switch(opt)
+		switch (opt)
 		{
 			case 's':
 				seed = atoi(optarg);
@@ -55,7 +55,6 @@ int main(int argc, char **argv)
 
 	// mandatory arguments
 	if (argc - optind < 3) return 1;
-
 	n = atoi(argv[optind++]);
 	env = atoi(argv[optind++]);
 	range = atoi(argv[optind++]);
@@ -66,12 +65,10 @@ int main(int argc, char **argv)
 	// sink at the center
 	coord[0].x = 0;
 	coord[0].y = 0;
-
 	rand_coord(coord+1, n, env);
 
 	printf("%d %d %d %d\n", n, env, range, seed);
 	print_coord(coord, n+1);
-
 	if (flag_human) human_layout(coord, n+1, env);
 }
 
@@ -110,7 +107,8 @@ void human_layout(struct point *coord, int n, int env)
 		{
 			for (k = 0; k < n; k++)
 			{
-				if ((coord[k].x == (j-env)) && (coord[k].y == -(i-env)))
+				if ((coord[k].x == (j-env)) &&
+					(coord[k].y == -(i-env)))
 				{
 					printf("%2d", k);
 					break;
@@ -118,7 +116,11 @@ void human_layout(struct point *coord, int n, int env)
 			}
 
 			// reached the end without finding one
-			if (k == n) (round(DIST(i, j, env, env)) > env) ? printf("  ") : printf(" .");
+			if (k == n)
+			{
+				if (round(DIST(i, j, env, env)) > env) printf("  ") 
+				else printf(" .");
+			}
 		}
 		
 		printf("\n");

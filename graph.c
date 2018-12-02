@@ -22,7 +22,6 @@ void print_graph(float *graph, int n);
 void plot(struct point *coord, float *graph, int n, int env);
 
 FILE *plotout;
-
 static int flag_plot = 0;
 
 static struct option long_options[] =
@@ -46,7 +45,7 @@ int main(int argc, char **argv)
 	// optional arguments
 	while ((opt = getopt_long(argc, argv, "p:", long_options, 0)) != -1)
 	{
-		switch(opt)
+		switch (opt)
 		{
 			case 'p':
 				flag_plot = 1;
@@ -70,18 +69,13 @@ int main(int argc, char **argv)
 
 	printf("%d %d %d %d\n", n, env, range, conn);
 	print_graph(graph, n+1);
-
 	if (flag_plot) plot(coord, graph, n+1, env);
 }
 
 void read_coord(struct point *coord, int n)
 {
 	int i;
-
-	for (i = 0; i < n; i++)
-	{
-		scanf("%d %d\n", &coord[i].x, &coord[i].y);
-	}
+	for (i = 0; i < n; i++) scanf("%d %d\n", &coord[i].x, &coord[i].y);
 }
 
 void layout2graph(struct point *coord, float *graph, int n, int range)
@@ -90,7 +84,8 @@ void layout2graph(struct point *coord, float *graph, int n, int range)
 
 	for (i = 0; i < n; i++) for (j = 0; j < n; j++)
 	{
-		graph[i*n+j] = graph[j*n+i] = DIST(coord[i].x, coord[i].y, coord[j].x, coord[j].y) / range;
+		graph[i*n+j] = graph[j*n+i] =
+		DIST(coord[i].x, coord[i].y, coord[j].x, coord[j].y) / range;
 	}
 }
 
@@ -102,7 +97,8 @@ int visit(float *graph, int n, int vertex, int *visited)
 	for (i = 0; i < n; i++)
 	{
 		// if i is reachable from vertex and i has not been visited yet
-		if (IN_RANGE(vertex, i, graph, n) && (!visited[i])) v += visit(graph, n, i, visited);
+		if (IN_RANGE(vertex, i, graph, n) &&
+		   (!visited[i])) v += visit(graph, n, i, visited);
 	}
 
 	return v;
@@ -114,11 +110,7 @@ void print_graph(float *graph, int n)
 
 	for (int i = 0; i < n; i++)
 	{
-		for (int j = 0; j<n; j++)
-		{
-			printf("%.2f ", graph[i*n+j]);
-		}
-
+		for (int j = 0; j<n; j++) printf("%.2f ", graph[i*n+j]);
 		printf("\n");
 	}
 }
@@ -139,14 +131,23 @@ void plot(struct point *coord, float *graph, int n, int env)
 	fprintf(plotout, "$arcs << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%d %d\n%d %d\n\n", coord[i].x, coord[i].y, coord[j].x, coord[j].y);
+		if (IN_RANGE(i, j, graph, n))
+		{
+			fprintf(plotout, "%d %d\n%d %d\n\n", coord[i].x, coord[i].y,
+			                                     coord[j].x, coord[j].y);
+		}
 	}
 	fprintf(plotout, "EOD\n\n");
 
 	fprintf(plotout, "$weights << EOD\n");
 	for (i = 0; i < n; i++) for (j=0; j<i; j++)
 	{
-		if (IN_RANGE(i, j, graph, n)) fprintf(plotout, "%f %f %.1f\n", (coord[i].x + coord[j].x) / 2.0, (coord[i].y + coord[j].y) / 2.0, graph[i*n+j]);
+		if (IN_RANGE(i, j, graph, n))
+		{
+			fprintf(plotout, "%f %f %.1f\n", (coord[i].x + coord[j].x) / 2.0,
+			                                 (coord[i].y + coord[j].y) / 2.0,
+			                                 graph[i*n+j]);
+		}
 	}
 	fprintf(plotout, "EOD\n");
 }

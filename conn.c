@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	// optional arguments
 	while ((opt = getopt_long(argc, argv, "s:", long_options, 0)) != -1)
 	{
-		switch(opt)
+		switch (opt)
 		{
 			case 's':
 				seed = atoi(optarg);
