@@ -2,6 +2,7 @@ layout
 graph
 conn
 sim
+stat
 
 *.dat
 *.log

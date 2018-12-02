@@ -63,7 +63,7 @@ static struct option long_options[] =
 int main(int argc, char **argv)
 {
 	int i, opt;
-	int n, env, range;
+	int n, env, range, conn;
 	float *graph;
 	struct node *nodes;
 	struct statistics stats;
@@ -83,7 +83,9 @@ int main(int argc, char **argv)
 		}
 	}
 
-	scanf("%d %d %d %*d %*d %*d\n", &n, &env, &range);
+	scanf("%d %d %d %d\n", &n, &env, &range, &conn);
+
+	printf("%d %d %d %d\n", n, env, range, conn);
 
 	graph = malloc((n+1) * (n+1) * sizeof (float));
 	nodes = calloc((n+1), sizeof (struct node));
