@@ -61,7 +61,7 @@ static struct option long_options[] =
 
 // usage: ./sim
 //  -s, --steps         print intermediate steps
-//  -c, --collisions    enable collision detection
+//  -c, --collisions    enable collision detection and avoidance
 
 int main(int argc, char **argv)
 {
@@ -140,8 +140,9 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			disp++; // count nodes with messages to dispatch, now or in the future
 
 			// if it is the right slot for this node
-			// and is scheduled for this (or a past) frame
-			if ((SLOT(stats.t) == SLOT(nodes[i].depth)) && (FRAME(stats.t) >= nodes[i].wait))
+			// and is scheduled for this (or a past) time
+			if (((!flag_coll) || (SLOT(stats.t) == SLOT(nodes[i].depth))) &&
+				(stats.t >= nodes[i].wait))
 			{
 				disp_t++; // messages to dispatch in this t
 				nodes[i].transmitting = 1;
@@ -203,12 +204,12 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
-					n_rx->wait = FRAME(stats.t) + (int) (dist*10); // wait a frame proportional to the distance
-					fprintf(stepsout, "node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
+					if (flag_coll) n_rx->wait = stats.t + (int) (dist*10); // wait a frame proportional to the distance
+					fprintf(stepsout, "node %d activated at depth %d, transmission scheduled for t=%d\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
 				// select new channel if we receive an ack for another node transmitted on our channel
-				if ((n_tx->depth < n_rx->depth) && (m_tx.node_confirm != i_rx) && (m_tx.channel_confirm == n_rx->channel))
+				if (flag_coll && (n_tx->depth < n_rx->depth) && (m_tx.node_confirm != i_rx) && (m_tx.channel_confirm == n_rx->channel))
 				{
 					n_rx->channel++;
 					fprintf(stepsout, "channel %d in use by node %d, node %d selects channel %d\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
@@ -219,8 +220,8 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				{
 					// reset the exp. backoff
 					n_rx->attempts = 0;
-					n_rx->wait = FRAME(stats.t);
-					fprintf(stepsout, "node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
+					n_rx->wait = 0;
+					fprintf(stepsout, "node %d received an ack, transmission scheduled for t=%d\n", i_rx, n_rx->wait);
 				}
 
 				// remove message from stack if we receive an ack from nearer the destination
@@ -254,13 +255,14 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			{
 				// delay transmissions unil sent message is acknowledged
 				n_tx->attempts++;
-				n_tx->wait = FRAME(stats.t) + (rand() % (int)pow(2, n_tx->attempts)) + 1; // exponential backoff
-				fprintf(stepsout, "node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
+				n_tx->wait = stats.t + 3 * ((rand() % (int)pow(2, n_tx->attempts)) + 1); // exponential backoff
+				fprintf(stepsout, "node %d scheduled attempt n. %d at t=%d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
-			n_tx->transmitting = 0; // end current transmission
 			stats.tx++;
 		}
+		// end current transmissions
+		for (i = 0; i < n; i++) nodes[i].transmitting = 0;
 
 		stats.t++; // all messages dispatched for t, go to t+1
 		fprintf(stepsout, "\n");
@@ -326,8 +328,8 @@ void print_nodes(FILE *stream, struct node *nodes, int n)
 		else fprintf(stream, "%2d ", nodes[i].depth);
 	}
 
-	fprintf(stream, "\nchan.: ");
-	for (i = 0; i < n; i++) fprintf(stream, "%2d ", nodes[i].channel);
+	if (flag_coll) fprintf(stream, "\nchan.: ");
+	if (flag_coll) for (i = 0; i < n; i++) fprintf(stream, "%2d ", nodes[i].channel);
 
 	fprintf(stream, "\nmess.: ");
 	for (i = 0; i < n; i++) fprintf(stream, "%2d ", nodes[i].messages_len);
