@@ -1,4 +1,4 @@
-# set terminal pdf size 4.5in,3.5in font 'Times,16' dl 1.5
+# set terminal pdf size 8cm,6cm font 'Times,16' dl 1.5
 
 $vertices << EOD
 -4 2

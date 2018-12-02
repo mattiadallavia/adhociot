@@ -453,8 +453,8 @@ Il vantaggio in efficienza è frutto della duplice valenza che assume ogni trasm
 
 \begin{figure}[H]
 \centering
-\includegraphics{figures/net_example.pdf}
-\caption{}
+\includegraphics{figures/depths.pdf}
+\caption{Esempio di rete con relative profondità.}
 \end{figure}
 
 \subsection{Variabili di stato}
@@ -507,8 +507,7 @@ Ogni messaggio $m$, inviato dal nodo $i$ di profondità $p$, svolge implicitamen
 
 \begin{figure}[H]
 \centering
-\includegraphics{figures/tx.pdf}
-\caption{}
+\includegraphics{figures/message.pdf}
 \end{figure}
 
 Oltre ovviamente al \emph{payload}, sono inviate le seguenti informazioni:
@@ -548,19 +547,7 @@ depth(i) = min(depth(i),\ depth(j)+1)
 
 Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(i,\ m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
 
-\begin{figure}[H]
-\centering
-\includegraphics{figures/rx_farther.pdf}
-\caption{}
-\end{figure}
-
 Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo un riscontro per un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al \emph{sink}, possiamo quindi procedere a eliminarlo dalla stack: $remove(i,\ m)$.
-
-\begin{figure}[H]
-\centering
-\includegraphics{figures/rx_closer.pdf}
-\caption{}
-\end{figure}
 
 \subsection{Schedulazione}
 
