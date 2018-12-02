@@ -50,15 +50,18 @@ void read_graph(float *graph, int n);
 void print_nodes(FILE *stream, struct node *nodes, int n);
 
 FILE *stepsout;
+static int flag_coll = 0;
 
 static struct option long_options[] =
 {
     {"steps", no_argument, 0, 's'},
+    {"collisions", no_argument, 0, 'c'},
     {0, 0, 0, 0}
 };
 
 // usage: ./sim
-//  -s, --steps    print intermediate steps
+//  -s, --steps         print intermediate steps
+//  -c, --collisions    enable collision detection
 
 int main(int argc, char **argv)
 {
@@ -78,13 +81,15 @@ int main(int argc, char **argv)
 			case 's':
 				stepsout = stdout;
 				break;
+			case 'c':
+				flag_coll = 1;
+				break;
 			case '?':
 				return 1;
 		}
 	}
 
 	scanf("%d %d %d %d\n", &n, &env, &range, &conn);
-
 	printf("%d %d %d %d\n", n, env, range, conn);
 
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -92,7 +97,14 @@ int main(int argc, char **argv)
 
 	read_graph(graph, n+1);
 
-	// nodes initialization
+	// the gateway initiates the process sending a void message
+	nodes[0].state = NODE_ACTIVE;
+	nodes[0].messages_len++;
+	nodes[0].messages[0].number = 0;
+	nodes[0].messages[0].node_confirm = -1;
+	nodes[0].messages[0].channel_confirm = -1;
+
+	// satellites initialization
 	for (i = 1; i < (n+1); i++)
 	{
 		nodes[i].depth = -1;
@@ -115,15 +127,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 	struct node *n_tx, *n_rx;
 	struct message m_tx, m_rx;
 	struct statistics stats;
-
 	memset(&stats, 0, sizeof (struct statistics));
-
-	// the gateway initiates the process sending a void message
-	nodes[0].state = NODE_ACTIVE;
-	nodes[0].messages_len++;
-	nodes[0].messages[0].number = 0;
-	nodes[0].messages[0].node_confirm = -1;
-	nodes[0].messages[0].channel_confirm = -1;
 
 	while (1) // time loop
 	{
@@ -175,7 +179,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 
 				// collision detection
 				coll = 0;
-				for (i = 0; i < n; i++)
+				if (flag_coll) for (i = 0; i < n; i++)
 				{
 					// is there anyone else connected to me transmitting on the same channel at the same time?
 					if ((i != i_tx) && IN_RANGE(i, i_rx, graph, n) && nodes[i].transmitting && (nodes[i].channel == n_tx->channel))
@@ -254,14 +258,12 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				fprintf(stepsout, "node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
+			n_tx->transmitting = 0; // end current transmission
 			stats.tx++;
 		}
-		// end current transmissions
-		for (i = 0; i < n; i++) nodes[i].transmitting = 0;
-
-		fprintf(stepsout, "\n");
 
 		stats.t++; // all messages dispatched for t, go to t+1
+		fprintf(stepsout, "\n");
 	}
 }
 
