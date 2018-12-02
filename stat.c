@@ -3,17 +3,22 @@
 #include <time.h>
 #include <getopt.h>
 #include <math.h>
+#include <string.h>
+
+static int flag_coll = 0;
 
 static struct option long_options[] =
 {
-    {"seed", required_argument, 0, 's'},
+    {"seed",       required_argument, 0, 's'},
+    {"collisions", no_argument,       0, 'c'},
     {0, 0, 0, 0}
 };
 
 // usage: ./stat N_MIN   N_MAX   N_STEP
 //	             DIM_MIN DIM_MAX DIM_STEP
 //               RANGE   ITER
-//  -s, --seed S    specify custom seed
+//  -s, --seed S        specify custom seed
+//  -c, --collisions    enable collision detection and avoidance
 
 int main(int argc, char **argv)
 {
@@ -36,6 +41,9 @@ int main(int argc, char **argv)
 		{
 			case 's':
 				seed = atoi(optarg);
+				break;
+			case 'c':
+				flag_coll = 1;
 				break;
 			case '?':
 				return 1;
@@ -66,6 +74,8 @@ int main(int argc, char **argv)
 			{
 				sprintf(command, "./layout %d %d %d --seed %d | ./graph | ./sim",
 				        n, (int) dim*range, range, seed++);
+				if (flag_coll) strcat(command, " --collisions");
+				
 				pipe = popen(command, "r");
 				fscanf(pipe, "%*d %*d %*d %d\n", &conn);
 				fscanf(pipe, "%d %d %d %d\n", &t, &tx, &rx, &collisions);
