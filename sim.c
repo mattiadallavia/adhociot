@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
@@ -47,15 +48,41 @@ int find(struct node *n, int number);
 void push(struct node *n, struct message m);
 void delete(struct node *n, unsigned int pos);
 void read_graph(float *graph, int n);
-void print_nodes(struct node *nodes, int n);
+void print_nodes(FILE *stream, struct node *nodes, int n);
+
+FILE *stepsout;
+
+static struct option long_options[] =
+{
+    {"steps", no_argument, 0, 's'},
+    {0, 0, 0, 0}
+};
+
+// usage: ./sim
+//  -s, --steps    print intermediate steps
 
 int main(int argc, char **argv)
 {
-	int i;
+	int i, opt;
 	int n, env, range;
 	float *graph;
 	struct node *nodes;
 	struct statistics stats;
+
+	stepsout = fopen("/dev/null", "w");
+
+	// optional arguments
+	while ((opt = getopt_long(argc, argv, "s", long_options, 0)) != -1)
+	{
+		switch (opt)
+		{
+			case 's':
+				stepsout = stdout;
+				break;
+			case '?':
+				return 1;
+		}
+	}
 
 	scanf("%d %d %d %*d %*d %*d\n", &n, &env, &range);
 
@@ -126,8 +153,8 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			continue; // no mess. to disp. in this t
 		}
 
-		printf("t=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
-		print_nodes(nodes, n);
+		fprintf(stepsout, "t=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
+		print_nodes(stepsout, nodes, n);
 
 		// dispatch all transmissions in t
 		for (i_tx = 0; i_tx < n; i_tx++) if (nodes[i_tx].transmitting)
@@ -139,7 +166,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			m_rx.node_confirm = i_tx;
 			m_rx.channel_confirm = n_tx->channel;
 
-			printf("\nnode %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
+			fprintf(stepsout, "\nnode %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
 
 			// transmit to all connected nodes
 			// node who are transmitting cannot receive at the same time
@@ -157,7 +184,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 					{
 						coll = 1;
 						stats.collisions++;
-						printf("collision with message %d from node %d at node %d\n", peek(&nodes[i]).number, i, i_rx);
+						fprintf(stepsout, "collision with message %d from node %d at node %d\n", peek(&nodes[i]).number, i, i_rx);
 					}
 				}
 
@@ -175,14 +202,14 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				{
 					n_rx->state = NODE_ACTIVE;
 					n_rx->wait = FRAME(stats.t) + (int) (dist*10); // wait a frame proportional to the distance
-					printf("node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
+					fprintf(stepsout, "node %d activated at depth %d, transmission scheduled for frame %d\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
 				// select new channel if we receive an ack for another node transmitted on our channel
 				if ((n_tx->depth < n_rx->depth) && (m_tx.node_confirm != i_rx) && (m_tx.channel_confirm == n_rx->channel))
 				{
 					n_rx->channel++;
-					printf("channel %d in use by node %d, node %d selects channel %d\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
+					fprintf(stepsout, "channel %d in use by node %d, node %d selects channel %d\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
 				}
 
 				// ack for a message we sent
@@ -191,7 +218,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 					// reset the exp. backoff
 					n_rx->attempts = 0;
 					n_rx->wait = FRAME(stats.t);
-					printf("node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
+					fprintf(stepsout, "node %d received an ack, transmission scheduled for frame %d\n", i_rx, n_rx->wait);
 				}
 
 				// remove message from stack if we receive an ack from nearer the destination
@@ -199,7 +226,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				if ((n_tx->depth < n_rx->depth) && ((pos = find(n_rx, m_rx.number)) >= 0))
 				{
 					delete(n_rx, pos);
-					printf("message %d removed from node %d\n", m_rx.number, i_rx);
+					fprintf(stepsout, "message %d removed from node %d\n", m_rx.number, i_rx);
 				}
 
 				// relay message if we are nearer the gateway
@@ -209,7 +236,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 					if ((pos = find(n_rx, m_rx.number)) >= 0) delete(n_rx, pos);
 
 					push(n_rx, m_rx);
-					printf("added by node %d\n", i_rx);
+					fprintf(stepsout, "added by node %d\n", i_rx);
 				}
 
 				stats.rx++;
@@ -226,7 +253,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				// delay transmissions unil sent message is acknowledged
 				n_tx->attempts++;
 				n_tx->wait = FRAME(stats.t) + (rand() % (int)pow(2, n_tx->attempts)) + 1; // exponential backoff
-				printf("node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
+				fprintf(stepsout, "node %d scheduled attempt n. %d at frame %d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
 			stats.tx++;
@@ -234,7 +261,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 		// end current transmissions
 		for (i = 0; i < n; i++) nodes[i].transmitting = 0;
 
-		printf("\n");
+		fprintf(stepsout, "\n");
 
 		stats.t++; // all messages dispatched for t, go to t+1
 	}
@@ -278,31 +305,31 @@ void read_graph(float *graph, int n)
 	for (i = 0; i < n*n; i++) scanf("%f", &graph[i]);
 }
 
-void print_nodes(struct node *nodes, int n)
+void print_nodes(FILE *stream, struct node *nodes, int n)
 {
 	int i;
 
-	printf("     # ");
-	for (i = 0; i < n; i++) printf("%2d ", i);
+	fprintf(stream, "     # ");
+	for (i = 0; i < n; i++) fprintf(stream, "%2d ", i);
 
-	printf("\ntran.: ");
+	fprintf(stream, "\ntran.: ");
 	for (i = 0; i < n; i++)
 	{
-		if (nodes[i].transmitting) printf(" * ");
-		else printf("   ");
+		if (nodes[i].transmitting) fprintf(stream, " * ");
+		else fprintf(stream, "   ");
 	}
 
-	printf("\ndepth: ");
+	fprintf(stream, "\ndepth: ");
 	for (i = 0; i < n; i++)
 	{
-		if (nodes[i].depth < 0) printf("   ");
-		else printf("%2d ", nodes[i].depth);
+		if (nodes[i].depth < 0) fprintf(stream, "   ");
+		else fprintf(stream, "%2d ", nodes[i].depth);
 	}
 
-	printf("\nchan.: ");
-	for (i = 0; i < n; i++) printf("%2d ", nodes[i].channel);
+	fprintf(stream, "\nchan.: ");
+	for (i = 0; i < n; i++) fprintf(stream, "%2d ", nodes[i].channel);
 
-	printf("\nmess.: ");
-	for (i = 0; i < n; i++) printf("%2d ", nodes[i].messages_len);
-	printf("\n");
+	fprintf(stream, "\nmess.: ");
+	for (i = 0; i < n; i++) fprintf(stream, "%2d ", nodes[i].messages_len);
+	fprintf(stream, "\n");
 }
