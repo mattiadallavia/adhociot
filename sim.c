@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
 	stats = alg(nodes, graph, n+1);
 
-	printf("%d %d %d %d\n", stats.t-1, stats.tx, stats.rx, stats.collisions);
+	printf("%d %d %d %d\n", stats.t, stats.tx, stats.rx, stats.collisions);
 }
 
 struct statistics alg(struct node *nodes, float *graph, int n)
@@ -156,7 +156,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			continue; // no mess. to disp. in this t
 		}
 
-		fprintf(stepsout, "t=%d (frame %d, slot %d)\n\n", stats.t, FRAME(stats.t), SLOT(stats.t));
+		fprintf(stepsout, "t=%d (frame %d, slot %d)\n", stats.t, FRAME(stats.t), SLOT(stats.t));
 		print_nodes(stepsout, nodes, n);
 
 		// dispatch all transmissions in t
@@ -169,7 +169,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			m_rx.node_confirm = i_tx;
 			m_rx.channel_confirm = n_tx->channel;
 
-			fprintf(stepsout, "\nnode %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
+			fprintf(stepsout, "node %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
 
 			// transmit to all connected nodes
 			// node who are transmitting cannot receive at the same time
