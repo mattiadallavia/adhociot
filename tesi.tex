@@ -23,9 +23,9 @@
 
 \lstset{ 
 	basicstyle=\scriptsize, % the size of the fonts that are used for the code
-    language=C,               % the language of the code
-    numbers=left,             % where to put the line-numbers (none, left, right)
-    tabsize=4,	              % sets default tabsize to 4 spaces
+    language=C,             % the language of the code
+    numbers=left,           % where to put the line-numbers (none, left, right)
+    tabsize=4,	            % sets default tabsize to 4 spaces
 }
 
 \title{Un paradigma per la raccolta dati in reti ad-hoc di sensori}
@@ -435,27 +435,36 @@ Da questo grafico si evince che un rapporto di connessione medio $\tilde{c} \geq
 
 \section{Algoritmo}
 
-L'algoritmo di routing è stato ideato attorno attorno ad alcuni specifici presupposti:
+% instradamento
+% complessità
+% efficienza
+% ciclo di vita
+% collisioni / contesa / exponential backoff
+% gestione di canale
+% formato del messaggio
+% Minimizzare le trasmissioni
+% Configurare la rete in assenza di un coordinamento prestabilito
+% Semplicità della routine di nodo
 
-\begin{enumerate}
-\item Infrastruttura ad-hoc
-\item Minimizzare le trasmissioni
-\item Configurare la rete in assenza di un coordinamento prestabilito
-\item Affidabilità
-\item Semplicità della routine di nodo
-\end{enumerate}
+In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad-hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al sink. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un'altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di ricezione dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
+
+Ipotizzando che non avvengano collisioni, $n$ messaggi (uno per satellite) vengono consegnati in
+\begin{equation*}
+tx = \sum_{i=1}^{n} depth(i) + n + 1
+\end{equation*}
+trasmissioni. Questo si ottiene conteggiando il messaggio iniziale di esplorazione del sink e $depth(i) + 1$ trasmissioni per ciascun messaggio. Nella sezione \ref{simulazione} ricaveremo dei valori medi di $tx$ e $t_f$ su un campione di layout stocastici.
 
 \subsection{Principio di funzionamento}
 
-L'algoritmo opera a macchia d'olio: A $t=0$ il \emph{sink} da inizio alle trasmissioni con un messaggio vuoto di discovery. Le trasmissioni a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il \emph{grafo di rete} viene esplorato, determinando implicitamente un albero che collega ciascun satellite al \emph{sink} ed assegnando ad ogni nodo la propria profondità (\emph{depth}).
-
-Il vantaggio in efficienza è frutto della duplice valenza che assume ogni trasmissione: Consideriamo l'invio del messaggio $m$ da parte del nodo $i$ di profondità $p$, questa corrisponde all'inoltro del dato verso i nodi di profondità $p-1$, nella direzione del \emph{sink}. Inoltre, se si tratta della prima trasmissione del nodo $i$, essa funge da notifica agli eventuali nodi di profondità $p+1$, che verranno attivati. Viceversa, se il messaggio $m$ proviene da un nodo di profondità $> p$, si sta effettuando una ritrasmissione. In questo caso l'invio funge da riscontro di $m$ ai nodi di profondità $p+1$.
+L'algoritmo opera a macchia d'olio: a $t=0$ il sink da inizio alle trasmissioni con un messaggio di esplorazione. Gli invii a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il grafo di rete viene esplorato, determinando concettualmente un albero che collega ciascun satellite al sink ed assegnando ad ogni nodo la propria profondità.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/depths.pdf}
 \caption{Esempio di rete con relative profondità.}
 \end{figure}
+
+Ogni trasmissione assume una duplice valenza: consideriamo l'invio del messaggio $m$ da parte del nodo $i$ di profondità $p$, questa corrisponde all'inoltro del dato verso i nodi di profondità $p-1$, nella direzione del sink. Inoltre, se si tratta della prima trasmissione del nodo $i$, essa funge da attivazione per gli eventuali nodi di profondità $p+1$. Viceversa, se il messaggio $m$ proviene da un nodo di profondità $> p$, si sta effettuando una ritrasmissione. In questo caso l'invio funge da riscontro di $m$ ai nodi di profondità $p+1$.
 
 \subsection{Variabili di stato}
 
@@ -472,45 +481,37 @@ Ciascun nodo fa uso dei seguenti campi:
 \texttt{depth} & int & $unknown$ \\ \hline
 \texttt{channel} & int & $0$ \\ \hline
 \texttt{attempts} & int & $0$ \\ \hline
-\texttt{wait} & int & $frame(t)$ \\ \hline
+\texttt{wait} & int & $0$ \\ \hline
 \texttt{messages} & stack & $\{m\}$ \\ \hline
 \end{tabular}
-\caption{}
+\caption{Variabili di stato del nodo.}
 \end{table}
 
-\texttt{index} è un identificativo univoco, assegnato a priori.
+\texttt{index} è un identificatore univoco, assegnato a priori.
 
-\texttt{state} controlla la modalità di funzionamento del nodo. Inizialemnte assume il valore di $waiting$: il satellite è in attesa di venire attivato da un messaggio discovery. Una volta attivato ($state(i) = active$), viene abilitata la routine di trasmissione.
+\texttt{state} controlla la modalità di funzionamento del nodo. Inizialmente assume il valore di $waiting$: il satellite è in attesa di venire attivato da un messaggio esplorazione. Una volta attivato ($state(i) = active$), viene abilitata la routine di trasmissione.
 
-\texttt{depth} indica la profondità di $i$, ovvero il numero di archi che lo collega al \emph{sink}. Viene determinata alla prima ricezione come:
-\begin{equation*}
-depth(i) = depth(j) + 1
-\end{equation*}
+\texttt{depth} indica la profondità di $i$, ovvero la lunghezza del cammino minimo che lo collega al sink. Viene determinata alla prima ricezione come $depth(i) = depth(j) + 1$, dove $j$ è il mittente del messaggio.
 
 \texttt{channel} seleziona il canale di trasmissione, è inizializzato a $0$ ed incrementato fino a che non viene consegnato con successo un messaggio.
 
-\texttt{attempts} conteggia il numero di tentativi di trasmissione non ancora confermati. Serve a calcolare il frame di ritrasmissione mediante l'exponential backoff.
+\texttt{attempts} conteggia il numero di tentativi di invio non ancora confermati. Serve a calcolare l'istante della prossima trasmissione mediante l'exponential backoff.
 
-\texttt{wait} è il numero del frame al quale si è pianificata la prossima trasmissione.
+\texttt{wait} è l'istante temporale al quale si è pianificato il prossimo invio.
 
-\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). A $t=0$ viene inizializzata con un messaggio $m$ con $number(m) = i$, questo garantisce l'unicità dell'identificatore del messaggio.
+\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). È inizializzata con un messaggio $m$ con $number(m) = i$, garantendo così l'unicità dell'identificatore del messaggio. La scelta di una pila (e non di una coda) non è casuale: viene data la priorità all'ultimo messaggio ricevuto poichè fornendo il prima possibile un riscontro (in piggyback) si limita la probabilità che il mittente effettui una ritrasmissione.
 
 \subsection{Messaggio}
 
-Ogni messaggio $m$, inviato dal nodo $i$ di profondità $p$, svolge implicitamente almeno uno di questi ruoli:
+Ogni messaggio ricopre implicitamente almeno uno di questi ruoli:
 
 \begin{enumerate}
-\item \emph{consegna} del payload ad un nodo di profondità $p-1$
-\item \emph{esplorazione} dei nodi a profondità $p+1$, che, ricevendo $m$ si attivano.
+\item \emph{consegna} del payload ad uno (o più) nodi di profondità $p-1$.
+\item \emph{esplorazione} dei satelliti a profondità $p+1$ che, ricevendo $m$, si attivano.
 \item \emph{riscontro} della ricezione di $m$ al nodi di origine di profondità $p+1$.
 \end{enumerate}
 
-\begin{figure}[H]
-\centering
-\includegraphics{figures/message.pdf}
-\end{figure}
-
-Oltre ovviamente al \emph{payload}, sono inviate le seguenti informazioni:
+Consideriamo ora il messaggio $m$ inviato dal nodo $i$ di profondità $p$, ricevuto da $j$ e originario di $k$. Oltre al payload, sono inviate le seguenti informazioni:
 
 \begin{table}[H]
 \centering
@@ -518,72 +519,63 @@ Oltre ovviamente al \emph{payload}, sono inviate le seguenti informazioni:
 \multicolumn{1}{l}{Nome} &
 \multicolumn{1}{l}{Tipo} &
 \multicolumn{1}{l}{Valore iniziale} \\ \hline
-\texttt{number} & int & $n$ \\ \hline
-\texttt{depth} & int & $d$ \\ \hline
-\texttt{node\_confirm} & int & $null$ \\ \hline
-\texttt{channel\_confirm} & int & $null$ \\ \hline
+\texttt{number} & int & $k$ \\ \hline
+\texttt{node} & int & $i$ \\ \hline
+\texttt{depth} & int & $depth(i)$ \\ \hline
+\texttt{node\_confirm} & int & $j$ \\ \hline
+\texttt{channel\_confirm} & int & $channel(j)$ \\ \hline
 \end{tabular}
-\caption{}
+\caption{Intestazione del messaggio.}
 \end{table}
 
-\texttt{number} è un identificatore univoco del messaggio. È inizializzato con l'indice del nodo di origine.
+\texttt{number} è l'identificatore univoco del messaggio. Inizializzato con l'indice del nodo di origine.
 
-\texttt{depth} è la profondità del nodo che invia il messaggio.
+\texttt{node} è l'indice del nodo che tramette $m$.
 
-\texttt{node\_confirm} è l'indice del satellite da cui il messaggio è stato ricevuto. Funge da acknowledge ai nodi a $p-1$.
+\texttt{depth} è la profondità di $i$.
 
-\texttt{channel\_confirm} è il canale su cui il messaggio è stato ricevuto. Serve ai nodi a $p-1$ per spartirsi mutualmente i canali.
+\texttt{node\_confirm} è l'indice del satellite da cui il messaggio è stato precedentemente ricevuto. Conferma a $j$ che la sua trasmissione è avvenuta con successo.
 
-\subsection{Routine di ricezione}
+\texttt{channel\_confirm} è il canale su cui il messaggio è stato ricevuto. Serve ai nodi di profondità $p-1$ per spartirsi mutualmente i canali.
 
-In nodo $i$ riceve, all'istante $t_r$, il mesaggio $m$ dal nodo $j$.
+\subsection{Prevenzione delle collisioni}
 
-Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere.
+L'interferenza tra il messaggio $a$ del nodo $i$ e il messagio $b$ del nodo $j$ ha luogo dove questi sono collegati ad un nodo comune $k$ ($dist(i,\,k) \leq p$, $dist(j,\,k) \leq p$). Questo può avvenire in una di due situazioni distinte:
 
-La profondità viene ricalcolata come
-\begin{equation*}
-depth(i) = min(depth(i),\ depth(j)+1)
-\end{equation*}
+Quando $i$ e $j$ appartengono a profondità diverse ma vicine ($1 \leq |depth(i) - depth(j)| \leq 2$). Per impedire che ciò avvenga forziamo i nodi di profondità vicine a non trasmettere durante lo stesso quanto temporale, abilitando gli invii solo quando $slot(t) = slot(depth(i))$.
 
-Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(i,\ m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
-
-Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo un riscontro per un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al \emph{sink}, possiamo quindi procedere a eliminarlo dalla stack: $remove(i,\ m)$.
-
-\subsection{Schedulazione}
-
-I satelliti appena attivati da un messaggio di discovery dal nodo $j$ corrono il rischio di effettuare la prima trasmissione sullo stesso frame e canale. Per mitigare questo fenomeno, i nodi appena attivati schedulano la propria trasmissione mediante un criterio euristico basato sulla distanza da $j$ (eventualmente stimata mediante la potenza ricevuta):
-\begin{equation*}
-wait(i) = frame(t) + dist(i,\ j)
-\end{equation*}
-
-Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore delle trasmissioni senza successo $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo frame disponibile $wait(i) = frame(t)$.
-
-Inviato un messaggio, finché non si riceve un riscontro valido, si assume che la trasmissione non sia andata a buon fine. Perciò si incrementa il contatore dei tentativi di trasmissione $attempts(i)$\textit{++} e si rischedula una ritrasmissione mediante \emph{exponential backoff} al frame:
-\begin{equation*}
-wait(i) = frame(t) + rand(1,\ 2^a)
-\end{equation*}
-con $a = attempts(i)$ e $rand(a,\ b)$ un numero casuale tra $a$ e $b$.
-
-\subsection{Contesa di canale}
-
-Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = channel(i)$, significa che un altro nodo adiacente (di profondità $depth(i)$) ha consegnato con successo un messaggio sul canale $channel(i)$. È perciò necessario selezionare un nuovo canale: $channel(i)$\textit{++}.
+Tra i nodi adiacenti, ossia alla stessa profondità. In questo caso l'idea è quella di selezionare i canali in modo che ciascun nodo di una data profondità trasmetta su un canale distinto. Questo è possibile grazie alle informazioni presenti nei messaggi di riscontro ed è perciò implementato nella routine di ricezione.
 
 \subsection{Routine di trasmissione}
 
-% complessità
-% efficienza
-% ciclo di vita
-% collisioni / contesa / exponential backoff
-% gestione di canale
-% schedulazione
-% riscontro
-% nozione di profindità
-% relay
-% stack dei messaggi
-% ciascun messaggio può essere di discovery,riscontro,consegna
-% formato del messaggio
+Se $state(i) = active$, $t \geq wait(i)$ e $slot(t) = slot(depth(i))$, il nodo $i$ invia il messaggio $m$ in cima alla propria pila sul canale $channel(i)$. Effettuata la trasmissione, si assume che questa non sia andata a buon fine finché non si riceve un riscontro. Perciò si incrementa il contatore dei tentativi di trasmissione $attempts(i)$\textit{++} e si rischedula un invio di $m$ mediante exponential backoff:
+\begin{equation*}
+wait(i) = t + rand(1,\,2^a)
+\end{equation*}
+con $a = attempts(i)$ e $rand(a,\,b)$ un numero casuale tra $a$ e $b$.
+
+\subsection{Routine di ricezione}
+
+Il nodo $i$ riceve, all'istante $t$, il mesaggio $m$ dal nodo $j$:
+
+Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere. I satelliti attivati dallo stesso messaggio di esplorazione corrono il rischio di effettuare la prima trasmissione nello stesso istante e canale, dando luogo ad una collisione. Per mitigare questo fenomeno scheduliamo la prima trasmissione mediante un criterio euristico basato sulla distanza da $j$ (stimata mediante la potenza ricevuta):
+\begin{equation*}
+wait(i) = frame(t) + w \cdot dist(i,\,j)
+\end{equation*}
+dove $w \in \mathbb{Q}_{>0}$ è il \emph{fattore di attesa}. La speranza è che l'attesa fornisca una diversificazione degli invii sufficiente a evitare interferenze. $w$ rappresenta il compromesso tra probabilità di collisione e rapidità di raccolta dei dati, va perciò ricavato in funzione delle caratteristiche della rete.
+
+La profondità viene ricalcolata come $depth(i) = min(depth(i),\ depth(j)+1)$. Potrebbe infatti esistere un percorso più breve al sink di quanto stimato in precendenza.
+
+Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
+
+Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il riscontro di un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al sink, possiamo quindi procedere a eliminarlo dalla stack: $remove(m)$.
+
+Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = channel(i)$, significa che un nodo adiacente (di profondità $depth(i)$) ha consegnato con successo un messaggio sul canale $channel(i)$. È perciò necessario selezionare un nuovo canale: $channel(i)$\textit{++}.
+
+Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore dei tentativi di trasmissione $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
 
 \section{Simulazione}
+\label{simulazione}
 
 % time loop
 
