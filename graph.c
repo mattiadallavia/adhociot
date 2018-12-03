@@ -31,7 +31,7 @@ static struct option long_options[] =
 };
 
 // usage: ./graph
-//  -p, --plot FILENAME    write plot data file
+//  --plot FILENAME    write plot data file
 
 int main(int argc, char **argv)
 {
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	scanf("%d %d %d %*d\n", &n, &env, &range);
+	scanf("%d\t%d\t%d\t%*d\n", &env, &n, &range);
 
 	coord = malloc((n+1) * sizeof (struct point));
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	layout2graph(coord, graph, n+1, range);
 	conn = visit(graph, n+1, 0, visited) - 1;
 
-	printf("%d %d %d %d\n", n, env, range, conn);
+	printf("%d\t%d\t%d\t%d\n", env, n, range, conn);
 	print_graph(graph, n+1);
 	if (flag_plot) plot(coord, graph, n+1, env);
 }
@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 void read_coord(struct point *coord, int n)
 {
 	int i;
-	for (i = 0; i < n; i++) scanf("%d %d\n", &coord[i].x, &coord[i].y);
+	for (i = 0; i < n; i++) scanf("%d\t%d\n", &coord[i].x, &coord[i].y);
 }
 
 void layout2graph(struct point *coord, float *graph, int n, int range)
@@ -110,7 +110,7 @@ void print_graph(float *graph, int n)
 
 	for (int i = 0; i < n; i++)
 	{
-		for (int j = 0; j<n; j++) printf("%.2f ", graph[i*n+j]);
+		for (int j = 0; j<n; j++) printf("%.2f\t", graph[i*n+j]);
 		printf("\n");
 	}
 }
@@ -124,7 +124,7 @@ void plot(struct point *coord, float *graph, int n, int env)
 	fprintf(plotout, "$vertices << EOD\n");
 	for (i = 0; i < n; i++)
 	{
-		fprintf(plotout, "%d %d %d\n", coord[i].x, coord[i].y, i);
+		fprintf(plotout, "%d\t%d\t%d\n", coord[i].x, coord[i].y, i);
 	}
 	fprintf(plotout, "EOD\n\n");
 
@@ -133,8 +133,8 @@ void plot(struct point *coord, float *graph, int n, int env)
 	{
 		if (IN_RANGE(i, j, graph, n))
 		{
-			fprintf(plotout, "%d %d\n%d %d\n\n", coord[i].x, coord[i].y,
-			                                     coord[j].x, coord[j].y);
+			fprintf(plotout, "%d\t%d\n%d\t%d\n\n", coord[i].x, coord[i].y,
+			                                       coord[j].x, coord[j].y);
 		}
 	}
 	fprintf(plotout, "EOD\n\n");
@@ -144,9 +144,9 @@ void plot(struct point *coord, float *graph, int n, int env)
 	{
 		if (IN_RANGE(i, j, graph, n))
 		{
-			fprintf(plotout, "%f %f %.1f\n", (coord[i].x + coord[j].x) / 2.0,
-			                                 (coord[i].y + coord[j].y) / 2.0,
-			                                 graph[i*n+j]);
+			fprintf(plotout, "%f\t%f\t%.1f\n", (coord[i].x + coord[j].x) / 2.0,
+			                                   (coord[i].y + coord[j].y) / 2.0,
+			                                   graph[i*n+j]);
 		}
 	}
 	fprintf(plotout, "EOD\n");

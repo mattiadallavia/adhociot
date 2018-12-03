@@ -21,14 +21,14 @@ static int flag_human = 0;
 
 static struct option long_options[] =
 {
-    {"seed",      required_argument, 0, 's'},
-    {"human",     no_argument,       0, 'h'},
+    {"seed",      required_argument, 0,         's'},
+    {"human",     no_argument,       &flag_human, 1},
     {0, 0, 0, 0}
 };
 
-// usage: ./layout NODES ENV RANGE
-//  -s, --seed S    specify custom seed
-//  -h, --human     print visual layout
+// usage: ./layout ENV N RANGE
+//  --seed S    specify custom seed
+//  --human     print visual layout
 
 int main(int argc, char **argv)
 {
@@ -38,15 +38,12 @@ int main(int argc, char **argv)
 	int seed = time(0);
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "s:h", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "s:", long_options, 0)) != -1)
 	{
 		switch (opt)
 		{
 			case 's':
 				seed = atoi(optarg);
-				break;
-			case 'h':
-				flag_human = 1;
 				break;
 			case '?':
 				return 1;
@@ -55,8 +52,8 @@ int main(int argc, char **argv)
 
 	// mandatory arguments
 	if (argc - optind < 3) return 1;
-	n = atoi(argv[optind++]);
 	env = atoi(argv[optind++]);
+	n = atoi(argv[optind++]);
 	range = atoi(argv[optind++]);
 
 	coord = malloc((n+1) * sizeof (struct point));
@@ -67,7 +64,7 @@ int main(int argc, char **argv)
 	coord[0].y = 0;
 	rand_coord(coord+1, n, env);
 
-	printf("%d %d %d %d\n", n, env, range, seed);
+	printf("%d\t%d\t%d\t%d\n", env, n, range, seed);
 	print_coord(coord, n+1);
 	if (flag_human) human_layout(coord, n+1, env);
 }
@@ -93,7 +90,7 @@ void print_coord(struct point *coord, int n)
 
 	for (i = 0; i < n; i++)
 	{
-		printf("%d %d\n", coord[i].x, coord[i].y);
+		printf("%d\t%d\n", coord[i].x, coord[i].y);
 	}
 }
 
@@ -118,7 +115,7 @@ void human_layout(struct point *coord, int n, int env)
 			// reached the end without finding one
 			if (k == n)
 			{
-				if (round(DIST(i, j, env, env)) > env) printf("  ") 
+				if (round(DIST(i, j, env, env)) > env) printf("  ");
 				else printf(" .");
 			}
 		}

@@ -54,14 +54,14 @@ static int flag_coll = 0;
 
 static struct option long_options[] =
 {
-    {"steps", no_argument, 0, 's'},
-    {"collisions", no_argument, 0, 'c'},
+    {"steps",      no_argument, 0,           's'},
+    {"collisions", no_argument, 0, &flag_coll, 1},
     {0, 0, 0, 0}
 };
 
 // usage: ./sim
-//  -s, --steps         print intermediate steps
-//  -c, --collisions    enable collision detection and avoidance
+//  --steps         print intermediate steps
+//  --collisions    enable collision detection and avoidance
 
 int main(int argc, char **argv)
 {
@@ -81,16 +81,13 @@ int main(int argc, char **argv)
 			case 's':
 				stepsout = stdout;
 				break;
-			case 'c':
-				flag_coll = 1;
-				break;
 			case '?':
 				return 1;
 		}
 	}
 
-	scanf("%d %d %d %d\n", &n, &env, &range, &conn);
-	printf("%d %d %d %d\n", n, env, range, conn);
+	scanf("%d\t%d\t%d\t%d\n", &env, &n, &range, &conn);
+	printf("%d\t%d\t%d\t%d\n", env, n, range, conn);
 
 	graph = malloc((n+1) * (n+1) * sizeof (float));
 	nodes = calloc((n+1), sizeof (struct node));
@@ -116,7 +113,7 @@ int main(int argc, char **argv)
 
 	stats = alg(nodes, graph, n+1);
 
-	printf("%d %d %d %d\n", stats.t, stats.tx, stats.rx, stats.collisions);
+	printf("%d\t%d\t%d\t%d\n", stats.t, stats.tx, stats.rx, stats.collisions);
 }
 
 struct statistics alg(struct node *nodes, float *graph, int n)

@@ -2,23 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <getopt.h>
-#include <math.h>
 #include <string.h>
 
 static int flag_coll = 0;
 
 static struct option long_options[] =
 {
-    {"seed",       required_argument, 0, 's'},
-    {"collisions", no_argument,       0, 'c'},
+    {"seed",       required_argument, 0,        's'},
+    {"collisions", no_argument,       &flag_coll, 1},
     {0, 0, 0, 0}
 };
 
-// usage: ./stat N_MIN   N_MAX   N_STEP
-//	             DIM_MIN DIM_MAX DIM_STEP
+// usage: ./stat DIM_MIN DIM_MAX DIM_STEP
+//	             N_MIN   N_MAX   N_STEP
 //               RANGE   ITER
-//  -s, --seed S        specify custom seed
-//  -c, --collisions    enable collision detection and avoidance
+//  --seed S    specify custom seed
+//  --collisions    enable collision detection and avoidance
 
 int main(int argc, char **argv)
 {
@@ -26,11 +25,8 @@ int main(int argc, char **argv)
 	int seed = time(0);
 	int n, n_min, n_max, n_step;
 	float dim, dim_min, dim_max, dim_step;
-	int i, range, iter;
-	int conn, t, tx, rx, collisions;
-	int conn_sum;
-	int t_sum1, t_sum2;
-	float t_mean, t_var;
+	int i, env, range, iter;
+	int conn, t, tx, rx, coll;
 	char command[100];
 	FILE *pipe;
 
@@ -42,9 +38,6 @@ int main(int argc, char **argv)
 			case 's':
 				seed = atoi(optarg);
 				break;
-			case 'c':
-				flag_coll = 1;
-				break;
 			case '?':
 				return 1;
 		}
@@ -53,45 +46,36 @@ int main(int argc, char **argv)
 	// mandatory arguments
 	if (argc - optind < 8) return 1;
 
-	n_min = atoi(argv[optind++]);
-	n_max = atoi(argv[optind++]);
-	n_step = atoi(argv[optind++]);
 	dim_min = atof(argv[optind++]);
 	dim_max = atof(argv[optind++]);
 	dim_step = atof(argv[optind++]);
+	n_min = atoi(argv[optind++]);
+	n_max = atoi(argv[optind++]);
+	n_step = atoi(argv[optind++]);
 	range = atoi(argv[optind++]);
 	iter = atoi(argv[optind++]);
 
 	for (dim = dim_min; dim <= dim_max; dim += dim_step)
 	{
+		env = (int) dim*range;
+
 		for (n = n_min; n <= n_max; n += n_step)
 		{
-			conn_sum = 0;
-			t_sum1 = t_sum2 = 0;
-
-			// random samples
+			// samples
 			for (i = 0; i < iter; i++)
 			{
 				sprintf(command, "./layout %d %d %d --seed %d | ./graph | ./sim",
-				        n, (int) dim*range, range, seed++);
+				        env, n, range, seed++);
 				if (flag_coll) strcat(command, " --collisions");
 				
 				pipe = popen(command, "r");
-				fscanf(pipe, "%*d %*d %*d %d\n", &conn);
-				fscanf(pipe, "%d %d %d %d\n", &t, &tx, &rx, &collisions);
+				fscanf(pipe, "%*d\t%*d\t%*d\t%d\n", &conn);
+				fscanf(pipe, "%d\t%d\t%d\t%d\n", &t, &tx, &rx, &coll);
 				pclose(pipe);
 
-				conn_sum += conn;
-				t_sum1 += t;
-				t_sum2 += t*t;
+				printf("%f\t%d\t%d\t%d\t%d\t%d\t%d\n", dim, n, conn, t, tx, rx, coll);
 			}
-
-			// https://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
-			t_mean = ((float)t_sum1) / iter;
-			t_var = ((float)t_sum2) / iter - t_mean*t_mean;
-			
-			printf("%f %d %f %f %f\n", dim, n, ((float)conn_sum) / (iter*n),
-			                           t_mean, t_var);
+			printf("\n");
 		}
 		printf("\n");
 	}

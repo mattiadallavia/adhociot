@@ -9,10 +9,10 @@ static struct option long_options[] =
     {0, 0, 0, 0}
 };
 
-// usage: ./conn N_MIN   N_MAX   N_STEP
-//	             DIM_MIN DIM_MAX DIM_STEP
+// usage: ./conn DIM_MIN DIM_MAX DIM_STEP
+//	             N_MIN   N_MAX   N_STEP
 //               RANGE   ITER
-//  -s, --seed S    specify custom seed
+//  --seed S    specify custom seed
 
 int main(int argc, char **argv)
 {
@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 	int seed = time(0);
 	int n, n_min, n_max, n_step;
 	float dim, dim_min, dim_max, dim_step;
-	int i, range, iter;
-	int conn, conn_sum;
+	int i, env, range, iter;
+	int conn;
 	char command[100];
 	FILE *pipe;
 
@@ -41,34 +41,33 @@ int main(int argc, char **argv)
 	// mandatory arguments
 	if (argc - optind < 8) return 1;
 
-	n_min = atoi(argv[optind++]);
-	n_max = atoi(argv[optind++]);
-	n_step = atoi(argv[optind++]);
 	dim_min = atof(argv[optind++]);
 	dim_max = atof(argv[optind++]);
 	dim_step = atof(argv[optind++]);
+	n_min = atoi(argv[optind++]);
+	n_max = atoi(argv[optind++]);
+	n_step = atoi(argv[optind++]);
 	range = atoi(argv[optind++]);
 	iter = atoi(argv[optind++]);
 
 	for (dim = dim_min; dim <= dim_max; dim += dim_step)
 	{
+		env = (int) dim*range;
+
 		for (n = n_min; n <= n_max; n += n_step)
 		{
-			conn_sum = 0;
-
-			// random samples
+			// samples
 			for (i = 0; i < iter; i++)
 			{
 				sprintf(command, "./layout %d %d %d --seed %d | ./graph",
-				        n, (int) dim*range, range, seed++);
+				        env, n, range, seed++);
 				pipe = popen(command, "r");
-				fscanf(pipe, "%*d %*d %*d %d\n", &conn);
+				fscanf(pipe, "%*d\t%*d\t%*d\t%d\n", &conn);
 				pclose(pipe);
 
-				conn_sum += conn;
+				printf("%f\t%d\t%d\n", dim, n, conn);
 			}
-
-			printf("%f %d %f\n", dim, n, ((float)conn_sum) / (iter*n));
+			printf("\n");
 		}
 		printf("\n");
 	}
