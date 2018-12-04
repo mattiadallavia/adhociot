@@ -50,13 +50,15 @@ void print_nodes(struct node *nodes, int n);
 
 static int flag_steps = 0;
 static int flag_coll = 0;
-static float wait_factor = 3;
+static int bfac = 5;
+static float wfac = 3;
 
 static struct option long_options[] =
 {
     {"steps",      no_argument,       &flag_steps, 1},
     {"collisions", no_argument,       &flag_coll,  1},
     {"wfactor",    required_argument, 0,         'w'},
+    {"bfactor",    required_argument, 0,         'b'},
     {0, 0, 0, 0}
 };
 
@@ -73,12 +75,15 @@ int main(int argc, char **argv)
 	struct statistics stats;
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "w:", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "w:b:", long_options, 0)) != -1)
 	{
 		switch (opt)
 		{
 			case 'w':
-				wait_factor = atof(optarg);
+				wfac = atof(optarg);
+				break;
+			case 'b':
+				bfac = atoi(optarg);
 				break;
 			case '?':
 				return 1;
@@ -86,7 +91,7 @@ int main(int argc, char **argv)
 	}
 
 	scanf("%d\t%d\t%d\t%d\t%d\n", &env, &n, &range, &seed, &conn);
-	printf("%d\t%d\t%d\t%d\t%d\t%f\n", env, n, range, seed, conn, wait_factor);
+	printf("%d\t%d\t%d\t%d\t%d\t%f\n", env, n, range, seed, conn, wfac);
 
 	srand(seed);
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -98,6 +103,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < (n+1); i++)
 	{
 		nodes[i].depth = -1;
+		nodes[i].channel = -1;
 		nodes[i].messages = malloc((n+1) * sizeof (struct message));
 		nodes[i].messages_len = 1;
 		nodes[i].messages[0].number = i;
@@ -107,6 +113,7 @@ int main(int argc, char **argv)
 	// the gateway initiates the process sending a void message
 	nodes[0].state = NODE_ACTIVE;
 	nodes[0].depth = 0;
+	nodes[0].channel = 0;
 
 	stats = alg(nodes, graph, n+1);
 
@@ -193,18 +200,27 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				// if a collision happened the message is not received
 				if (coll) continue;
 
-				// update depths
-				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
-				{
-					n_rx->depth = n_tx->depth + 1;
-				}
-
 				// activate waiting nodes
 				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
-					if (flag_coll) n_rx->wait = stats.t + (int) (wait_factor*dist*10); // wait a frame proportional to the distance
-					if (flag_steps) printf("node %d activated at depth %d, transmission scheduled for t=%ld\n", i_rx, n_rx->depth, n_rx->wait);
+					if (flag_coll) n_rx->wait = stats.t + (int) (wfac*dist*10); // wait a frame proportional to the distance
+					if (flag_steps) printf("node %d activated, transmission scheduled for t=%ld\n", i_rx, n_rx->wait);
+				}
+
+				// update depths
+				if ((n_rx->depth < 0) || ((n_tx->depth + 1) < n_rx->depth)) // better path
+				{
+					n_rx->depth = n_tx->depth + 1;
+					n_rx->channel = -1;
+				}
+
+				// choose channel
+				if (flag_coll &&
+					n_tx->depth < n_rx->depth &&
+					(n_rx->channel < 0 || n_rx->channel / bfac != n_tx->channel)) // p-1 node changed channel (or overflow)
+				{
+					n_rx->channel = bfac*n_tx->channel;
 				}
 
 				// select new channel if we receive an ack for another node transmitted on our channel
@@ -254,7 +270,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			{
 				// delay transmissions unil sent message is acknowledged
 				n_tx->attempts++;
-				n_tx->wait = stats.t + rand() % (int)(wait_factor*pow(2, n_tx->attempts)) + 1; // exponential backoff
+				n_tx->wait = stats.t + rand() % (int)(wfac*pow(2, n_tx->attempts)) + 1; // exponential backoff
 				if (flag_steps) printf("node %d scheduled attempt n. %d at t=%ld\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
@@ -311,26 +327,34 @@ void print_nodes(struct node *nodes, int n)
 	int i;
 
 	printf("     # ");
-	for (i = 0; i < n; i++) printf("%2d ", i);
+	for (i = 0; i < n; i++) printf("%3d ", i);
 
 	printf("\ntran.: ");
 	for (i = 0; i < n; i++)
 	{
-		if (nodes[i].transmitting) printf(" * ");
-		else printf("   ");
+		if (nodes[i].transmitting) printf("  * ");
+		else printf("    ");
 	}
 
 	printf("\ndepth: ");
 	for (i = 0; i < n; i++)
 	{
-		if (nodes[i].depth < 0) printf("   ");
-		else printf("%2d ", nodes[i].depth);
+		if (nodes[i].depth < 0) printf("    ");
+		else printf("%3d ", nodes[i].depth);
 	}
 
-	if (flag_coll) printf("\nchan.: ");
-	if (flag_coll) for (i = 0; i < n; i++) printf("%2d ", nodes[i].channel);
+	if (flag_coll)
+	{
+		printf("\nchan.: ");
+		for (i = 0; i < n; i++)
+		{
+			if (nodes[i].channel < 0) printf("    ");
+			else if (nodes[i].channel > 999) printf(" >> ");
+			else printf("%3d ", nodes[i].channel);
+		}
+	}
 
 	printf("\nmess.: ");
-	for (i = 0; i < n; i++) printf("%2d ", nodes[i].messages_len);
+	for (i = 0; i < n; i++) printf("%3d ", nodes[i].messages_len);
 	printf("\n");
 }
