@@ -17,14 +17,14 @@ struct message
 {
 	int number;
 	int node_confirm;
-	int channel_confirm;
+	long channel_confirm;
 };
 
 struct node
 {
 	int state;
 	int depth;
-	int channel;
+	long channel;
 	long wait;
 	int attempts;
 	int transmitting;
@@ -173,7 +173,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			m_rx.node_confirm = i_tx;
 			m_rx.channel_confirm = n_tx->channel;
 
-			if (flag_steps) printf("node %d transmits message %d on channel %d\n", i_tx, m_tx.number, n_tx->channel);
+			if (flag_steps) printf("node %d transmits message %d on channel %ld\n", i_tx, m_tx.number, n_tx->channel);
 
 			// transmit to all connected nodes
 			// node who are transmitting cannot receive at the same time
@@ -227,7 +227,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				if (flag_coll && (n_tx->depth < n_rx->depth) && (m_tx.node_confirm != i_rx) && (m_tx.channel_confirm == n_rx->channel))
 				{
 					n_rx->channel++;
-					if (flag_steps) printf("channel %d in use by node %d, node %d selects channel %d\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
+					if (flag_steps) printf("channel %ld in use by node %d, node %d selects channel %ld\n", (n_rx->channel-1), m_tx.node_confirm, i_rx, n_rx->channel);
 				}
 
 				// ack for a message we sent
@@ -350,7 +350,7 @@ void print_nodes(struct node *nodes, int n)
 		{
 			if (nodes[i].channel < 0) printf("    ");
 			else if (nodes[i].channel > 999) printf(" >> ");
-			else printf("%3d ", nodes[i].channel);
+			else printf("%3ld ", nodes[i].channel);
 		}
 	}
 
