@@ -11,7 +11,6 @@
 
 #define FRAME(T) (T / 3)
 #define SLOT(T) (T % 3)
-
 #define IN_RANGE(A, B, GRAPH, N) ((A != B) && (GRAPH[A*N+B] <= 1))
 
 struct message
@@ -26,19 +25,19 @@ struct node
 	int state;
 	int depth;
 	int channel;
-	int wait;
+	long wait;
 	int attempts;
 	int transmitting;
-	struct message messages[100];
+	struct message *messages;
 	int messages_len;
 };
 
 struct statistics
 {
-	int t;
-	int tx;
-	int rx;
-	int collisions;
+	long t;
+	long tx;
+	long rx;
+	long collisions;
 };
 
 struct statistics alg(struct node *nodes, float *graph, int n);
@@ -50,12 +49,14 @@ void read_graph(float *graph, int n);
 void print_nodes(FILE *stream, struct node *nodes, int n);
 
 FILE *stepsout;
+static float wait_factor = 3;
 static int flag_coll = 0;
 
 static struct option long_options[] =
 {
-    {"steps",      no_argument, 0,           's'},
-    {"collisions", no_argument, 0, &flag_coll, 1},
+    {"steps",      no_argument,       0,        's'},
+    {"wfactor",    required_argument, 0,        'w'},
+    {"collisions", no_argument,       &flag_coll, 1},
     {0, 0, 0, 0}
 };
 
@@ -66,7 +67,7 @@ static struct option long_options[] =
 int main(int argc, char **argv)
 {
 	int i, opt;
-	int n, env, range, conn;
+	int n, env, range, seed, conn;
 	float *graph;
 	struct node *nodes;
 	struct statistics stats;
@@ -74,46 +75,47 @@ int main(int argc, char **argv)
 	stepsout = fopen("/dev/null", "w");
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "s", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "sw:", long_options, 0)) != -1)
 	{
 		switch (opt)
 		{
 			case 's':
 				stepsout = stdout;
 				break;
+			case 'w':
+				wait_factor = atof(optarg);
+				break;
 			case '?':
 				return 1;
 		}
 	}
 
-	scanf("%d\t%d\t%d\t%d\n", &env, &n, &range, &conn);
-	printf("%d\t%d\t%d\t%d\n", env, n, range, conn);
+	scanf("%d\t%d\t%d\t%d\t%d\n", &env, &n, &range, &seed, &conn);
+	printf("%d\t%d\t%d\t%d\t%d\t%f\n", env, n, range, seed, conn, wait_factor);
 
+	srand(seed);
 	graph = malloc((n+1) * (n+1) * sizeof (float));
 	nodes = calloc((n+1), sizeof (struct node));
 
 	read_graph(graph, n+1);
 
-	// the gateway initiates the process sending a void message
-	nodes[0].state = NODE_ACTIVE;
-	nodes[0].messages_len++;
-	nodes[0].messages[0].number = 0;
-	nodes[0].messages[0].node_confirm = -1;
-	nodes[0].messages[0].channel_confirm = -1;
-
 	// satellites initialization
-	for (i = 1; i < (n+1); i++)
+	for (i = 0; i < (n+1); i++)
 	{
 		nodes[i].depth = -1;
+		nodes[i].messages = malloc((n+1) * sizeof (struct message));
 		nodes[i].messages_len = 1;
 		nodes[i].messages[0].number = i;
 		nodes[i].messages[0].node_confirm = -1;
 		nodes[i].messages[0].channel_confirm = -1;
 	}
+	// the gateway initiates the process sending a void message
+	nodes[0].state = NODE_ACTIVE;
+	nodes[0].depth = 0;
 
 	stats = alg(nodes, graph, n+1);
 
-	printf("%d\t%d\t%d\t%d\n", stats.t, stats.tx, stats.rx, stats.collisions);
+	printf("%ld\t%ld\t%ld\t%ld\n", stats.t, stats.tx, stats.rx, stats.collisions);
 }
 
 struct statistics alg(struct node *nodes, float *graph, int n)
@@ -147,13 +149,13 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 		}
 
 		if (disp == 0) return stats; // there are no more messages to dispatch
-		if (disp_t == 0)
+		if (disp_t == 0) // no mess. to disp. in this t
 		{
 			stats.t++;
-			continue; // no mess. to disp. in this t
+			continue;
 		}
 
-		fprintf(stepsout, "t=%d (frame %d, slot %d)\n", stats.t, FRAME(stats.t), SLOT(stats.t));
+		fprintf(stepsout, "t=%ld (frame %ld, slot %ld)\n", stats.t, FRAME(stats.t), SLOT(stats.t));
 		print_nodes(stepsout, nodes, n);
 
 		// dispatch all transmissions in t
@@ -187,7 +189,6 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 						fprintf(stepsout, "collision with message %d from node %d at node %d\n", peek(&nodes[i]).number, i, i_rx);
 					}
 				}
-
 				// if a collision happened the message is not received
 				if (coll) continue;
 
@@ -201,8 +202,8 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				if (n_rx->state == NODE_WAITING)
 				{
 					n_rx->state = NODE_ACTIVE;
-					if (flag_coll) n_rx->wait = stats.t + (int) (dist*10); // wait a frame proportional to the distance
-					fprintf(stepsout, "node %d activated at depth %d, transmission scheduled for t=%d\n", i_rx, n_rx->depth, n_rx->wait);
+					if (flag_coll) n_rx->wait = stats.t + (int) (wait_factor*dist*10); // wait a frame proportional to the distance
+					fprintf(stepsout, "node %d activated at depth %d, transmission scheduled for t=%ld\n", i_rx, n_rx->depth, n_rx->wait);
 				}
 
 				// select new channel if we receive an ack for another node transmitted on our channel
@@ -218,7 +219,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 					// reset the exp. backoff
 					n_rx->attempts = 0;
 					n_rx->wait = 0;
-					fprintf(stepsout, "node %d received an ack, transmission scheduled for t=%d\n", i_rx, n_rx->wait);
+					fprintf(stepsout, "node %d received an ack, transmission scheduled for t=%ld\n", i_rx, n_rx->wait);
 				}
 
 				// remove message from stack if we receive an ack from nearer the destination
@@ -252,8 +253,8 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 			{
 				// delay transmissions unil sent message is acknowledged
 				n_tx->attempts++;
-				n_tx->wait = stats.t + 3 * ((rand() % (int)pow(2, n_tx->attempts)) + 1); // exponential backoff
-				fprintf(stepsout, "node %d scheduled attempt n. %d at t=%d\n", i_tx, (n_tx->attempts+1), n_tx->wait);
+				n_tx->wait = stats.t + rand() % (int)(wait_factor*pow(2, n_tx->attempts)) + 1; // exponential backoff
+				fprintf(stepsout, "node %d scheduled attempt n. %d at t=%ld\n", i_tx, (n_tx->attempts+1), n_tx->wait);
 			}
 
 			stats.tx++;
