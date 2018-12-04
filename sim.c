@@ -221,6 +221,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 					(n_rx->channel < 0 || n_rx->channel / bfac != n_tx->channel)) // p-1 node changed channel (or overflow)
 				{
 					n_rx->channel = bfac*n_tx->channel;
+					if (flag_steps) printf("node %d selects channel %ld\n", i_rx, n_rx->channel);
 				}
 
 				// select new channel if we receive an ack for another node transmitted on our channel
