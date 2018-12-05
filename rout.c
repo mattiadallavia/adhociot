@@ -62,9 +62,11 @@ static struct option long_options[] =
     {0, 0, 0, 0}
 };
 
-// usage: ./sim
+// usage: ./rout
 //  --steps         print intermediate steps
 //  --collisions    enable collision detection and avoidance
+//  --wfactor W     set wait factor
+//  --bfactor B     set branching factor
 
 int main(int argc, char **argv)
 {

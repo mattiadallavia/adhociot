@@ -17,11 +17,13 @@ static struct option long_options[] =
     {0, 0, 0, 0}
 };
 
-// usage: ./stat DIM_MIN DIM_MAX DIM_STEP
-//	             N_MIN   N_MAX   N_STEP
-//               RANGE   ITER
-//  --seed S    specify custom seed
-//  --collisions    enable collision detection and avoidance
+// usage: ./routst DIM_MIN DIM_MAX DIM_STEP
+//	               N_MIN   N_MAX   N_STEP
+//                 RANGE   ITER
+//  --seed S                          set custom seed
+//  --collisions                      enable collision detection and avoidance
+//  --wfactor 'W_MIN W_MAX W_STEP'    set wait factor range
+//  --bfactor 'W_MIN W_MAX W_STEP'    set branching factor range
 
 int main(int argc, char **argv)
 {
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 					// samples
 					for (i = 0; i < iter; i++)
 					{
-						sprintf(comm, "./layout %d %d %d --s %d | ./graph | ./sim",
+						sprintf(comm, "./layout %d %d %d --s %d | ./graph | ./rout",
 						        env, n, range, seed++);
 						if (flag_coll) strcat(comm, " --c");
 						if (flag_wfac) sprintf(comm+strlen(comm), " --w %f", w);
