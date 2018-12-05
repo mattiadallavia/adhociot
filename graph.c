@@ -36,7 +36,7 @@ static struct option long_options[] =
 int main(int argc, char **argv)
 {
 	int opt;
-	int n, env, range;
+	int n, env, range, seed;
 	struct point *coord;
 	float *graph;
 	int conn;
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	scanf("%d\t%d\t%d\t%*d\n", &env, &n, &range);
+	scanf("%d\t%d\t%d\t%d\n", &env, &n, &range, &seed);
 
 	coord = malloc((n+1) * sizeof (struct point));
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	layout2graph(coord, graph, n+1, range);
 	conn = visit(graph, n+1, 0, visited) - 1;
 
-	printf("%d\t%d\t%d\t%d\n", env, n, range, conn);
+	printf("%d\t%d\t%d\t%d\t%d\n", env, n, range, seed, conn);
 	print_graph(graph, n+1);
 	if (flag_plot) plot(coord, graph, n+1, env);
 }
