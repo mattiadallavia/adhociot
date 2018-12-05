@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	}
 
 	scanf("%d\t%d\t%d\t%d\t%d\n", &env, &n, &range, &seed, &conn);
-	printf("%d\t%d\t%d\t%d\t%d\t%f\n", env, n, range, seed, conn, wfac);
+	printf("%d\t%d\t%d\t%d\t%d\t%f\t%d\n", env, n, range, seed, conn, wfac, bfac);
 
 	srand(seed);
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -216,8 +216,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 				}
 
 				// choose channel
-				if (flag_coll &&
-					n_tx->depth < n_rx->depth &&
+				if (flag_coll && n_tx->depth == n_rx->depth-1 &&
 					(n_rx->channel < 0 || n_rx->channel / bfac != n_tx->channel)) // p-1 node changed channel (or overflow)
 				{
 					n_rx->channel = bfac*n_tx->channel;
