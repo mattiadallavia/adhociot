@@ -284,7 +284,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 		}
 
 		// after trans
-		if (i_tx == 0) // if sink node
+		if (i_tx == 0 || !flag_coll) // if sink node
 		{
 			// remove sent message
 			delete(n_tx, find(n_tx, m_tx.num));
