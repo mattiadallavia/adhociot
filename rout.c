@@ -52,7 +52,7 @@ static int flag_steps = 0;
 static int flag_act = 0;
 static int flag_coll = 0;
 static int bfac = 5;
-static float wfac = 3;
+static float wfac = 30;
 
 static struct option long_options[] =
 {
@@ -217,7 +217,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			{
 				n_rx->state = NODE_ACTIVE;
 				// wait a frame proportional to the distance
-				if (flag_coll) n_rx->wait = st->t + (int) (wfac*dist*10);
+				if (flag_coll) n_rx->wait = st->t + (int)wfac*dist;
 				if (flag_act) printf("node %d: activated, tx. sched. for t=%ld\n",
 				                     i_rx, n_rx->wait);
 			}
@@ -294,7 +294,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			// delay transmissions unil sent message is acknowledged
 			n_tx->att++;
 			// exponential backoff
-			n_tx->wait = st->t + rand() % (int)(wfac*pow(2, n_tx->att)) + 1;
+			n_tx->wait = st->t + 3 * ((rand() % (int)pow(2, n_tx->att)) + 1);
 			if (flag_act) printf("node %d: resched. att. %d at t=%ld\n",
 			                     i_tx, (n_tx->att+1), n_tx->wait);
 		}
