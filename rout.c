@@ -231,12 +231,12 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			}
 
 			// choose ch
-			// not initialized or p-1 node changed ch (or overflow)
+			// not initialized or p-1 node changed ch
 			if (flag_coll &&
 				n_tx->depth == n_rx->depth-1 &&
 				(n_rx->ch < 0 || n_rx->ch / bfac != n_tx->ch))
 			{
-				n_rx->ch = bfac*n_tx->ch;
+				n_rx->ch = bfac*n_tx->ch + rand() % bfac;
 			}
 
 			// select new ch if we receive an ack
@@ -246,10 +246,10 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				m_tx.num_ack != i_rx &&
 				m_tx.ch_ack == n_rx->ch)
 			{
-				n_rx->ch++;
+				n_rx->ch = ((n_rx->ch / bfac) * bfac) + rand() % bfac;
 				if (flag_act) printf("node %d: ch. %ld in use by node %d, "
 				                     "selects ch. %ld\n",
-				                     i_rx, (n_rx->ch-1), m_tx.num_ack, n_rx->ch);
+				                     i_rx, m_tx.ch_ack, m_tx.num_ack, n_rx->ch);
 			}
 
 			// ack for a message we sent
