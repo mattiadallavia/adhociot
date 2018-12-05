@@ -79,8 +79,8 @@ void rand_coord(struct point *coord, int n, int env)
 		r = env * sqrt(((float)rand()) / RAND_MAX);
 		a = 2*M_PI * ((float)rand()) / RAND_MAX;
 
-		coord[i].x = round(r * cos(a));
-		coord[i].y = round(r * sin(a));
+		coord[i].x = (int) (r * cos(a));
+		coord[i].y = (int) (r * sin(a));
 	}
 }
 
@@ -115,7 +115,7 @@ void human_layout(struct point *coord, int n, int env)
 			// reached the end without finding one
 			if (k == n)
 			{
-				if (round(DIST(i, j, env, env)) > env) printf("  ");
+				if (DIST(i, j, env, env) > env) printf("  ");
 				else printf(" .");
 			}
 		}
