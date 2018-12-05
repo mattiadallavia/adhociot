@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 		if (flag_steps && dis_t)
 		{
 			printf("t=%ld (frame %ld, slot %ld)\n", st.t, FRAME(st.t), SLOT(st.t));
-			print_nodes(nodes, n);
+			print_nodes(nodes, n+1);
 		}
 
 		disp(&st, nodes, graph, n+1);
@@ -179,7 +179,8 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 		m_rx.num_ack = i_tx;
 		m_rx.ch_ack = n_tx->ch;
 
-		if (flag_act) printf("node %d transmits message %d on ch. %ld\n", i_tx, m_tx.num, n_tx->ch);
+		if (flag_act) printf("node %d: transmitting mess. %d on ch. %ld\n",
+		                     i_tx, m_tx.num, n_tx->ch);
 
 		// transmit to all connected nodes
 		// node who are trans cannot receive at the same time
@@ -202,7 +203,10 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				{
 					coll++;
 					st->coll++;
-					if (flag_act) printf("collision with message %d from node %d at node %d\n", peek(&nodes[i]).num, i, i_rx);
+					if (flag_act) printf("node %d: coll. between mess. %d from %d and "
+						                 "mess. %d from %d\n",
+						                 i_rx, m_tx.num, i_tx,
+						                 peek(&nodes[i]).num, i);
 				}
 			}
 			// if a collision happened the message is not received
@@ -214,7 +218,8 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				n_rx->state = NODE_ACTIVE;
 				// wait a frame proportional to the distance
 				if (flag_coll) n_rx->wait = st->t + (int) (wfac*dist*10);
-				if (flag_act) printf("node %d activated, transmission scheduled for t=%ld\n", i_rx, n_rx->wait);
+				if (flag_act) printf("node %d: activated, tx. sched. for t=%ld\n",
+				                     i_rx, n_rx->wait);
 			}
 
 			// update depths
@@ -232,7 +237,6 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				(n_rx->ch < 0 || n_rx->ch / bfac != n_tx->ch))
 			{
 				n_rx->ch = bfac*n_tx->ch;
-				if (flag_act) printf("node %d selects ch. %ld\n", i_rx, n_rx->ch);
 			}
 
 			// select new ch if we receive an ack
@@ -243,7 +247,9 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				m_tx.ch_ack == n_rx->ch)
 			{
 				n_rx->ch++;
-				if (flag_act) printf("ch. %ld in use by node %d, node %d selects ch. %ld\n", (n_rx->ch-1), m_tx.num_ack, i_rx, n_rx->ch);
+				if (flag_act) printf("node %d: ch. %ld in use by node %d, "
+				                     "selects ch. %ld\n",
+				                     i_rx, (n_rx->ch-1), m_tx.num_ack, n_rx->ch);
 			}
 
 			// ack for a message we sent
@@ -253,7 +259,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				// reset the exp. backoff
 				n_rx->att = 0;
 				n_rx->wait = 0;
-				if (flag_act) printf("node %d received an ack, transmission scheduled for t=%ld\n", i_rx, n_rx->wait);
+				if (flag_act) printf("node %d: received an ack, tx. resched. asap\n", i_rx);
 			}
 
 			// remove mess. from stack if we receive an ack from nearer the dest.
@@ -262,7 +268,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				(pos = find(n_rx, m_rx.num)) >= 0)
 			{
 				delete(n_rx, pos);
-				if (flag_act) printf("message %d removed from node %d\n", m_rx.num, i_rx);
+				if (flag_act) printf("node %d: removed mess. %d\n", i_rx, m_rx.num);
 			}
 
 			// relay message if we are nearer the gateway
@@ -271,7 +277,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				// remove old instances of the same message
 				if ((pos = find(n_rx, m_rx.num)) >= 0) delete(n_rx, pos);
 				push(n_rx, m_rx);
-				if (flag_act) printf("added by node %d\n", i_rx);
+				if (flag_act) printf("node %d: added mess. %d\n", i_rx, m_rx.num);
 			}
 
 			st->rx++;
@@ -289,7 +295,8 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			n_tx->att++;
 			// exponential backoff
 			n_tx->wait = st->t + rand() % (int)(wfac*pow(2, n_tx->att)) + 1;
-			if (flag_act) printf("node %d scheduled attempt n. %d at t=%ld\n", i_tx, (n_tx->att+1), n_tx->wait);
+			if (flag_act) printf("node %d: resched. att. %d at t=%ld\n",
+			                     i_tx, (n_tx->att+1), n_tx->wait);
 		}
 
 		st->tx++;
