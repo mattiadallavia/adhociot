@@ -142,7 +142,7 @@ struct statistics alg(struct node *nodes, float *graph, int n)
 
 			// if it is the right slot for this node
 			// and is scheduled for this (or a past) time
-			if (((!flag_coll) || (SLOT(stats.t) == SLOT(nodes[i].depth))) &&
+			if (((!flag_coll) || (SLOT(stats.t) == (2 - nodes[i].depth % 3))) &&
 				(stats.t >= nodes[i].wait))
 			{
 				disp_t++; // messages to dispatch in this t
