@@ -97,9 +97,9 @@ int main(int argc, char **argv)
 
 						printf("%f\t%d\t%d\t%f\t%d\t%d\t%d\t%d\t%d\n", dim, n, conn, wr, br, t, tx, rx, coll);
 					}
-					if (flag_wfac) printf("\n");
+					if (w_max-w_min) printf("\n");
 				}
-				if (flag_bfac) printf("\n");
+				if (b_max-b_min) printf("\n");
 			}
 			printf("\n");
 		}
