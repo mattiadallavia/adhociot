@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 				sprintf(command, "./layout %d %d %d --seed %d | ./graph",
 				        env, n, range, seed++);
 				pipe = popen(command, "r");
-				fscanf(pipe, "%*d\t%*d\t%*d\t%d\n", &conn);
+				fscanf(pipe, "%*d\t%*d\t%*d\t%*d\t%d\n", &conn);
 				pclose(pipe);
 
 				printf("%f\t%d\t%d\n", dim, n, conn);
