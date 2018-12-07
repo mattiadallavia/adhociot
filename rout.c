@@ -73,6 +73,7 @@ static struct option long_options[] =
 //  --collisions    enable collision detection and avoidance
 //  --wfactor W     set wait factor
 //  --bfactor B     set branching factor
+//  --bfactor R     set retransmission factor
 
 int main(int argc, char **argv)
 {
@@ -104,6 +105,7 @@ int main(int argc, char **argv)
 
 	scanf("%d\t%d\t%d\t%d\t%d\n", &env, &n, &range, &seed, &conn);
 	printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", env, n, range, seed, conn, wfac, bfac, rfac);
+	if (flag_steps) printf("\n");
 
 	srand(seed);
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -185,7 +187,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 		m_rx.num_ack = i_tx;
 		m_rx.ch_ack = n_tx->ch;
 
-		if (flag_act) printf("node %d: transmitting mess. %d on ch. %ld\n",
+		if (flag_act) printf("node %d: tx. mess. %d on ch. %ld\n",
 		                     i_tx, m_tx.num, n_tx->ch);
 
 		// transmit to all connected nodes
@@ -209,8 +211,9 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				{
 					coll++;
 					st->coll++;
-					if (flag_act) printf("node %d: coll. between mess. %d from %d and "
-						                 "mess. %d from %d\n",
+					if (flag_act) printf("node %d: coll. between\n"
+					                     "        mess. %d from %d and\n"
+						                 "        mess. %d from %d\n",
 						                 i_rx, m_tx.num, i_tx,
 						                 peek(&nodes[i]).num, i);
 				}
@@ -224,7 +227,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				n_rx->state = NODE_ACTIVE;
 				// wait a frame proportional to the distance
 				if (flag_coll) n_rx->wait = st->t + 3 * (int)wfac*dist;
-				if (flag_act) printf("node %d: activated, tx. sched. for t=%ld\n",
+				if (flag_act) printf("node %d: act., tx. at t=%ld\n",
 				                     i_rx, n_rx->wait);
 			}
 
@@ -253,8 +256,8 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				m_tx.ch_ack == n_rx->ch)
 			{
 				n_rx->ch = ((n_rx->ch / bfac) * bfac) + rand() % bfac;
-				if (flag_act) printf("node %d: ch. %ld in use by node %d, "
-				                     "selects ch. %ld\n",
+				if (flag_act) printf("node %d: ch. %ld in use by %d,\n"
+				                     "        selecting ch. %ld\n",
 				                     i_rx, m_tx.ch_ack, m_tx.num_ack, n_rx->ch);
 			}
 
@@ -265,7 +268,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 				// reset the exp. backoff
 				n_rx->att = 0;
 				n_rx->wait = 0;
-				if (flag_act) printf("node %d: received an ack, tx. resched. asap\n", i_rx);
+				if (flag_act) printf("node %d: received an ack\n", i_rx);
 			}
 
 			// remove mess. from stack if we receive an ack from nearer the dest.
@@ -301,7 +304,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			n_tx->att++;
 			// exponential backoff
 			n_tx->wait = st->t + 3 * ((rand() % (int)pow(2, n_tx->att+rfac)) + 1);
-			if (flag_act) printf("node %d: resched. att. %d at t=%ld\n",
+			if (flag_act) printf("node %d: resch. att. %d at t=%ld\n",
 			                     i_tx, (n_tx->att+1), n_tx->wait);
 		}
 
