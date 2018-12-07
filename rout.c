@@ -52,8 +52,8 @@ void print_nodes(struct node *nodes, int n);
 static int flag_steps = 0;
 static int flag_act = 0;
 static int flag_coll = 0;
-static int bfac = 5;
-static float wfac = 30;
+static int bfac = 10;
+static int wfac = 10;
 
 static struct option long_options[] =
 {
@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 		switch (opt)
 		{
 			case 'w':
-				wfac = atof(optarg);
+				wfac = atoi(optarg);
 				break;
 			case 'b':
 				bfac = atoi(optarg);
@@ -218,7 +218,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			{
 				n_rx->state = NODE_ACTIVE;
 				// wait a frame proportional to the distance
-				if (flag_coll) n_rx->wait = st->t + (int)wfac*dist;
+				if (flag_coll) n_rx->wait = st->t + 3 * (int)wfac*dist;
 				if (flag_act) printf("node %d: activated, tx. sched. for t=%ld\n",
 				                     i_rx, n_rx->wait);
 			}
