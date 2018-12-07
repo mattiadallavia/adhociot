@@ -52,8 +52,9 @@ void print_nodes(struct node *nodes, int n);
 static int flag_steps = 0;
 static int flag_act = 0;
 static int flag_coll = 0;
-static int bfac = 10;
 static int wfac = 10;
+static int bfac = 10;
+static int rfac = 4;
 
 static struct option long_options[] =
 {
@@ -62,6 +63,7 @@ static struct option long_options[] =
     {"collisions", no_argument,       &flag_coll,  1},
     {"wfactor",    required_argument, 0,         'w'},
     {"bfactor",    required_argument, 0,         'b'},
+    {"rfactor",    required_argument, 0,         'r'},
     {0, 0, 0, 0}
 };
 
@@ -82,7 +84,7 @@ int main(int argc, char **argv)
 	struct node *nodes;
 
 	// optional arguments
-	while ((opt = getopt_long(argc, argv, "w:b:", long_options, 0)) != -1)
+	while ((opt = getopt_long(argc, argv, "w:b:r:", long_options, 0)) != -1)
 	{
 		switch (opt)
 		{
@@ -92,13 +94,16 @@ int main(int argc, char **argv)
 			case 'b':
 				bfac = atoi(optarg);
 				break;
+			case 'r':
+				rfac = atoi(optarg);
+				break;	
 			case '?':
 				return 1;
 		}
 	}
 
 	scanf("%d\t%d\t%d\t%d\t%d\n", &env, &n, &range, &seed, &conn);
-	printf("%d\t%d\t%d\t%d\t%d\t%f\t%d\n", env, n, range, seed, conn, wfac, bfac);
+	printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n", env, n, range, seed, conn, wfac, bfac, rfac);
 
 	srand(seed);
 	graph = malloc((n+1) * (n+1) * sizeof (float));
@@ -295,7 +300,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 			// delay transmissions unil sent message is acknowledged
 			n_tx->att++;
 			// exponential backoff
-			n_tx->wait = st->t + 3 * ((rand() % (int)pow(2, n_tx->att)) + 1);
+			n_tx->wait = st->t + 3 * ((rand() % (int)pow(2, n_tx->att+rfac)) + 1);
 			if (flag_act) printf("node %d: resched. att. %d at t=%ld\n",
 			                     i_tx, (n_tx->att+1), n_tx->wait);
 		}
