@@ -36,6 +36,7 @@ struct stat
 {
 	long t;
 	long tx;
+	long retx;
 	long rx;
 	long coll;
 };
@@ -159,7 +160,7 @@ int main(int argc, char **argv)
 	}
 	while (dis);
 
-	printf("%ld\t%ld\t%ld\t%ld\n", st.t, st.tx, st.rx, st.coll);
+	printf("%ld\t%ld\t%ld\t%ld\t%ld\n", st.t, st.tx, st.retx, st.rx, st.coll);
 }
 
 void disp(struct stat *st, struct node *nodes, float *graph, int n)
@@ -300,6 +301,7 @@ void disp(struct stat *st, struct node *nodes, float *graph, int n)
 		}
 
 		st->tx++;
+		if (n_tx->att > 1) st->retx++;
 	}
 }
 

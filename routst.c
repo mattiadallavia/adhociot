@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	float w, wr, w_min = 1, w_max = 1, w_step = 1;
 	int b, br, b_min = 1, b_max = 1, b_step = 1;
 	int i, env, range, iter;
-	int conn, t, tx, rx, coll;
+	int conn, t, tx, retx, rx, coll;
 	char comm[200];
 	FILE *pipe;
 
@@ -92,10 +92,10 @@ int main(int argc, char **argv)
 
 						pipe = popen(comm, "r");
 						fscanf(pipe, "%*d\t%*d\t%*d\t%*d\t%d\t%f\t%d\n", &conn, &wr, &br);
-						fscanf(pipe, "%d\t%d\t%d\t%d\n", &t, &tx, &rx, &coll);
+						fscanf(pipe, "%d\t%d\t%d\t%d\t%d\n", &t, &tx, &retx, &rx, &coll);
 						pclose(pipe);
 
-						printf("%f\t%d\t%d\t%f\t%d\t%d\t%d\t%d\t%d\n", dim, n, conn, wr, br, t, tx, rx, coll);
+						printf("%f\t%d\t%d\t%f\t%d\t%d\t%d\t%d\t%d\t%d\n", dim, n, conn, wr, br, t, tx, retx, rx, coll);
 					}
 					if (w_max-w_min) printf("\n");
 				}
