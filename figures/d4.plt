@@ -7,6 +7,10 @@
 
 d = 4
 
+r(x) = m*x+q
+fit r(x) 'd4_tx.aggr.dat' via m,q
+print sprintf('r(x) = %f * x + %f', m,q)
+
 unset key
 set ylabel offset 1.5,0
 set link x2 via x/(d**2) inverse x*(d**2)

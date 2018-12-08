@@ -5,6 +5,10 @@
 # ./st 2 --a 11 --m --st < d1.dat > d1_coll.aggr.dat
 # set terminal pdf size 12cm,9cm font 'Times,14'
 
+r(x) = m*x+q
+fit r(x) 'd1_tx.aggr.dat' via m,q
+print sprintf('r(x) = %f * x + %f', m,q)
+
 unset key
 set ylabel offset 1.5,0
 
