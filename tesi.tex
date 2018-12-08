@@ -545,35 +545,46 @@ L'interferenza tra il messaggio $a$ del nodo $i$ e il messagio $b$ del nodo $j$ 
 
 Quando $i$ e $j$ appartengono a profondità diverse ma vicine ($1 \leq |depth(i) - depth(j)| \leq 2$). Per impedire che ciò avvenga forziamo i nodi di profondità vicine a non trasmettere durante lo stesso quanto temporale, abilitando gli invii solo quando $slot(t) = slot(depth(i))$.
 
-Tra i nodi adiacenti, ossia alla stessa profondità. In questo caso l'idea è quella di selezionare i canali in modo che ciascun nodo di una data profondità trasmetta su un canale distinto. Questo è possibile grazie alle informazioni presenti nei messaggi di riscontro ed è perciò implementato nella routine di ricezione.
+Tra i nodi adiacenti, ossia alla stessa profondità. In questo caso l'idea è quella di selezionare i canali in modo che ciascun nodo di una data profondità trasmetta su un canale distinto. Al momento dell'attivazione (casusata dalla ricezione di un messaggio dal nodo $k$) viene scelto il canale di trasmissione secondo la formula:
+\begin{equation*}
+channel(i) = b \cdot channel(k) + rand(0,\,b-1)
+\end{equation*}
+dove $b > 0$ è il \emph{fattore di ramificazione}. Questo è un'indicazione su quanti figli ha in media ogni nodo ed è dunque legato alla densità del layout. Il primo membro distingue i satelliti di profondità $p$ in base al canale del nodo di profondità $p-1$ che li ha attivati mentre il secondo tenta di differenziare quelli attivati dallo stesso nodo. Nel caso due satelliti scelgano lo stesso canale questo viene corretto grazie alle informazioni presenti nei messaggi di riscontro: al momento della ricezione di $m$ dal nodo $k$ di $depth(k) < depth(i)$, se $node\_confirm(m) \neq i$ e $channel\_confirm(m) = channel(i)$, significa che un nodo adiacente ha consegnato con successo un messaggio sul canale $channel(i)$. È perciò necessario selezionare un nuovo canale:
+\begin{equation*}
+channel(i) = b \cdot \left\lfloor\frac{channel(i)}{b}\right\rfloor + rand(0,\,b-1)
+\end{equation*}
+
+I satelliti attivati dallo stesso messaggio di esplorazione corrono il rischio di effettuare la prima trasmissione nello stesso istante, dando luogo ad una collisione qualora sia stato scelto lo stesso canale. Per mitigare questo fenomeno scheduliamo la prima trasmissione mediante un criterio basato sulla distanza da $k$ (stimata mediante la potenza ricevuta):
+\begin{equation*}
+wait(i) = t + w \cdot dist(i,\,k)
+\end{equation*}
+dove $w \geq 0$ è il \emph{fattore di attesa}. La speranza è che l'attesa fornisca una diversificazione degli invii sufficiente a evitare interferenze. $w$ rappresenta un compromesso tra probabilità di collisione e rapidità di raccolta dei dati.
 
 \subsection{Routine di trasmissione}
 
 Se $state(i) = active$, $t \geq wait(i)$ e $slot(t) = slot(depth(i))$, il nodo $i$ invia il messaggio $m$ in cima alla propria pila sul canale $channel(i)$. Effettuata la trasmissione, si assume che questa non sia andata a buon fine finché non si riceve un riscontro. Perciò si incrementa il contatore dei tentativi di trasmissione $attempts(i)$\textit{++} e si rischedula un invio di $m$ mediante exponential backoff:
 \begin{equation*}
-wait(i) = t + rand(1,\,2^a)
+wait(i) = t + rand(1,\,2^{a+r})
 \end{equation*}
-con $a = attempts(i)$ e $rand(a,\,b)$ un numero casuale tra $a$ e $b$.
+con $a = attempts(i)$ e $r \geq 0$ il \emph{fattore di ritrasmissione}. Come $w$, anche $r$ rappresenta un compromesso tra durata totale delle trasmissioni e probabilità di collisione (e conseguenti ritrasmissioni).
+
+\begin{figure}[H]
+\centering
+\includegraphics{figures/r.pdf}
+\caption{Tempo finale e numero di ritrasmissioni medi in layout stocastici di dimensione 1 con 10 satelliti al variare di $r$.}
+\end{figure}
+
+Alla ricezione di un riscontro ($node\_confirm(m) = i$), viene azzerato il contatore $attempts(i) = 0$ e vengono rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
 
 \subsection{Routine di ricezione}
 
 Il nodo $i$ riceve, all'istante $t$, il mesaggio $m$ dal nodo $j$:
 
-Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere. I satelliti attivati dallo stesso messaggio di esplorazione corrono il rischio di effettuare la prima trasmissione nello stesso istante e canale, dando luogo ad una collisione. Per mitigare questo fenomeno scheduliamo la prima trasmissione mediante un criterio euristico basato sulla distanza da $j$ (stimata mediante la potenza ricevuta):
-\begin{equation*}
-wait(i) = frame(t) + w \cdot dist(i,\,j)
-\end{equation*}
-dove $w \in \mathbb{Q}_{>0}$ è il \emph{fattore di attesa}. La speranza è che l'attesa fornisca una diversificazione degli invii sufficiente a evitare interferenze. $w$ rappresenta il compromesso tra probabilità di collisione e rapidità di raccolta dei dati, va perciò ricavato in funzione delle caratteristiche della rete.
-
-La profondità viene ricalcolata come $depth(i) = min(depth(i),\ depth(j)+1)$. Potrebbe infatti esistere un percorso più breve al sink di quanto stimato in precendenza.
+Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere ed è calcolata la profondità come $depth(i) = depth(j)+1$.
 
 Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
 
 Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il riscontro di un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al sink, possiamo quindi procedere a eliminarlo dalla stack: $remove(m)$.
-
-Se $depth(j) < depth(i)$, $node\_confirm(m) \neq i$ e $channel\_confirm(m) = channel(i)$, significa che un nodo adiacente (di profondità $depth(i)$) ha consegnato con successo un messaggio sul canale $channel(i)$. È perciò necessario selezionare un nuovo canale: $channel(i)$\textit{++}.
-
-Se $node\_confirm(m) = i$, stiamo ricevendo il riscontro di una precedente trasmissione di $m$. Va quindi azzerato il contatore dei tentativi di trasmissione $attempts(i) = 0$ e rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
 
 \section{Simulazione}
 \label{simulazione}
