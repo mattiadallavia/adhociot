@@ -29,9 +29,9 @@
     tabsize=4,	            % sets default tabsize to 4 spaces
 }
 
-\title{Un paradigma per la raccolta dati in reti ad-hoc di sensori}
-\date{2018\\ Dicembre}
-\author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
+\title{Ipotesi di operatore nomadico di reti di sensori}
+% \date{2018\\ Dicembre}
+% \author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
 
 % quadro, tassello mancante, divario
 % rilevanza, apprezzando, opportunità, maturando
@@ -51,7 +51,7 @@
 
 \maketitle
 
-\clearpage
+% \clearpage
 
 \tableofcontents
 
@@ -112,7 +112,7 @@ Cosa intendiamo esattamente quando facciamo riferimento ad una rete di sensori? 
 
 % Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
 
-\subsection{Nodi e ambiente}
+% \subsection{Nodi e ambiente}
 
 Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati satelliti, sono i veri e propri sensori.
 
@@ -383,28 +383,9 @@ Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-Eseguendo ad esempio \texttt{conn 100 300 100 6 10 2 1000 100 ----seed 1} otteniamo:
+% \subsection{Rapporto di connessione medio}
 
-\begin{figure}[H]
-\centering
-\begin{BVerbatim}
- 6.000000  100  0.170500
- 6.000000  200  0.858500
- 6.000000  300  0.994867
-
- 8.000000  100  0.036600
- 8.000000  200  0.117600
- 8.000000  300  0.605867
-
-10.000000  100  0.016600
-10.000000  200  0.037850
-10.000000  300  0.081667
-\end{BVerbatim}
-\end{figure}
-
-\subsection{Rapporto di connessione medio}
-
-In questa sezione prendiamo in esame un dataset\footnote{Disponibile all'indirizzo \url{https://raw.githubusercontent.com/mattiadallavia/adhociot/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
+Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://raw.githubusercontent.com/mattiadallavia/adhociot/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
 
 Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
