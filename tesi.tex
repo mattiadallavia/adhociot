@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -6,47 +6,70 @@
 \usepackage[italian]{babel}
 \usepackage{float}
 \usepackage{graphicx}
-\usepackage{subcaption}
+\usepackage{multicol}
+\usepackage{fancyvrb}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{xfrac}
 \usepackage{url}
-\usepackage{fancyvrb}
-\usepackage{multicol}
 
-\setlength{\parskip}{0.5em}
+\renewcommand{\baselinestretch}{1.1}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
 \newtheorem{proposition}{Proposizione}
 
-\title{\uppercase{\Large Ipotesi di\\ operatore nomadico di reti di sensori}}
-\author{\uppercase{\normalsize Mattia Dalla Via}}
-% \date{2018\\ Dicembre}
-% \author{Mattia Dalla Via\\ Dipartimento di Ignegneria dell'Informazione\\ Università degli Studi di Padova}
-
-% quadro, tassello mancante, divario
-% rilevanza, apprezzando, opportunità, maturando
-% ecosistema
-% prestazioni
-% rete di transito
-% costellazione
-% rendezvous
-
-% WSN - Wireless Sensor Network
-% MANET - Mobile Ad-hoc Network
-% LPWAN - Low Power Wide Area Network
-
-% http://research.protocollabs.com/osm-mobility/
-
 \begin{document}
 
-\maketitle
+\begin{titlepage}\centering\large
 
-% \clearpage
+\includegraphics{figures/unipd.pdf}
+
+\vspace{1cm}
+
+Università degli Studi di Padova\\
+\smallskip
+Dipartimento di Ingegneria dell'Informazione\\
+\smallskip
+Corso di Laurea in Ingegneria Informatica\\
+
+\vspace{4cm}
+
+\uppercase{{\Large Ipotesi di\\ operatore nomadico di reti di sensori}}
+
+\vspace{4cm}
+
+\begin{minipage}{0.5\textwidth}
+\raggedright
+\emph{Laureando:}\\
+Mattia Dalla Via
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}
+\raggedleft
+\emph{Relatore:}\\
+Prof. Nicola Zingirian
+\end{minipage}
+
+\vspace{2cm}
+
+Anno accademico 2018/2019
+
+\end{titlepage}
+
+\newpage
+
+\vspace*{5cm}
+
+{\raggedleft\em
+Ai miei fratelli
+
+}
+
+\newpage
 
 \tableofcontents
+
+\newpage
 
 \section{Introduzione}
 
@@ -65,6 +88,8 @@ Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramit
 In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio di organizzazione classica di una rete di sensori. Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
 
 \subsection{LoRa}
+
+% https://www.semtech.com/uploads/documents/an1200.22.pdf
 
 LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata da molti fornitori di servizi di connettività \cite{netprov}.
 
@@ -267,8 +292,6 @@ Ipotizziamo che all'istante $t$ stiano trasmettendo i due nodi $i$ e $j$: se $k$
 
 In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di interferenza} e perciò non riceverà il messaggio. $q$ invece è raggiunto solamente dal segnale di $j$ e perciò non soffrirà dell'interferenza.
 
-% modello radio
-
 \section{Analisi}
 
 Muniti di una descrizione formale di rete, rappresentata dal layout $L = (a,\,p,\,N)$ e dal relativo grafo $G = graph(L)$, andiamo ora ad analizzare le sue caratteristiche al variare di $a$, $p$ e $n$. In questa sezione proponiamo due possibili disposizioni dei satelliti nell'ambiente, studiando la connettività dei grafi associati.
@@ -388,8 +411,6 @@ Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-% \subsection{Rapporto di connessione medio}
-
 Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
 
 Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
@@ -417,17 +438,6 @@ dove $q$ è la densità di nodi $q = \frac{n}{D}$.
 Da questo grafico si evince che un rapporto di connessione medio $\tilde{c} \geq 0.9$ si ottiene quando $d \gtrsim 5.6$. Un risultato del tutto in linea con quello ottenuto per i layout a reticolo uniforme.
 
 \section{Algoritmo}
-
-% instradamento
-% complessità
-% efficienza
-% ciclo di vita
-% collisioni / contesa / exponential backoff
-% gestione di canale
-% formato del messaggio
-% Minimizzare le trasmissioni
-% Configurare la rete in assenza di un coordinamento prestabilito
-% Semplicità della routine di nodo
 
 In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad-hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al sink. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un'altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di ricezione dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
 
@@ -570,8 +580,6 @@ Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il risco
 
 \section{Simulazione}
 \label{simulazione}
-
-% time loop
 
 Per la validazione dell'algoritmo è stato realizzato un simulatore\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/rout.c}} che, istante per istante, riproduce gli eventi previsti dalla routine di ciascun nodo. Durante il processo vengono conteggiati il tempo, le trasmissioni, ricezioni e collisioni avvenute. Il programma legge come input un grafo di connettività e itera fino alla consegna dell'ultimo messaggio nella rete.
 
