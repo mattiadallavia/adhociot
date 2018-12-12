@@ -1,4 +1,4 @@
-# set terminal pdf size 10cm,4cm font 'Times,16' dl 1.5
+# set terminal pdf size 8cm,3.5cm font 'Times,14'
 
 $vertices << EOD
 -8 4
@@ -83,19 +83,16 @@ EOD
 unset tics
 unset key
 unset border
-set size ratio 0.4
 set xrange [-10:10]
 set yrange [-3:5]
-set style textbox opaque noborder margin 2,2
-set style arrow 1 head filled size screen 0.03,15,45
+set style textbox opaque noborder margin 1,1
+set style arrow 1 head filled size screen 0.04,15,45
 
-# set label 1 '{/:Bold S}' at 0,0 boxed center front
 set arrow 1 from 9,-0.5 to 10,0 arrowstyle 1
 
-plot '$path' with lines smooth csplines dt 4 lc 'black',\
+plot '$path' with lines smooth csplines dt 4 lc 'black', \
      '$arcs' with lines lc 'black', \
-     '$vertices' pt 7 ps 3 lc 'white', \
+     '$vertices' pt 7 ps 2 lc 'white', \
      '$vertices' pt 3 lc 'black', \
-     '$sinks' pt 7 ps 3 lc 'white', \
+     '$sinks' pt 7 ps 2 lc 'white', \
      '$sinks' pt 13 lc 'black'
-     

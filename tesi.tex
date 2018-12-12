@@ -102,7 +102,7 @@ In alternativa alla collocazione statica dei collettori esiste l'idea, nota in l
 \begin{figure}[H]
 \centering
 \includegraphics{figures/nomadic.pdf}
-\caption{Sink mobile che raccoglie dati dai sensori.}
+\caption{Collettore itinerante che raccoglie dati in modalità ad hoc.}
 \end{figure}
 
 L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: In una rete di sensori, la concentrazione del traffico nelle vicinaze dei sink fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i sink diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
@@ -395,12 +395,8 @@ Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https:
 Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
 \begin{figure}[H]
-\begin{subfigure}[b]{0.5\textwidth}
-\includegraphics[width=\textwidth]{figures/conn_3d.pdf}
-\end{subfigure}
-\begin{subfigure}[b]{0.5\textwidth}
-\includegraphics[width=\textwidth]{figures/conn_dim.pdf}
-\end{subfigure}
+\centering
+\includegraphics{figures/conn.pdf}
 \caption{Visualizzazione del dataset.}
 \end{figure}
 
@@ -739,7 +735,6 @@ node 1: removed mess. 1
 \end{figure}
 
 % ./graph < examples/1.layout --plot 1.graphplt
-% set terminal pdf size 6cm,6cm font 'Times,16'
 
 \begin{figure}[H]
 \centering

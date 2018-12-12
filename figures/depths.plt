@@ -1,4 +1,4 @@
-# set terminal pdf size 8cm,6cm font 'Times,16' dl 1.5
+# set terminal pdf size 6cm,5cm font 'Times,14'
 
 $vertices << EOD
 -4 2
@@ -108,20 +108,19 @@ EOD
 unset tics
 unset key
 unset border
-set style textbox opaque noborder margins 3,3
-
 set xrange [-8:9]
 set yrange [-7.5:9]
+set style textbox opaque noborder margins 1,1
 
 set label 1 '' at 0,0 point pt 7 ps 3 lc 'white' front
-set label 2 '{/:Bold S}' at 0,0 front center
+set label 2 '{/Times-Bold S}' at 0,0 front center
 
-set label 3 '{/:Italic 0}' at 0,2 center boxed front
-set label 4 '{/:Italic 1}' at 0,4 center boxed front
-set label 5 '{/:Italic 2}' at 0,7 center boxed front
+set label 3 '0' at 0,2 center boxed front
+set label 4 '1' at 0,4 center boxed front
+set label 5 '2' at 0,7 center boxed front
 
 plot '$arcs' with lines lc 'black', \
      '$arcs_extra' with lines dt 2 lc 'black', \
-     '$vertices' pt 7 ps 3 lc 'white', \
+     '$vertices' pt 7 ps 2 lc 'white', \
      '$vertices' pt 3 lc 'black', \
      '$depths' with lines smooth bezier dt 4 lc 'black'
