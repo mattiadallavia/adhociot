@@ -88,7 +88,7 @@ Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 \begin{figure}[H]
 \centering
 \includegraphics[width=10cm]{figures/lorawan.png}
-\caption{Architettura di una rete LoRaWAN.}
+\caption{Architettura di una rete LoRaWAN. Tratta da \protect\url{https://www.thethingsnetwork.org/docs/lorawan}.}
 \end{figure}
 
 % https://www.thethingsnetwork.org/docs/lorawan/LoRaWAN-Overview.png
@@ -398,7 +398,7 @@ Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 % \subsection{Rapporto di connessione medio}
 
-Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://raw.githubusercontent.com/mattiadallavia/adhociot/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
+Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
 
 Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
@@ -585,7 +585,7 @@ Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il risco
 
 % time loop
 
-Per la validazione dell'algoritmo è stato realizzato un simulatore\footnote{\url{https://github.com/mattiadallavia/nomadop/blob/master/rout.c}} che, istante per istante, riproduce gli eventi previsti dalla routine di ciascun nodo. Durante il processo vengono conteggiati il tempo, le trasmissioni, ricezioni e collisioni avvenute. Il programma legge come input un grafo di connettività e itera fino alla consegna dell'ultimo messaggio nella rete.
+Per la validazione dell'algoritmo è stato realizzato un simulatore\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/rout.c}} che, istante per istante, riproduce gli eventi previsti dalla routine di ciascun nodo. Durante il processo vengono conteggiati il tempo, le trasmissioni, ricezioni e collisioni avvenute. Il programma legge come input un grafo di connettività e itera fino alla consegna dell'ultimo messaggio nella rete.
 
 {\centering
 \texttt{rout ----collisions ----wfac w ----bfac b ----rfac r}
@@ -757,7 +757,7 @@ node 1: removed mess. 1
 
 \subsection{Risultati statistici}
 
-Per misurare le prestazioni dell'algoritmo su un campione eterogeneo di layout è stata realizzata la routine\footnote{\url{https://github.com/mattiadallavia/nomadop/blob/master/routst.c}}
+Per misurare le prestazioni dell'algoritmo su un campione eterogeneo di layout è stata realizzata la routine\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/routst.c}}
 
 {\centering
 \begin{BVerbatim}
