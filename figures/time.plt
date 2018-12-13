@@ -1,4 +1,4 @@
-# set terminal pdf size 10cm,3cm font 'Times,14'
+# set terminal pdf size 8cm,2.5cm font 'Times,14'
 
 unset tics
 unset key
@@ -7,7 +7,7 @@ set xrange [-1:10]
 set yrange [0:2]
 set xtics 0,1,9 axis
 set ytics 1 scale 0 format ''
-set style arrow 1 head filled size screen 0.04,15,45
+set style arrow 1 head filled size screen 0.03,15,45
 
 set for [i = 0:8] label (i+1) sprintf("%d",i%3) at (i+0.5),0.5 center
 set for [i = 0:2] label (i+10) sprintf("%d",i) at (i*3+1.5),1.5 center

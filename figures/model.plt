@@ -1,4 +1,4 @@
-# set terminal pdf size 5cm,5cm font 'Times,14'
+# set terminal pdf size 4cm,4cm font 'Times,14'
 
 $nodes << EOD
 -4 1 1

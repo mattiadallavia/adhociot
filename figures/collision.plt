@@ -1,4 +1,4 @@
-# set terminal pdf size 4cm,3.2cm font 'Times,14'
+# set terminal pdf size 3.75cm,3cm font 'Times,14'
 
 unset key
 unset tics
