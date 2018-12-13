@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[italian]{babel}
+\usepackage{microtype}
 \usepackage{float}
 \usepackage{graphicx}
 \usepackage{multicol}
@@ -11,15 +12,18 @@
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
-\usepackage{url}
+\usepackage[hidelinks]{hyperref}
 
 \renewcommand{\baselinestretch}{1.1}
+\setlength{\emergencystretch}{4pt}
 
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}
 \newtheorem{proposition}{Proposizione}
 
 \begin{document}
+
+\hypersetup{pageanchor=false}
 
 \begin{titlepage}\centering\large
 
@@ -57,6 +61,8 @@ Anno accademico 2018/2019
 \end{titlepage}
 
 \newpage
+
+\hypersetup{pageanchor=true}
 
 \vspace*{5cm}
 
@@ -206,11 +212,11 @@ ovvero le distanze relative si conservano. Consideriamo ad esempio
 L_5 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
 L_{15} = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
 \end{align*}
-questi layout sono topologicamente equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono perciò mappati nello stesso grafo.
+questi layout sono equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono quindi mappati nello stesso grafo.
 \begin{equation*}
 graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1),\,(0,\,2),\,(1,\,0),\,(2,\,0)\})
 \end{equation*}
-Ci rendiamo quindi conto che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
+Ci rendiamo conto perciò che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
 
 \subsection{Dimensione e densità}
 
@@ -382,9 +388,9 @@ Per calcolare il grafo $G$ associato al layout dell'esempio precedente eseguiamo
 
 Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
-\texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
+\texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} computa il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra densità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei. Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
+Prendiamo ora in esame un dataset\footnote{File consultabile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra densità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei. Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
 \begin{figure}[H]
 \centering
