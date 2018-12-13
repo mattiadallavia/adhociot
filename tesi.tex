@@ -73,9 +73,7 @@ Ai miei fratelli
 
 \section{Introduzione}
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi nel territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impega un'infrastruttura di raccolta dati montata su veicoli.
-
-% In questa tesi esploreremo un paradigma alternativo con l'obiettivo di offrire una copertura estesa e flessibile, immediatamente disponibile ad un costo inferiore.
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impega un'infrastruttura di raccolta dati montata su veicoli.
 
 % Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche.
 
@@ -85,20 +83,19 @@ Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramit
 
 \section{Architetture di rete}
 
-In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio di organizzazione classica di una rete di sensori. Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
+In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio di organizzazione classica di una rete di sensori. Parleremo poi delle reti ad hoc e introdurremo infine l'infrastruttura dell'operatore nomadico.
+
+% Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
 
 \subsection{LoRa}
 
-% https://www.semtech.com/uploads/documents/an1200.22.pdf
-
-LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra gateway e nodi. La loro combinazione offre una soluzione completa, adottata da molti fornitori di servizi di connettività \cite{netprov}.
+LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso \cite{loramod}. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance\footnote{\url{https://lora-alliance.org}}. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra concentratori e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività \cite{netprov}.
 
 Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
-
 \begin{enumerate}
 \item End nodes: i sensori, dotati di modulo radio LoRa.
-\item Gateway: stazioni radio base, ricevono le trasmissioni dei sensori.
-\item Network Server: connesso ai gateway, smista il traffico di dati ricevuto inoltrandolo ai relativi server dei clienti.
+\item Gateway: i concentratori, ricevono le trasmissioni dei sensori.
+\item Network Server: connesso ai concentratori, smista il traffico dati ricevuto inoltrandolo ai server dei clienti.
 \item Application Server: parte del sistema informativo del cliente, consuma i dati raccolti.
 \end{enumerate}
 
@@ -108,29 +105,25 @@ Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 \caption{Architettura di una rete LoRaWAN. Tratta da \protect\url{https://www.thethingsnetwork.org/docs/lorawan}.}
 \end{figure}
 
-% https://www.thethingsnetwork.org/docs/lorawan/LoRaWAN-Overview.png
-
-Gli operatori forniscono perciò il proprio servizio installando sul territorio dei gateway, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più gateway \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
+Gli operatori LoRaWAN forniscono perciò il proprio servizio installando sul territorio dei concentratori fissi, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più concentratori \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
 \subsection{Rete ad hoc}
 
-In una rete ad hoc, i nodi non fanno affidamento ad un'infrastuttura predeterminata bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è reponsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Un tipoco esempio sono tutti quegli scenari in cui i dispositivi si muovono nello spazio ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi.
+In una rete ad hoc, i nodi non fanno affidamento ad un'infrastuttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è reponsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi.
 
-Nel nostro paradigma prevediamo un'approccio ibrido: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del collettore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del collettore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
+Nel nostro paradigma impieghiamo una strategia ibrida: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del concentratore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del concentratore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
 
 \subsection{Infrastruttura nomadica}
 
-In alternativa alla collocazione statica dei collettori esiste l'idea, nota in letteratura come \emph{sink mobility}, di un'infrastruttura mobile che cambia posizione all'interno del territorio \cite{sinkmob}. Immaginiamo di seguito un operatore che raccoglie dati dai sensori mediante collettori installati su veicoli in movimento.
-
-% Per estendere la copertura oltre la cella mobile, adottiamo un instadamento multi-hop: Qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino alla destinazione.
+In alternativa alla collocazione statica dei concentratori esiste l'idea, nota in letteratura come \emph{sink mobility}, di un'infrastruttura mobile che cambia posizione all'interno del territorio \cite{sinkmob}. Immaginiamo di seguito un operatore che chiameremo nomadico che raccoglie dati dai sensori mediante collettori installati su veicoli in movimento.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/nomadic.pdf}
-\caption{Collettore itinerante che raccoglie dati in modalità ad hoc.}
+\caption{Collettore itinerante che raccoglie dati in modalità ad hoc lungo il suo percorso.}
 \end{figure}
 
-L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: In una rete di sensori, la concentrazione del traffico nelle vicinaze dei sink fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i sink diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
+L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: in una rete di sensori, l'addensamento del traffico nelle vicinaze del concentratore fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i concentratori diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
 
 Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: la frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di collettori a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
 
@@ -140,25 +133,19 @@ Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle gi
 
 Cosa intendiamo esattamente quando facciamo riferimento ad una rete di sensori? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali.
 
-% Questo modello non ha lo scopo di rappresentare una rete in generale, bensì è calzato su misura per semplificare la descrizione dell'algoritmo.
-
-% \subsection{Nodi e ambiente}
-
-Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto \emph{sink}, costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati satelliti, sono i veri e propri sensori.
-
-Chiamiamo \emph{portata} (del segnale) la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel sink, nel quale sono distribuiti i satelliti.
+Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto collettore (\emph{sink} in inglese), costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori. Chiamiamo \emph{portata} la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel collettore, nel quale sono distribuiti i satelliti.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/model.pdf}
-\caption{Rete di 4 satelliti, di cui 3 connessi al sink.}
+\caption{Rete di $n=4$ satelliti, di cui 3 raggiungibili dal collettore.}
 \end{figure}
 
-Questa descrizione trascura la dimensione temporale e di conseguenza gli spostamenti relativi dei nodi. Ipotizziamo infatti che la magnitudine dei movimenti nel lasso di tempo delle comunicazioni sia trascurabile rispetto alla portata.
+Questa descrizione trascura la dimensione temporale e di conseguenza gli spostamenti relativi dei nodi. Ipotizziamo infatti che la magnitudine del movimento nel lasso di tempo delle comunicazioni sia trascurabile rispetto alla portata.
 
 \subsection{Layout di rete}
 
-Con \emph{layout di rete} ci riferiamo ad una specifica configurazione spaziale di $n$ satelliti con portata $p$ in un ambiente di raggio $a$. Parliamo quindi della ``fotografia'' di una rete che ritrae le coordinate di ciascun nodo, la loro portata e l'ampiezza dell'ambiente in cui sono disposti. Ne diamo una definizione formale:
+Con \emph{layout di rete} ci riferiamo ad una specifica configurazione spaziale di $n$ satelliti con portata $p$ in un ambiente di raggio $a$. Parliamo quindi della ``fotografia'' di una rete che ritrae le coordinate di ciascun nodo, la loro portata e l'ampiezza dell'ambiente in cui sono disposti. Ne diamo una definizione formale.
 
 \begin{definition}
 Sia
@@ -172,21 +159,21 @@ L = (a,\,p,\,N)
 dove $a$ è il raggio dell'ambiente e $p$ la portata dei nodi.
 \end{definition}
 
-Da notare che il sink ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq a$.
+Da notare che il collettore ($i=0$) ha sempre coordinate $0,\,0$. Mentre per tutti i nodi vale che $dist(0,\,i) = \sqrt{x_i^2+y_i^2} \leq a$.
 
-Vincolando i parametri $a$, $p$ e $n$ otteniamo un sottoinsieme di layout dove solo le coordinate dei satelliti rimangono indeterminate. Chiamiamo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole ci chiederemo: Fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul layout?
+Vincolando i parametri $a$, $p$ e $n$ otteniamo un sottoinsieme di layout dove solo le coordinate dei satelliti rimangono indeterminate. Chiamiamo questo sottoinsieme $layout(a,\,p,\,n)$. Nelle prossime sezioni esamineremo le relazioni che legano queste variabili e tenteremo di caratterizzare i sottoinsiemi che vanno a produrre. In altre parole ci chiederemo: fissati $a$, $p$ e $n$, cosa possiamo dire in generale sul layout?
 
 \subsection{Grafo di connettività}
 
-Noto un layout di rete $L$, da esso estrapoliamo un grafo. Questo descrive la connettività della rete, tenendo conto delle relazioni tra i nodi connessi tralasciando le loro posizioni.
+Noto un layout di rete $L$, da esso estrapoliamo un grafo. Questo descrive la connettività della rete, tenendo conto delle relazioni tra i nodi connessi e tralasciando le loro posizioni.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/graph.pdf}
-\caption{Esempio di grafo di connettività.}
+\caption{Grafo di connettività con 4 satelliti connessi ed uno non raggiungibile.}
 \end{figure}
 
-Questo tipo di descrizione della rete si avvicina di più a quella a disposizione degli algoritmi di routing. Le coordinate dei nodi sono spesso infatti ignote, mentre le distanze sono stimabili sulla base della potenza del segnale ricevuto. Diamo anche per il grafo una definizione formale:
+Questo modo di rappresentare la rete si avvicina di più all'informazione disponibile agli algoritmi di routing. Le coordinate dei satelliti sono spesso infatti ignote, mentre le distanze sono stimabili sulla base della potenza del segnale ricevuto. Diamo anche per il grafo una definizione formale.
 
 \begin{definition}
 Siano $V = \{0,\,\dots,\,n\}$ gli indici di $n+1$ nodi con portata $p$. Siano $E$ gli archi (connessioni) tra i nodi, calcolati come:
@@ -196,13 +183,9 @@ E = \{ (i,\,j) \text{ dove } i,\,j \in V \mid dist(i,\,j) \le p \ \wedge \ i \ne
 chiamiamo $G = (V,\,E)$ il \emph{grafo di connettività}.
 \end{definition}
 
-% E = \{ (i,\,j,\,w) \text{ dove } i,\,j \in V \text{ e } w = \frac{dist(i,\,j)}{p} \mid w \le 1 \ \wedge \ i \neq j\}
-
 La funzione $dist(i,\,j)$ rappresenta la distanza tra la coppia di nodi. Nelle successive simulazioni sarà definita come la distanza geometrica tra le coordinate.
 
-% Nel caso queste non siano note, la distanza potrebbe essere valutata grazie alla potenza di ricezione dei messaggi.
-
-Diremo che $G = graph(L)$ è il grafo associato al layout $L$ se questo è calcolato sulle coordinate dei nodi di $L$ e sulla loro portata. Chiamiamo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il sink e diremo \emph{connessi al sink} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega al sink. Se $G = C$ diremo che $G$ è \emph{completamente connesso}.
+Diremo che $G = graph(L)$ è il grafo associato al layout $L$ se questo è calcolato sulle coordinate dei nodi di $L$ e sulla loro portata. Chiamiamo \emph{sottografo connesso} $C \subseteq G$ il sottografo contenente il collettore e diremo \emph{connessi al collettore} tutti i nodo in esso contenuti, ovvero tutti quelli che hanno almeno un cammino che li collega ad esso. Se $G = C$ diremo che $G$ è \emph{completamente connesso}.
 
 Al contrario di quanto si potrebbe pensare, il passaggio per il concetto di layout non risulta affatto superfluo. Basando la propria rappresentazione direttamente su di un grafo si rischia infatti di descrivere situazioni che non rispettano i vincoli geometrici del piano. Ad esempio: noto che $dist(i,\,j) = dist(j,\,k) = 1$, allora necessariamente $0 \leq dist(i,\,k) \leq 2$. In altri termini possiamo dire che la funzione $graph(L)$ non è suriettiva. Alla luce di questo, chiamiamo \emph{realistico} un grafo a cui è associato almeno un layout.
 
@@ -223,17 +206,13 @@ ovvero le distanze relative si conservano. Consideriamo ad esempio
 L_5 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
 L_{15} = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
 \end{align*}
-questi layout sono topologicamente equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono perciò mappati nello stesso grafo
+questi layout sono topologicamente equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono perciò mappati nello stesso grafo.
 \begin{equation*}
 graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1),\,(0,\,2),\,(1,\,0),\,(2,\,0)\})
 \end{equation*}
 Ci rendiamo quindi conto che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
 
 \subsection{Dimensione e densità}
-
-% relazioni caratteristiche
-
-% Appare subito evidente che la portata e il raggio dell'ambiente influenzano in maniera interdipendente il modello. In particolare, fissati $r_0$ e $p_0$, è possibile definire una classe di reti dove $r = m \cdot r_0, \ p = m \cdot p_0$ con $m \in \mathbb{Q}_{>0}$ e dove le posizioni relative dei nodi sono conservate. Queste reti sono equivalenti a meno di un fattore di scala. È utile quindi definire il concetto di \emph{guadagno}, per identificare tutte quelle reti appartenenti a classi distinte.
 
 Alla luce di quanto appreso nella sezione precedente, introduciamo ora il concetto di \emph{dimensione del layout}. Questo esprime il raggio ambiente utilizzando la portata come unità di misura. In altre parole potremmo dire che è il raggio ambiente normalizzato su $p$.
 
@@ -251,11 +230,9 @@ D = \frac{\pi a^2}{\pi p^2} = \left(\frac{a}{p}\right)^2 = d^2
 \end{equation*}
 \end{definition}
 
-Nell'ottica dei layout in scala, dato $L_p = (a,\,p,\,N)$, possiamo dire che $d$ è il raggio ambiente del layout equivalente $L_1 = (d,\,1,\,N)$. Come menzionato in precedenza sarà perciò sufficiente studiare i layout al variare di $d$ ($layout(d,\,1,\,n)$) per coprire l'intero spazio dei grafi di rete.
+Nell'ottica dei layout in scala, dato $L_p = (a,\,p,\,N)$, possiamo dire che $d$ è il raggio ambiente del layout equivalente $L_1 = (d,\,1,\,N)$. Come menzionato in precedenza sarà perciò sufficiente studiare i layout al variare di $d$ ($layout(d,\,1,\,n)$) per coprire l'intero spazio dei grafi di connettività.
 
-% Queste definizioni rispondono alla seguente domanda: Fissata la portata dei nodi, quanto è più grande l'ambiente in cui sono disposti? In pratica queste grandezze normalizzano le misure di lunghezza e superficie, usando $p$ come unità di misura.
-
-Definiamo infine una speciale relazione tra $n$ e $d$ che sarà di centrale importanza per l'analisi delle proprietà di $L$:
+Definiamo infine una speciale relazione tra $n$ e $d$ che sarà di centrale importanza per l'analisi delle proprietà del layout:
 
 \begin{definition}
 Sia $n$ il numero di satelliti e $d$ la dimensione radiale, chiamiamo \emph{densità di nodi} $q$ la relazione:
@@ -280,9 +257,9 @@ Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiami
 
 \subsection{Canale}
 
-Il \emph{canale} è un numero naturale. Esso costituisce un'astrazione per il multiplexing di frequenza o un qualsiasi altro meccanismo di multiplazione che permetta a due moduli radio di trasmettere contemporaneamente senza interferenze.
+Il \emph{canale} è un numero naturale. Esso costituisce un'astrazione per il multiplexing di frequenza o un qualsiasi altro meccanismo di multiplazione che permetta a due moduli radio di trasmettere contemporaneamente senza interferire.
 
-Ipotizziamo che all'istante $t$ stiano trasmettendo i due nodi $i$ e $j$: se $k$ è connesso ad entrambi ($dist(k,\,i) \leq p,\,dist(k,\,j) \leq p$) e se le trasmissioni avvengono sullo stesso canale ($channel(i) = channel(j)$) parliamo di \emph{collisione} in $k$. Da notare che, trattandosi di comunicazione radio, due o più trasmissioni contemporanee sullo stesso canale non necessariamente collidono in tutti i punti dello spazio.
+Ipotizziamo che all'istante $t$ stiano trasmettendo due nodi $i$ e $j$: se $k$ è connesso ad entrambi ($dist(k,\,i) \leq p,\,dist(k,\,j) \leq p$) e se le trasmissioni avvengono sullo stesso canale ($channel(i) = channel(j)$) parliamo di \emph{collisione} in $k$. Da notare che, trattandosi di comunicazione radio, due o più trasmissioni contemporanee sullo stesso canale non necessariamente collidono in tutti i punti dello spazio.
 
 \begin{figure}[H]
 \centering
@@ -290,27 +267,27 @@ Ipotizziamo che all'istante $t$ stiano trasmettendo i due nodi $i$ e $j$: se $k$
 \caption{Regione di interferenza.}
 \end{figure}
 
-In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di interferenza} e perciò non riceverà il messaggio. $q$ invece è raggiunto solamente dal segnale di $j$ e perciò non soffrirà dell'interferenza.
+In questo esempio, $i$ e $j$ stanno trasmettendo. $k$ si trova nella \emph{regione di interferenza} e perciò non riceverà il messaggio. $q$ invece è raggiunto solamente dal segnale di $j$ e perciò non soffrirà di interferenza.
 
 \section{Analisi}
 
-Muniti di una descrizione formale di rete, rappresentata dal layout $L = (a,\,p,\,N)$ e dal relativo grafo $G = graph(L)$, andiamo ora ad analizzare le sue caratteristiche al variare di $a$, $p$ e $n$. In questa sezione proponiamo due possibili disposizioni dei satelliti nell'ambiente, studiando la connettività dei grafi associati.
+Muniti di una descrizione formale di rete, rappresentata dal layout $L = (a,\,p,\,N)$ e dal relativo grafo $G = graph(L)$, procediamo ad analizzare le sue caratteristiche al variare di $a$, $p$ e $n$. In questa sezione proponiamo due possibili disposizioni dei satelliti nell'ambiente, studiando la connettività dei grafi associati.
 
 \subsection{Rapporto di connessione}
 
-Individuiamo innanzitutto una metrica con la quale valutare $G$:
+Individuiamo innanzitutto una metrica con la quale valutare $G$.
 
 \begin{definition}
 Sia $R$ l'insieme dei possibili grafi di rete. Chiamiamo \emph{rapporto di connessione} la funzione
 \begin{equation*}
 c \colon R \to [0,\,1]
 \end{equation*}
-che mappa $G$ nel numero relativo (percentuale) di satelliti connessi al sink.
+che mappa $G$ nel numero relativo (percentuale) di satelliti connessi al collettore.
 \end{definition}
 
-Questa risponde alla domanda: dato un grafo $G \in R$, quanti dei satelliti risultano connessi al nodo sink? Dà quindi un'informazione sulla quantità dei nodi nel sottografo connesso.
+Questa risponde alla domanda: dato un grafo $G \in R$, quanti dei satelliti risultano connessi al collettore? Dà quindi un'informazione sulla quantità di nodi nel sottografo connesso.
 
-Quanto vale il rapporto di connessione al variare dei parametri $a$, $p$ e $n$? Questa domanda non trova una risposta generale, in quanto esso fondamentalmente dipende dallo specifico grafo di rete. Banalmente, se fissiamo $d = 1$, la porata del sink coprirà l'intero ambiente e perciò tutti i satelliti saranno ad esso direttamente connessi, ovvero $c(G) = 1 \ \forall G = graph(L)$ con $d = 1$. Posto invece $d > 1$, tutti i satelliti potrebbero rientrare nella portata del sink e quindi risultare $c(G_1) = 1$, oppure viceversa potrebbero essere tutti a distanza $> p$ dal sink e perciò risultare $c(G_2) = 0$.
+Quanto vale il rapporto di connessione al variare dei parametri $a$, $p$ e $n$? Questa domanda non trova una risposta generale, in quanto esso fondamentalmente dipende dallo specifico grafo di rete. Banalmente, se fissiamo $d = 1$, la porata del collettore copre l'intero ambiente e perciò tutti i satelliti sono ad esso direttamente connessi, ovvero $c(G) = 1 \ \forall G = graph(L)$ con $d = 1$. Posto invece $d > 1$, tutti i satelliti potrebbero rientrare nella portata del collettore e quindi risultare $c(G_1) = 1$, oppure viceversa potrebbero essere tutti a distanza $> p$ dal collettore e perciò risultare $c(G_2) = 0$.
 
 \subsection{Layout a reticolo uniforme}
 
@@ -319,7 +296,7 @@ Ipotizzando che i nodi siano disposti in una griglia uniforme, possiamo determin
 \begin{figure}[H]
 \centering
 \includegraphics{figures/layout_ret.pdf}
-\caption{Layout a reticolo uniforme.}
+\caption{Layout a reticolo uniforme di $n=20$ satelliti.}
 \end{figure}
 
 \begin{proposition}
@@ -334,19 +311,19 @@ Usando la definizione di densità di nodi: il grafo è completamente connesso qu
 
 Questo risultato si ottiene considerando la porzione di area del cerchio di raggio $d = \frac{a}{p}$ inscritto nel quadrato di lato $2d = \frac{2a}{p}$. La proporzione tra l'area del quadrato e del cerchio inscritto è costante a $\frac{4}{\pi}$ mentre l'area del quadrato vale $(2d)^2 = 4D$. La disuguaglianza assicura infine che la distanza tra ogni coppia di nodi in asse sia $\leq p$.
 
-Si ha quindi che con un layout $L_r$, per garantire che tutti i satelliti siano connessi al sink, la coppia $n$, $d$ va scelta secondo la relazione $n \geq \frac{16}{\pi} d^2$.
+Si ha quindi che con un layout $L_r$, per garantire che tutti i satelliti siano connessi al collettore, la coppia $n$, $d$ va scelta secondo la relazione $n \geq \frac{16}{\pi} d^2$.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/ret_locus.pdf}
-\caption{Luogo delle coppie $n$, $d$ per le quali $c(G_r) = 1$}
+\caption{Luogo delle coppie $n$, $d$ per le quali $c(G_r) = 1$ in un layout a reticolo uniforme.}
 \end{figure}
 
 \subsection{Layout stocastico}
 
-Per studiare il comportamento medio di un campione eterogeneo di layout, ne generiamo automaticamente in funzione di $n$, $a$ e $p$, scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
+Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
 
-I dati vengono prodotti mediante delle routine scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
+I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
 
 \texttt{\textbf{layout n a p ----seed s}} genera un layout $L = (a,\,p,\,N)$ con $|N| = n+1$. Le coordinate dei satelliti sono estratte da una fonte di numeri pseudo-casuali inizializzata con il seme $s$. Produce un output nella forma:
 
@@ -389,7 +366,7 @@ gn1  gn2  gn3  ...  0
 \end{BVerbatim}
 \end{figure}
 
-Il grafo è codificato mediante una matrice: il valore $g_{ij}$ esprime la distanza normalizzata su $p$ tra i nodi $i$ e $j$. Se $g_{ij} \leq 1$ è perciò presente un arco tra la coppia di nodi. $c$ è il numero di satelliti connessi al sink.
+Il grafo è codificato mediante una matrice: il valore $g_{ij}$ esprime la distanza normalizzata su $p$ tra i nodi $i$ e $j$. Se $g_{ij} \leq 1$ è perciò presente un arco tra la coppia di nodi. $c$ è il numero di satelliti connessi al collettore.
 
 Per calcolare il grafo $G$ associato al layout dell'esempio precendete eseguiamo \texttt{layout 4 8 5 ----seed 16 | graph}:
 
@@ -407,21 +384,19 @@ Per calcolare il grafo $G$ associato al layout dell'esempio precendete eseguiamo
 
 Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
-% Per la creazione di un dataset al variare di $n$ e $d$ utilizzaimo infine
-
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di stimare il \emph{rapporto di connessione medio} $\tilde{c}(q)$ in funzione della densità di nodi. Sottolineiamo che questa non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
+Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra denità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
 
 Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/conn.pdf}
-\caption{Visualizzazione del dataset.}
+\caption{Dataset graficato in funzione di densità e numero di satelliti.}
 \end{figure}
 
-Come ci si poteva aspettare, al crescere di $d$ il rapporto di connessione medio cala repentinamente: nello specifico, è inversamente proporzionale alla dimensione superficiale $D = d^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti sale la probabilità che si formino dei percorsi al sink.
+Come ci si poteva aspettare, al crescere di $d$ il rapporto di connessione medio cala repentinamente: nello specifico, è inversamente proporzionale alla dimensione superficiale $D = d^2$. Questa tendenza è tuttavia mitigata al crescere di $n$, infatti all'aumentare dei satelliti sale la probabilità che si formino dei percorsi al collettore.
 
 Interpolando i dati sulla funzione $\tilde{c}(q) = s \cdot tanh(w \cdot q + t) + u$ (determinata empiricamente) otteniamo:
 \begin{equation*}
@@ -439,25 +414,25 @@ Da questo grafico si evince che un rapporto di connessione medio $\tilde{c} \geq
 
 \section{Algoritmo}
 
-In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad-hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al sink. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un'altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di ricezione dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
+In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al collettore. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un'altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di invio dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
 
-Ipotizzando che non avvengano collisioni, $n$ messaggi (uno per satellite) vengono consegnati in
+Ipotizzando che non avvengano collisioni, $n$ messaggi (uno per satellite) vengono consegnati da questo algoritmo in
 \begin{equation*}
 tx = \sum_{i=1}^{n} depth(i) + n + 1
 \end{equation*}
-trasmissioni. Questo si ottiene conteggiando il messaggio iniziale di esplorazione del sink e $depth(i) + 1$ trasmissioni per ciascun messaggio. Nella sezione \ref{simulazione} ricaveremo dei valori medi di $tx$ e $t_f$ su un campione di layout stocastici.
+trasmissioni. Ciò si ottiene conteggiando il messaggio iniziale di esplorazione del collettore e $depth(i) + 1$ trasmissioni per ciascun messaggio. Nella sezione \ref{simulazione} ricaveremo dei valori medi di $tx$ e $t_f$ su un campione di layout stocastici.
 
 \subsection{Principio di funzionamento}
 
-L'algoritmo opera a macchia d'olio: a $t=0$ il sink da inizio alle trasmissioni con un messaggio di esplorazione. Gli invii a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il grafo di rete viene esplorato, determinando concettualmente un albero che collega ciascun satellite al sink ed assegnando ad ogni nodo la propria profondità.
+L'algoritmo opera a macchia d'olio: a $t=0$ il collettore da inizio alle trasmissioni con un messaggio di esplorazione. Gli invii a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il grafo di rete viene esplorato, determinando un albero che collega ciascun satellite al collettore ed assegnando ad ogni nodo la propria profondità.
 
 \begin{figure}[H]
 \centering
 \includegraphics{figures/depths.pdf}
-\caption{Esempio di rete con relative profondità.}
+\caption{Rete esplorata dall'algoritmo con relative profondità.}
 \end{figure}
 
-Ogni trasmissione assume una duplice valenza: consideriamo l'invio del messaggio $m$ da parte del nodo $i$ di profondità $p$, questa corrisponde all'inoltro del dato verso i nodi di profondità $p-1$, nella direzione del sink. Inoltre, se si tratta della prima trasmissione del nodo $i$, essa funge da attivazione per gli eventuali nodi di profondità $p+1$. Viceversa, se il messaggio $m$ proviene da un nodo di profondità $> p$, si sta effettuando una ritrasmissione. In questo caso l'invio funge da riscontro di $m$ ai nodi di profondità $p+1$.
+Ogni trasmissione assume una duplice valenza: consideriamo l'invio del messaggio $m$ da parte del nodo $i$ di profondità $p$, questa corrisponde all'inoltro del dato verso i nodi di profondità $p-1$, nella direzione del collettore. Inoltre, se si tratta della prima trasmissione del nodo $i$, essa funge da attivazione per gli eventuali nodi di profondità $p+1$. Viceversa, se il messaggio $m$ proviene da un nodo di profondità $> p$, si sta effettuando una ritrasmissione. In questo caso l'invio funge da riscontro di $m$ ai nodi di profondità $p+1$.
 
 \subsection{Variabili di stato}
 
@@ -484,24 +459,23 @@ Ciascun nodo fa uso dei seguenti campi:
 
 \texttt{state} controlla la modalità di funzionamento del nodo. Inizialmente assume il valore di $waiting$: il satellite è in attesa di venire attivato da un messaggio esplorazione. Una volta attivato ($state(i) = active$), viene abilitata la routine di trasmissione.
 
-\texttt{depth} indica la profondità di $i$, ovvero la lunghezza del cammino minimo che lo collega al sink. Viene determinata alla prima ricezione come $depth(i) = depth(j) + 1$, dove $j$ è il mittente del messaggio.
+\texttt{depth} indica la profondità di $i$, ovvero la lunghezza del cammino minimo che lo collega al collettore. Viene determinata alla prima ricezione come $depth(i) = depth(j) + 1$, dove $j$ è il mittente del messaggio.
 
-\texttt{channel} seleziona il canale di trasmissione, è inizializzato a $0$ ed incrementato fino a che non viene consegnato con successo un messaggio.
+\texttt{channel} seleziona il canale di trasmissione, è inizializzato a $0$ e viene eventualmente ridefinito ad ogni ricezione per differire da quello dei nodi adiacenti.
 
-\texttt{attempts} conteggia il numero di tentativi di invio non ancora confermati. Serve a calcolare l'istante della prossima trasmissione mediante l'exponential backoff.
+\texttt{attempts} conteggia il numero di tentativi di invio non ancora confermati. Serve a calcolare l'istante della prossima trasmissione mediante exponential backoff.
 
 \texttt{wait} è l'istante temporale al quale si è pianificato il prossimo invio.
 
-\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). È inizializzata con un messaggio $m$ con $number(m) = i$, garantendo così l'unicità dell'identificatore del messaggio. La scelta di una pila (e non di una coda) non è casuale: viene data la priorità all'ultimo messaggio ricevuto poichè fornendo il prima possibile un riscontro (in piggyback) si limita la probabilità che il mittente effettui una ritrasmissione.
+\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). È inizializzata con un messaggio $m$ con $number(m) = i$, garantendo così l'unicità dell'identificatore del messaggio. La scelta di una pila (e non di una coda) non è casuale: viene data la priorità all'ultimo messaggio ricevuto poichè fornendo il prima possibile un riscontro (in piggyback) si limita la probabilità che il mittente di origine effettui una ritrasmissione.
 
 \subsection{Messaggio}
 
 Ogni messaggio ricopre implicitamente almeno uno di questi ruoli:
-
 \begin{enumerate}
 \item \emph{consegna} del payload ad uno (o più) nodi di profondità $p-1$.
 \item \emph{esplorazione} dei satelliti a profondità $p+1$ che, ricevendo $m$, si attivano.
-\item \emph{riscontro} della ricezione di $m$ al nodi di origine di profondità $p+1$.
+\item \emph{riscontro} della ricezione di $m$ al nodo di origine di profondità $p+1$.
 \end{enumerate}
 
 Consideriamo ora il messaggio $m$ inviato dal nodo $i$ di profondità $p$, ricevuto da $j$ e originario di $k$. Oltre al payload, sono inviate le seguenti informazioni:
@@ -546,7 +520,7 @@ dove $b > 0$ è il \emph{fattore di ramificazione}. Questo è un'indicazione su 
 channel(i) = b \cdot \left\lfloor\frac{channel(i)}{b}\right\rfloor + rand(0,\,b-1)
 \end{equation*}
 
-I satelliti attivati dallo stesso messaggio di esplorazione corrono il rischio di effettuare la prima trasmissione nello stesso istante, dando luogo ad una collisione qualora sia stato scelto lo stesso canale. Per mitigare questo fenomeno scheduliamo la prima trasmissione mediante un criterio basato sulla distanza da $k$ (stimata mediante la potenza ricevuta):
+I satelliti attivati dallo stesso messaggio di esplorazione corrono il rischio di effettuare la prima trasmissione nello stesso istante, dando luogo ad una collisione qualora sia stato scelto lo stesso canale. Per mitigare questo fenomeno scheduliamo la prima trasmissione mediante un criterio basato sulla distanza da $k$:
 \begin{equation*}
 wait(i) = t + w \cdot dist(i,\,k)
 \end{equation*}
@@ -563,7 +537,7 @@ con $a = attempts(i)$ e $r \geq 0$ il \emph{fattore di ritrasmissione}. Come $w$
 \begin{figure}[H]
 \centering
 \includegraphics{figures/r.pdf}
-\caption{Tempo finale e numero di ritrasmissioni medi in layout stocastici di dimensione 1 con 10 satelliti al variare di $r$.}
+\caption{Tempo finale e numero di ritrasmissioni medi in layout stocastici di dimensione 1 con 10 satelliti al variare del fattore di ritrasmissione.}
 \end{figure}
 
 Alla ricezione di un riscontro ($node\_confirm(m) = i$), viene azzerato il contatore $attempts(i) = 0$ e vengono rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
@@ -576,7 +550,7 @@ Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitand
 
 Se $depth(j) > depth(i)$, il messaggio arriva da un nodo più periferico. Lo scheduliamo perciò per una ritrasmissione: $push(m)$, con l'accortezza di eliminare eventuali vecchie istanze dello stesso messaggio dalla stack.
 
-Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il riscontro di un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al sink, possiamo quindi procedere a eliminarlo dalla stack: $remove(m)$.
+Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il riscontro di un messaggio precedentemente inoltrato. $m$ è stato ricevuto con successo da un nodo più vicino al collettore, possiamo quindi procedere a eliminarlo dalla stack: $remove(m)$.
 
 \section{Simulazione}
 \label{simulazione}
@@ -610,7 +584,7 @@ Simulando ad esempio un layout con $d=2$, $n=25$ mediante il comando \texttt{lay
 
 \subsection{Esempio}
 
-Riportiamo ora, a titolo di esempio, la simulazione su una rete con $d=1.4$, $n=4$ dove i satelliti 1 e 4 si trovano a profondità $1$ mentre 2 e 3 sono collegati al sink tramite 1.
+Riportiamo ora, a titolo di esempio, la simulazione su una rete con $d=1.4$, $n=4$ dove i satelliti 1 e 4 si trovano a profondità $1$ mentre 2 e 3 sono collegati al collettore tramite 1.
 
 % ./graph < examples/1.layout | ./rout --c --s --a --w 2 --b 2 > 1.rout
 
@@ -739,7 +713,7 @@ node 1: removed mess. 1
 16	12	1	25	0
 \end{Verbatim}
 \end{multicols}
-\caption{Output della simulazione con relativi passaggi.}
+\caption{Output della simulazione con relativi passaggi intermedi.}
 \end{figure}
 
 % ./graph < examples/1.layout --plot 1.graphplt
@@ -747,7 +721,7 @@ node 1: removed mess. 1
 \begin{figure}[H]
 \centering
 \includegraphics{figures/ex.pdf}
-\caption{Layout della rete esaminata.}
+\caption{Grafo di connettività sottoposto alla simulazione.}
 \end{figure}
 
 \subsection{Risultati statistici}
@@ -796,7 +770,7 @@ In questo caso le trasmissioni medie per nodo sono circa $15 - \frac{955.63}{n}$
 
 \section{Conclusioni}
 
-In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precendenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il vantaggio strategico di mercato di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche derivado una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
+In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precendenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il vantaggio strategico di mercato di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche e dedotto una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
 
 \begin{thebibliography}{0}
 
@@ -804,8 +778,14 @@ In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre c
 \textit{LoRaWAN 1.1 Specification}.
 LoRa Alliance, 2017.
 
+\bibitem{loramod}
+\textit{LoRa Modulation Basics}.
+Semtech, 2015.
+\url{https://www.semtech.com/uploads/documents/an1200.22.pdf}
+
 \bibitem{netprov}
 \textit{LoRa Network Providers}.
+Semtech.
 \url{https://www.semtech.com/lora/ecosystem/networks}.
 
 \bibitem{loraperf}
