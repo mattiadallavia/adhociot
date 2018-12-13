@@ -73,7 +73,7 @@ Ai miei fratelli
 
 \section{Introduzione}
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria \cite{wsnsurvey}. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata \cite{loraspec}. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore \cite{mobileadhoc}. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impega un'infrastruttura di raccolta dati montata su veicoli.
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria \cite{wsnsurvey}. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata \cite{loraspec}. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore \cite{mobileadhoc}. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impiega un'infrastruttura di raccolta dati montata su veicoli.
 
 % Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche.
 
@@ -105,11 +105,11 @@ Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 \caption{Architettura di una rete LoRaWAN. Tratta da \protect\url{https://www.thethingsnetwork.org/docs/lorawan}.}
 \end{figure}
 
-Gli operatori LoRaWAN forniscono perciò il proprio servizio installando sul territorio dei concentratori fissi, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivemente da uno o più concentratori \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
+Gli operatori LoRaWAN forniscono perciò il proprio servizio installando sul territorio dei concentratori fissi, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivamente da uno o più concentratori \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
 \subsection{Rete ad hoc}
 
-In una rete ad hoc, i nodi non fanno affidamento ad un'infrastuttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è reponsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato \cite{adhoc}. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi \cite{mobileadhoc}.
+In una rete ad hoc, i nodi non fanno affidamento ad un'infrastruttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è responsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato \cite{adhoc}. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi \cite{mobileadhoc}.
 
 Nel nostro paradigma impieghiamo una strategia ibrida: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del concentratore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del concentratore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
 
@@ -123,7 +123,7 @@ In alternativa alla collocazione statica dei concentratori esiste l'idea, nota i
 \caption{Collettore itinerante che raccoglie dati in modalità ad hoc lungo il suo percorso.}
 \end{figure}
 
-L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: in una rete di sensori, l'addensamento del traffico nelle vicinaze del concentratore fa si che le batterie dei nodi si eusauriscano in maniera disomogenea. Riposizionare periodicamente i concentratori diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
+L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: in una rete di sensori, l'addensamento del traffico nelle vicinanze del concentratore fa si che le batterie dei nodi si esauriscano in maniera disomogenea. Riposizionare periodicamente i concentratori diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
 
 Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: la frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di collettori a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
 
@@ -241,7 +241,7 @@ q = \frac{n}{d^2} = \frac{n}{D}
 \end{equation*}
 \end{definition}
 
-Questo rapporto ci da un'informazione sulla quantità di nodi per unità di superificie.
+Questo rapporto ci da un'informazione sulla quantità di nodi per unità di superficie.
 
 \subsection{Tempo}
 
@@ -287,7 +287,7 @@ che mappa $G$ nel numero relativo (percentuale) di satelliti connessi al collett
 
 Questa risponde alla domanda: dato un grafo $G \in R$, quanti dei satelliti risultano connessi al collettore? Dà quindi un'informazione sulla quantità di nodi nel sottografo connesso.
 
-Quanto vale il rapporto di connessione al variare dei parametri $a$, $p$ e $n$? Questa domanda non trova una risposta generale, in quanto esso fondamentalmente dipende dallo specifico grafo di rete. Banalmente, se fissiamo $d = 1$, la porata del collettore copre l'intero ambiente e perciò tutti i satelliti sono ad esso direttamente connessi, ovvero $c(G) = 1 \ \forall G = graph(L)$ con $d = 1$. Posto invece $d > 1$, tutti i satelliti potrebbero rientrare nella portata del collettore e quindi risultare $c(G_1) = 1$, oppure viceversa potrebbero essere tutti a distanza $> p$ dal collettore e perciò risultare $c(G_2) = 0$.
+Quanto vale il rapporto di connessione al variare dei parametri $a$, $p$ e $n$? Questa domanda non trova una risposta generale, in quanto esso fondamentalmente dipende dallo specifico grafo di rete. Banalmente, se fissiamo $d = 1$, la portata del collettore copre l'intero ambiente e perciò tutti i satelliti sono ad esso direttamente connessi, ovvero $c(G) = 1 \ \forall G = graph(L)$ con $d = 1$. Posto invece $d > 1$, tutti i satelliti potrebbero rientrare nella portata del collettore e quindi risultare $c(G_1) = 1$, oppure viceversa potrebbero essere tutti a distanza $> p$ dal collettore e perciò risultare $c(G_2) = 0$.
 
 \subsection{Layout a reticolo uniforme}
 
@@ -321,7 +321,7 @@ Si ha quindi che con un layout $L_r$, per garantire che tutti i satelliti siano 
 
 \subsection{Layout stocastico}
 
-Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$. I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
+Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scegliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$. I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
 
 \texttt{\textbf{layout n a p ----seed s}} genera un layout $L = (a,\,p,\,N)$ con $|N| = n+1$. Le coordinate dei satelliti sono estratte da una fonte di numeri pseudo-casuali inizializzata con il seme $s$. Produce un output nella forma:
 
@@ -366,7 +366,7 @@ gn1  gn2  gn3  ...  0
 
 Il grafo è codificato mediante una matrice: il valore $g_{ij}$ esprime la distanza normalizzata su $p$ tra i nodi $i$ e $j$. Se $g_{ij} \leq 1$ è perciò presente un arco tra la coppia di nodi. $c$ è il numero di satelliti connessi al collettore.
 
-Per calcolare il grafo $G$ associato al layout dell'esempio precendete eseguiamo \texttt{layout 4 8 5 ----seed 16 | graph}:
+Per calcolare il grafo $G$ associato al layout dell'esempio precedente eseguiamo \texttt{layout 4 8 5 ----seed 16 | graph}:
 
 \begin{figure}[H]
 \centering
@@ -384,7 +384,7 @@ Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra denità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei. Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
+Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra densità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei. Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
 \begin{figure}[H]
 \centering
@@ -410,7 +410,7 @@ Da questo grafico si evince che un rapporto di connessione medio $\tilde{c} \geq
 
 \section{Algoritmo}
 
-In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al collettore. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un'altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di invio dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
+In questa sezione presentiamo un algoritmo di routing per la raccolta dati dai sensori. La modalità di funzionamento è di tipo ad hoc: il messaggio viene ritrasmesso dai satelliti lungo un percorso che lo porta al collettore. A causa delle possibili interferenze, è necessario l'invio di riscontri per confermare la corretta ricezione dei messaggi. Tuttavia, grazie ad un'attenta schedulazione, gli acknowledgment avvengono nella maggior parte dei casi in piggyback. L'obiettivo è infatti quello di minimizzare le trasmissioni, in quanto queste richiedono il massimo dispendio di energia da parte dei moduli radio. Un altro fattore importante è quello temporale: è di naturale interesse raccogliere i dati nel minor tempo possibile. Alla luce di questo, scegliamo il numero totale di trasmissioni $tx$ e l'istante di invio dell'ultimo messaggio $t_f$ come metriche di valutazione dell'algoritmo.
 
 Ipotizzando che non avvengano collisioni, $n$ messaggi (uno per satellite) vengono consegnati da questo algoritmo in
 \begin{equation*}
@@ -420,7 +420,7 @@ trasmissioni. Ciò si ottiene conteggiando il messaggio iniziale di esplorazione
 
 \subsection{Principio di funzionamento}
 
-L'algoritmo opera a macchia d'olio: a $t=0$ il collettore da inizio alle trasmissioni con un messaggio di esplorazione. Gli invii a questo punto avvengono a partire dal centro verso la perifieria, procedento man mano in anelli concentrici. Durante questo processo il grafo di rete viene esplorato, determinando un albero che collega ciascun satellite al collettore ed assegnando ad ogni nodo la propria profondità.
+L'algoritmo opera a macchia d'olio: a $t=0$ il collettore da inizio alle trasmissioni con un messaggio di esplorazione. Gli invii a questo punto avvengono a partire dal centro verso la periferia, procedendo man mano in anelli concentrici. Durante questo processo il grafo di rete viene esplorato, determinando un albero che collega ciascun satellite al collettore ed assegnando ad ogni nodo la propria profondità.
 
 \begin{figure}[H]
 \centering
@@ -463,7 +463,7 @@ Ciascun nodo fa uso dei seguenti campi:
 
 \texttt{wait} è l'istante temporale al quale si è pianificato il prossimo invio.
 
-\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). È inizializzata con un messaggio $m$ con $number(m) = i$, garantendo così l'unicità dell'identificatore del messaggio. La scelta di una pila (e non di una coda) non è casuale: viene data la priorità all'ultimo messaggio ricevuto poichè fornendo il prima possibile un riscontro (in piggyback) si limita la probabilità che il mittente di origine effettui una ritrasmissione.
+\texttt{messages} è la pila dei messaggi da inviare (compresi quelli inviati ma non ancora confermati). È inizializzata con un messaggio $m$ con $number(m) = i$, garantendo così l'unicità dell'identificatore del messaggio. La scelta di una pila (e non di una coda) non è casuale: viene data la priorità all'ultimo messaggio ricevuto poiché fornendo il prima possibile un riscontro (in piggyback) si limita la probabilità che il mittente di origine effettui una ritrasmissione.
 
 \subsection{Messaggio}
 
@@ -493,7 +493,7 @@ Consideriamo ora il messaggio $m$ inviato dal nodo $i$ di profondità $p$, ricev
 
 \texttt{number} è l'identificatore univoco del messaggio. Inizializzato con l'indice del nodo di origine.
 
-\texttt{node} è l'indice del nodo che tramette $m$.
+\texttt{node} è l'indice del nodo che trasmette $m$.
 
 \texttt{depth} è la profondità di $i$.
 
@@ -503,11 +503,11 @@ Consideriamo ora il messaggio $m$ inviato dal nodo $i$ di profondità $p$, ricev
 
 \subsection{Prevenzione delle collisioni}
 
-L'interferenza tra il messaggio $a$ del nodo $i$ e il messagio $b$ del nodo $j$ ha luogo dove questi sono collegati ad un nodo comune $k$ ($dist(i,\,k) \leq p$, $dist(j,\,k) \leq p$). Questo può avvenire in una di due situazioni distinte:
+L'interferenza tra il messaggio $a$ del nodo $i$ e il messaggio $b$ del nodo $j$ ha luogo dove questi sono collegati ad un nodo comune $k$ ($dist(i,\,k) \leq p$, $dist(j,\,k) \leq p$). Questo può avvenire in una di due situazioni distinte:
 
 Quando $i$ e $j$ appartengono a profondità diverse ma vicine ($1 \leq |depth(i) - depth(j)| \leq 2$). Per impedire che ciò avvenga forziamo i nodi di profondità vicine a non trasmettere durante lo stesso quanto temporale, abilitando gli invii solo quando $slot(t) = slot(depth(i))$.
 
-Tra i nodi adiacenti, ossia alla stessa profondità. In questo caso l'idea è quella di selezionare i canali in modo che ciascun nodo di una data profondità trasmetta su un canale distinto. Al momento dell'attivazione (casusata dalla ricezione di un messaggio dal nodo $k$) viene scelto il canale di trasmissione secondo la formula:
+Tra i nodi adiacenti, ossia alla stessa profondità. In questo caso l'idea è quella di selezionare i canali in modo che ciascun nodo di una data profondità trasmetta su un canale distinto. Al momento dell'attivazione (causata dalla ricezione di un messaggio dal nodo $k$) viene scelto il canale di trasmissione secondo la formula:
 \begin{equation*}
 channel(i) = b \cdot channel(k) + rand(0,\,b-1)
 \end{equation*}
@@ -540,7 +540,7 @@ Alla ricezione di un riscontro ($node\_confirm(m) = i$), viene azzerato il conta
 
 \subsection{Routine di ricezione}
 
-Il nodo $i$ riceve, all'istante $t$, il mesaggio $m$ dal nodo $j$:
+Il nodo $i$ riceve, all'istante $t$, il messaggio $m$ dal nodo $j$:
 
 Se $state(i) = waiting$, il nodo viene attivato ($state(i) = active$), abilitando quindi $i$ a trasmettere ed è calcolata la profondità come $depth(i) = depth(j)+1$.
 
@@ -766,11 +766,11 @@ Qui le trasmissioni medie per nodo sono circa $4.74 - \frac{30.67}{n}$.
 \caption{Prestazioni medie su layout con $d=4$ e fattori $w=20$, $b=50$ e $r=6$.}
 \end{figure}
 
-In questo caso le trasmissioni medie per nodo sono circa $15 - \frac{955.63}{n}$. È quindi chiaro come queste crescano con la dimensione della rete e con il conseguente aumentare della profondità media dei satelliti e perciò con il numero di salti richiesti a ciascun messaggio per raggiungere la destinazione. Osserviamo infine come, a fronte di una grande variabilità sulle collisioni, l'algorimo risponda con un numero pressoché stabile di trasmissioni.
+In questo caso le trasmissioni medie per nodo sono circa $15 - \frac{955.63}{n}$. È quindi chiaro come queste crescano con la dimensione della rete e con il conseguente aumentare della profondità media dei satelliti e perciò con il numero di salti richiesti a ciascun messaggio per raggiungere la destinazione. Osserviamo infine come, a fronte di una grande variabilità sulle collisioni, l'algoritmo risponda con un numero pressoché stabile di trasmissioni.
 
 \section{Conclusioni}
 
-In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precendenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il vantaggio strategico di mercato di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche e dedotto una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
+In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precedenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il vantaggio strategico di mercato di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche e dedotto una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
 
 \begin{thebibliography}{0}
 
