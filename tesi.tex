@@ -81,11 +81,11 @@ Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramit
 
 % La caratteristica che accomuna la grande maggioranza delle soluzioni IoT è la limitata disponibilità di energia: questi dispositivi sono infatti normalmente alimentati a batteria. Le principali soluzioni di connettività orbitano quindi attorno a questa recessità, focalizzandosi sul limitare i tempi di attività di trasmissione e ricezione.
 
+% Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
+
 \section{Architetture di rete}
 
 In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio di organizzazione classica di una rete di sensori. Parleremo poi delle reti ad hoc e introdurremo infine l'infrastruttura dell'operatore nomadico.
-
-% Proseguiremo poi con la proposta di un modello che si promette come valida alternativa in uno spettro di applicazioni dove le soluzioni classiche risultano poco pratiche o eccessivamente costose.
 
 \subsection{LoRa}
 
@@ -133,13 +133,13 @@ Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle gi
 
 Cosa intendiamo esattamente quando facciamo riferimento ad una rete di sensori? In questa sezione proponiamo un modello che ne schematizza le caratteristiche fondamentali.
 
-Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto collettore (\emph{sink} in inglese), costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori. Chiamiamo \emph{portata} la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel collettore, nel quale sono distribuiti i satelliti.
-
 \begin{figure}[H]
 \centering
 \includegraphics{figures/model.pdf}
 \caption{Rete di $n=4$ satelliti, di cui 3 raggiungibili dal collettore.}
 \end{figure}
+
+Consideriamo una rete composta da $n+1$ nodi, ciascuno identificato da un indice $i \in \{0, \dots, n\}$ univoco. Il nodo di indice $i=0$, detto collettore (\emph{sink} in inglese), costituisce il destinatario finale di tutti i messaggi e svolge il ruolo di gateway verso il sistema informativo sovrastante. Tutti gli altri nodi, chiamati \emph{satelliti}, sono i veri e propri sensori. Chiamiamo \emph{portata} la distanza massima $p$ a cui è possibile trasmettere dati e supponiamo sia uguale per tutti i nodi. Inoltre, definiamo una regione di spazio \emph{ambiente} di raggio $a$ centrato nel collettore, nel quale sono distribuiti i satelliti.
 
 Questa descrizione trascura la dimensione temporale e di conseguenza gli spostamenti relativi dei nodi. Ipotizziamo infatti che la magnitudine del movimento nel lasso di tempo delle comunicazioni sia trascurabile rispetto alla portata.
 
@@ -321,9 +321,7 @@ Si ha quindi che con un layout $L_r$, per garantire che tutti i satelliti siano 
 
 \subsection{Layout stocastico}
 
-Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$.
-
-I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
+Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scengliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$. I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
 
 \texttt{\textbf{layout n a p ----seed s}} genera un layout $L = (a,\,p,\,N)$ con $|N| = n+1$. Le coordinate dei satelliti sono estratte da una fonte di numeri pseudo-casuali inizializzata con il seme $s$. Produce un output nella forma:
 
@@ -386,9 +384,7 @@ Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} calcola il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
-Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra denità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei.
-
-Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
+Prendiamo ora in esame un dataset\footnote{Disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/conn.dat}.} generato mediante le routine appena descritte, con l'obiettivo di studiare la correlazione tra denità dei nodi $q$ e \emph{rapporto di connessione medio} $\tilde{c}(q)$. Sottolineiamo che questa relazione non fornirà un'informazione su quali probabilmente saranno i valori di $c(G)$, ma bensì su quali valori medi ci aspettiamo da un grande numero di layout eterogenei. Il dataset è frutto dell'esecuzione di \texttt{conn 0 1000 50 0 20 1 1000 100 ----seed 1}. Sono stati perciò calcolati 100 campioni per ogni valore di $n \in \{0,\,50,\,100,\,150,\,\dots,\,1000\}$ e $d \in \{0,\,1,\,2,\,\dots,\,20\}$ per un totale di $100 \cdot 20 \cdot 20 = 40\,000$ esperimenti aleatori.
 
 \begin{figure}[H]
 \centering
@@ -556,6 +552,8 @@ Se invece $depth(j) < depth(i)$ e $m \in messages(i)$, stiamo ricevendo il risco
 \label{simulazione}
 
 Per la validazione dell'algoritmo è stato realizzato un simulatore\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/rout.c}} che, istante per istante, riproduce gli eventi previsti dalla routine di ciascun nodo. Durante il processo vengono conteggiati il tempo, le trasmissioni, ricezioni e collisioni avvenute. Il programma legge come input un grafo di connettività e itera fino alla consegna dell'ultimo messaggio nella rete.
+
+\smallskip
 
 {\centering
 \texttt{rout ----collisions ----wfac w ----bfac b ----rfac r}
@@ -727,6 +725,8 @@ node 1: removed mess. 1
 \subsection{Risultati statistici}
 
 Per misurare le prestazioni dell'algoritmo su un campione eterogeneo di layout è stata realizzata la routine\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/routst.c}}
+
+\smallskip
 
 {\centering
 \begin{BVerbatim}
