@@ -73,7 +73,7 @@ Ai miei fratelli
 
 \section{Introduzione}
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impega un'infrastruttura di raccolta dati montata su veicoli.
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria \cite{wsnsurvey}. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata \cite{loraspec}. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore \cite{mobileadhoc}. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impega un'infrastruttura di raccolta dati montata su veicoli.
 
 % Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche.
 
@@ -89,7 +89,7 @@ In questa sezione descriveremo innanzitutto l'architettura di LoRa, come esempio
 
 \subsection{LoRa}
 
-LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso \cite{loramod}. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance\footnote{\url{https://lora-alliance.org}}. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra concentratori e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività \cite{netprov}.
+LoRa è una tecnologia di comunicazione wireless punto-punto che utilizza una modulazione a spettro espanso \cite{loramod}. È pensata per applicazioni embedded, sacrificando la banda per offre una copertura a lungo raggio (più di 10km in zone rurali) con un consumo minimo di energia \cite{loraperf}. LoRaWAN è un protocollo MAC basato sul livello fisico LoRa promosso da LoRa Alliance\footnote{\url{https://lora-alliance.org}}. Esso funge da protocollo di rete, definendone l'architettura e gestendo le comunicazioni tra concentratori e nodi. La loro combinazione offre una soluzione completa, adottata dalla grande maggioranza dei fornitori di servizi di connettività\footnote{\url{https://www.semtech.com/lora/ecosystem/networks}}.
 
 Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 \begin{enumerate}
@@ -109,7 +109,7 @@ Gli operatori LoRaWAN forniscono perciò il proprio servizio installando sul ter
 
 \subsection{Rete ad hoc}
 
-In una rete ad hoc, i nodi non fanno affidamento ad un'infrastuttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è reponsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi.
+In una rete ad hoc, i nodi non fanno affidamento ad un'infrastuttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è reponsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato \cite{adhoc}. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi \cite{mobileadhoc}.
 
 Nel nostro paradigma impieghiamo una strategia ibrida: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del concentratore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del concentratore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
 
@@ -774,6 +774,11 @@ In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre c
 
 \begin{thebibliography}{0}
 
+\bibitem{wsnsurvey}
+Jennifer Yick, Biswanath Mukherjee, Dipak Ghosal.
+\textit{Wireless sensor network survey}.
+Computer Networks, 2008.
+
 \bibitem{loraspec}
 \textit{LoRaWAN 1.1 Specification}.
 LoRa Alliance, 2017.
@@ -783,15 +788,20 @@ LoRa Alliance, 2017.
 Semtech, 2015.
 \url{https://www.semtech.com/uploads/documents/an1200.22.pdf}
 
-\bibitem{netprov}
-\textit{LoRa Network Providers}.
-Semtech.
-\url{https://www.semtech.com/lora/ecosystem/networks}.
-
 \bibitem{loraperf}
 Ramon Sanchez-Iborra, Jesus Sanchez-Gomez, Juan Ballesta-Viñas, Maria-Dolores Cano, Antonio F. Skarmeta.
 \textit{Performance Evaluation of LoRa Considering Scenario Conditions}. 
 Sensors, 2018.
+
+\bibitem{adhoc}
+C. Siva Ram Murthy, B. S. Manoj.
+\textit{Ad Hoc Wireless Networks: Architectures and Protocols}.
+Prentice Hall, 2004.
+
+\bibitem{mobileadhoc}
+Jeroen Hoebeke, Ingrid Moerman, Bart Dhoedt, Piet Demeester.
+\textit{An overview of mobile ad hoc networks: Applications and challenges}.
+Journal-Communications Network, 2004.
 
 \bibitem{sinkmob}
 Chatzigiannakis, Ioannis, Athanasios Kinalis, Sotiris E. Nikoletseas.
