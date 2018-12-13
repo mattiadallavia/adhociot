@@ -584,6 +584,14 @@ Simulando ad esempio un layout con $d=2$, $n=25$ mediante il comando \texttt{lay
 
 Riportiamo ora, a titolo di esempio, la simulazione su una rete con $d=1.4$, $n=4$ dove i satelliti 1 e 4 si trovano a profondità $1$ mentre 2 e 3 sono collegati al collettore tramite 1.
 
+% ./graph < examples/1.layout --plot 1.graphplt
+
+\begin{figure}[H]
+\centering
+\includegraphics{figures/ex.pdf}
+\caption{Grafo di connettività sottoposto alla simulazione.}
+\end{figure}
+
 % ./graph < examples/1.layout | ./rout --c --s --a --w 2 --b 2 > 1.rout
 
 \begin{figure}[H]
@@ -712,14 +720,6 @@ node 1: removed mess. 1
 \end{Verbatim}
 \end{multicols}
 \caption{Output della simulazione con relativi passaggi intermedi.}
-\end{figure}
-
-% ./graph < examples/1.layout --plot 1.graphplt
-
-\begin{figure}[H]
-\centering
-\includegraphics{figures/ex.pdf}
-\caption{Grafo di connettività sottoposto alla simulazione.}
 \end{figure}
 
 \subsection{Risultati statistici}
