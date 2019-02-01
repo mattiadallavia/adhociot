@@ -13,6 +13,7 @@ st
 *.eps
 *.toc
 *.fls
+*.out
 *.fdb_latexmk
 
 !conn.dat
