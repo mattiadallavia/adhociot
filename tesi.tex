@@ -333,66 +333,70 @@ Si ha quindi che con un layout $L_r$, per garantire che tutti i satelliti siano 
 
 \subsection{Layout stocastico}
 
-Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scegliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$. I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a dimostrare attraverso l'uso di alcuni esempi:
+Per studiare il comportamento medio di un insieme eterogeneo di layout, ne generiamo dei campioni in funzione di $n$, $a$ e $p$, scegliendo casualmente le coordinate dei satelliti. Questa operazione equivale ad estrarre in maniera aleatoria un elemento dal sottoinsieme $layout(a, p, n)$. I dati vengono prodotti mediante delle routine\footnote{Sorgenti disponibili all'indirizzo \url{https://github.com/mattiadallavia/nomadop}} scritte in linguaggio C che andiamo ora a presentare brevemente:
 
-\texttt{\textbf{layout n a p ----seed s}} genera un layout $L = (a,\,p,\,N)$ con $|N| = n+1$. Le coordinate dei satelliti sono estratte da una fonte di numeri pseudo-casuali inizializzata con il seme $s$. Produce un output nella forma:
+\texttt{\textbf{layout n a p ----seed s}} genera un layout $L = (a,\,p,\,N)$ con $|N| = n+1$. Le coordinate dei satelliti sono estratte da una fonte di numeri pseudo-casuali inizializzata con il seme $s$.
 
-\begin{figure}[H]
-\centering
-\begin{BVerbatim}
-n    a    p    s
-0    0
-x1   y1
-x2   y2
- ...
-xn   yn
-\end{BVerbatim}
-\end{figure}
+% Produce un output nella forma:
 
-Eseguendo ad esempio \texttt{layout 4 8 5 ----seed 16} otteniamo:
+% \begin{figure}[H]
+% \centering
+% \begin{BVerbatim}
+% n    a    p    s
+% 0    0
+% x1   y1
+% x2   y2
+%  ...
+% xn   yn
+% \end{BVerbatim}
+% \end{figure}
 
-\begin{figure}[H]
-\centering
-\begin{BVerbatim}
- 4    8    5    16
- 0    0
- 3    2
--4   -3
- 8    0
--1   -4
-\end{BVerbatim}
-\end{figure}
+% Eseguendo ad esempio \texttt{layout 4 8 5 ----seed 16} otteniamo:
 
-\texttt{\textbf{graph}} legge in input un layout $L$ e ne calcola il relativo grafo. Produce un output nella forma:
+% \begin{figure}[H]
+% \centering
+% \begin{BVerbatim}
+%  4    8    5    16
+%  0    0
+%  3    2
+% -4   -3
+%  8    0
+% -1   -4
+% \end{BVerbatim}
+% \end{figure}
 
-\begin{figure}[H]
-\centering
-\begin{BVerbatim}
-n    a    p    c
-0    g11  g12  ...  g1n
-g11  0    g21  ...  g2n
- ...
-gn1  gn2  gn3  ...  0
-\end{BVerbatim}
-\end{figure}
+\texttt{\textbf{graph}} legge in input un layout $L$ e ne calcola il relativo grafo. Questo è codificato mediante una matrice: il valore $g_{ij}$ esprime la distanza normalizzata su $p$ tra i nodi $i$ e $j$. Se $g_{ij} \leq 1$ è perciò presente un arco tra la coppia di nodi.
 
-Il grafo è codificato mediante una matrice: il valore $g_{ij}$ esprime la distanza normalizzata su $p$ tra i nodi $i$ e $j$. Se $g_{ij} \leq 1$ è perciò presente un arco tra la coppia di nodi. $c$ è il numero di satelliti connessi al collettore.
+% $c$ è il numero di satelliti connessi al collettore.
 
-Per calcolare il grafo $G$ associato al layout dell'esempio precedente eseguiamo \texttt{layout 4 8 5 ----seed 16 | graph}:
+% Produce un output nella forma:
 
-\begin{figure}[H]
-\centering
-\begin{BVerbatim}
-4     8     5     3
-0.00  0.72  1.00  1.60  0.82 
-0.72  0.00  1.72  1.08  1.44 
-1.00  1.72  0.00  2.47  0.63 
-1.60  1.08  2.47  0.00  1.97 
-0.82  1.44  0.63  1.97  0.00 
-\end{BVerbatim}
-\end{figure}
+% \begin{figure}[H]
+% \centering
+% \begin{BVerbatim}
+% n    a    p    c
+% 0    g11  g12  ...  g1n
+% g11  0    g21  ...  g2n
+%  ...
+% gn1  gn2  gn3  ...  0
+% \end{BVerbatim}
+% \end{figure}
 
-Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
+% Per calcolare il grafo $G$ associato al layout dell'esempio precedente eseguiamo \texttt{layout 4 8 5 ----seed 16 | graph}:
+
+% \begin{figure}[H]
+% \centering
+% \begin{BVerbatim}
+% 4     8     5     3
+% 0.00  0.72  1.00  1.60  0.82 
+% 0.72  0.00  1.72  1.08  1.44 
+% 1.00  1.72  0.00  2.47  0.63 
+% 1.60  1.08  2.47  0.00  1.97 
+% 0.82  1.44  0.63  1.97  0.00 
+% \end{BVerbatim}
+% \end{figure}
+
+% Il grafo ottenuto ha un rapporto di connessione $c(G) = \frac{3}{4} = 0.75$.
 
 \texttt{\textbf{conn n\_min n\_max n\_step d\_min d\_max d\_step p i ----seed s}} computa il rapporto di connessione medio tra $i$ campioni per ciascun valore di $n \in \{n_{min},\,n_{min}+n_{step},\,\dots,\,n_{max}\}$ e $d \in \{d_{min},\,d_{min}+d_{step},\,\dots,\,d_{max}\}$. La fonte di numeri pseudo-casuali viene inizializzata a partire dal seme $s$, che viene incrementato per ciascun campione. Produce tre colonne con i valori rispettivamente di $d$, $n$ e $c$.
 
