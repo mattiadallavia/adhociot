@@ -81,7 +81,7 @@ Ai miei fratelli
 
 \section{Introduzione}
 
-Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria \cite{wsnsurvey}. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata \cite{loraspec}. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un concentratore \cite{mobileadhoc}. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impiega un'infrastruttura di raccolta dati montata su veicoli.
+Il mercato sta dimostrando un crescente interesse per la raccolta di dati tramite sensori di piccole dimensioni disseminati sul territorio. Questo è possibile mediante l'impiego di dispositivi dotati di moduli radio a basso consumo e a larga portata, tipicamente alimentati a batteria \cite{wsnsurvey}. Inoltre, è necessaria la presenza di concentratori che catturano le trasmissioni e inoltrano i dati al sistema informativo del cliente. L'architettura di queste infrastrutture tende a replicare quella degli operatori di telefonia mobile: è costituita perciò da una serie di concentratori fissi installati sul territorio, connessi in una rete tipicamente cablata \cite{loraspec} oppure tramite connessione cellulare. Tale soluzione, seppur molto affidabile, richiede un grande investimento iniziale e presenta dei tempi di messa in opera tendenzialmente lunghi. Esistono allo studio altre tipologie di rete, dette ad hoc, che non prevedono un'infrastruttura. Queste si basano sulla capacità dei dispositivi di inoltrare le informazioni, per costituire essi stessi una dorsale indipendente priva di un collettore \cite{mobileadhoc}. In quest'ottica, esploreremo un paradigma alternativo che prevede la raccolta best effort di informazione da sensori fissi o mobili sparsi sul territorio, da parte di concentratori che anziché essere fissi sono in movimento. Lo scenario prevede un operatore che chiameremo nomadico che impiega un'infrastruttura di raccolta dati montata su veicoli.
 
 % Molte imprese di telecomunicazioni si stanno quindi adoperando per offrire soluzioni di connettività mediante la realizzazione di infrastrutture geografiche.
 
@@ -110,16 +110,18 @@ Una rete LoRaWAN si compone di quattro classi di oggetti \cite{loraspec}:
 \begin{figure}[H]
 \centering
 \includegraphics[width=8cm]{figures/lorawan.png}
-\caption{Architettura di una rete LoRaWAN. Tratta da \protect\url{https://www.thethingsnetwork.org/docs/lorawan}.}
+\caption{Architettura di una rete LoRaWAN\protect\footnotemark.}
 \end{figure}
+
+\footnotetext{Tratta da \url{https://www.thethingsnetwork.org/docs/lorawan}}
 
 Gli operatori LoRaWAN forniscono perciò il proprio servizio installando sul territorio dei concentratori fissi, connessi al proprio network server. Questi sono tipicamente situati in punti strategici, dotati di alimentazione e connessione ad Internet. La topologia è a stella: le trasmissioni dei nodi vengono ricevute esclusivamente da uno o più concentratori \cite{loraspec}. La copertura è perciò dettata dalla presenza degli stessi, richiedendo eventualmente nuove installazioni per essere estesa.
 
 \subsection{Rete ad hoc}
 
-In una rete ad hoc, i nodi non fanno affidamento ad un'infrastruttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è responsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un concentratore centralizzato \cite{adhoc}. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi \cite{mobileadhoc}.
+In una rete ad hoc, i nodi non fanno affidamento ad un'infrastruttura precostituita bensì collaborano collettivamente all'instradamento dell'informazione. Ciascun nodo è responsabile dell'inoltro di dati non necessariamente di propria competenza, con l'obiettivo di costituire essi stessi delle dorsali prive di un collettore centralizzato \cite{adhoc}. Queste reti sono impiegate in scenari dove non è possibile o pratico installare un'infrastruttura statica. Si pensi agli scenari in cui i dispositivi sono in movimento ed è quindi fondamentale che la rete sia in grado, istante per istante, di riconfigurarsi alla luce dei cambiamenti di connettività causati dallo spostamento dei nodi \cite{mobileadhoc}.
 
-Nel nostro paradigma impieghiamo una strategia ibrida: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del concentratore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del concentratore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
+Nel nostro paradigma impieghiamo una strategia ibrida: qualora necessario, il messaggio viene ritrasmesso dai nodi della rete fino a raggiungere la destinazione. Questo avviene qualora il sensore non ricada nella portata del collettore ma sia possibile stabilire un percorso nella rete attraverso il quale consegnare il messaggio. Così facendo aumentiamo virtualmente la cella del collettore estendendola a tutti i nodi che, direttamente o indirettamente, ne sono collegati.
 
 \subsection{Infrastruttura nomadica}
 
@@ -131,9 +133,11 @@ In alternativa alla collocazione statica dei concentratori esiste l'idea, nota i
 \caption{Collettore itinerante che raccoglie dati in modalità ad hoc lungo il suo percorso.}
 \end{figure}
 
-L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: in una rete di sensori, l'addensamento del traffico nelle vicinanze del concentratore fa si che le batterie dei nodi si esauriscano in maniera disomogenea. Riposizionare periodicamente i concentratori diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
+L'utilizzo di sink mobile è generalmente motivato dalla seguente osservazione di carattere energetico: in una rete di sensori, l'addensamento del traffico nelle vicinanze del collettore fa si che le batterie dei nodi si esauriscano in maniera disomogenea. Riposizionare periodicamente i concentratori diventa perciò una semplice strategia per bilanciare i livelli di carica dei sensori \cite{moblife1, moblife2}.
 
 Un altro aspetto, meno popolare in letteratura ma a nostro avviso estremamente rilevante è il seguente: la frequenza di raccolta dati dai sensori è, in generale, piuttosto bassa. In molte applicazioni si limita ad esempio a non più di un aggiornamento al giorno. La presenza di un'infrastruttura statica disponibile in ogni momento risulta per questo motivo superflua. Essa è sostituibile, come precedentemente anticipato, da veicoli di raccolta dati che transitano con sufficiente frequenza in prossimità dei sensori. Una simile strategia richiede non solo un numero più limitato di collettori a parità di territorio, ma permette di offrire copertura in tempi rapidi. Tale copertura può essere inoltre rilocata o redistribuita nel tempo senza la necessità di nuove installazioni.
+
+Nel nostro modello, il collettore raccoglie dati da nodi sempre diversi non appartenenti allo stesso sottoinsieme, a differenza da quanto proposto in letteriatura. Gli stessi nodi sono di conseguenza interrogati da concentratori diversi che occasionalmente transitano nelle vicinanze.
 
 Per questi motivi riteniamo che un'infrastruttura nomadica costituisca, nelle giuste condizioni, un'alternativa economica e flessibile alle soluzioni classiche. Alla luce di ciò, proseguiremo in questo elaborato fornendo dapprima una descrizione formale del problema, proseguendo poi con una sua analisi e con la proposta di un algoritmo di instradamento confacente.
 
@@ -211,14 +215,14 @@ con $m \in \mathbb{Q}_{>0}$. I layout in scala sono tutti topologicamente equiva
 \end{equation*}
 ovvero le distanze relative si conservano. Consideriamo ad esempio
 \begin{align*}
-L_5 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
-L_{15} = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
+L_1 = (10,\,5,\,\{(0,\,0,\,0),\,(1,\,4,\,1),\,(2,\,-2,\,-3)\})\\
+L_3 = (30,\,15,\,\{(0,\,0,\,0),\,(1,\,12,\,3),\,(2,\,-6,\,-9)\})
 \end{align*}
-questi layout sono equivalenti, in particolare $L_{15} = scale(L_5,\,3)$. Entrambi vengono quindi mappati nello stesso grafo.
+questi layout sono equivalenti, in particolare $L_3 = scale(L_1,\,3)$. Entrambi vengono quindi mappati nello stesso grafo.
 \begin{equation*}
-graph(L_5) = graph(L_{15}) = (\{0,\,1,\,2\},\,\{(0,\,1),\,(0,\,2),\,(1,\,0),\,(2,\,0)\})
+graph(L_1) = graph(L_3) = (\{0,\,1,\,2\},\,\{(0,\,1),\,(0,\,2),\,(1,\,0),\,(2,\,0)\})
 \end{equation*}
-Ci rendiamo conto perciò che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$.
+Ci rendiamo conto perciò che sarà sufficiente studiare il sottoinsieme $layout(a,\,1,\,n)$ poiché qualsiasi layout $L_u$ con $p=u \in \mathbb{Q}_{>0}$ sarà equivalente a $L_1 = scale(L_u,\,\frac{1}{u})$. Ovvero $layout(a,\,p,\,n)$ è equivalente a $layout(\frac{a}{p},\,1,\,n)$ ed è di conseguenza associato allo stesso grafo di connettività.
 
 \subsection{Dimensione e densità}
 
@@ -261,7 +265,7 @@ Ipotizziamo che i nodi siano dotati di un orologio sincronizzato e siano perciò
 \caption{Schema della suddivisione temporale.}
 \end{figure}
 
-Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiamiamo $frame(t) =  \left\lfloor\frac{t}{3}\right\rfloor$ il frame associato all'istante $t$. Ciascun frame è suddiviso in 3 \emph{slot}, indicizzati $0,\,1 \text{ e } 2$. Chiamiamo $slot(t) = t \bmod 3$ lo slot associato all'istante $t$. Questa suddivisione sarà in seguito giustificata come multiplazione temporale, parte del meccanismo di prevenzione delle collisioni.
+Il tempo è suddiviso in \emph{frame} della durata di 3 quanti temporali. Chiamiamo $frame(t) =  \left\lfloor\frac{t}{3}\right\rfloor$ il frame associato all'istante $t$. Ciascun frame è suddiviso in 3 \emph{slot}, indicizzati $0,\,1 \text{ e } 2$. Chiamiamo $slot(t) = t \bmod 3$ lo slot associato all'istante $t$. Questa suddivisione, ed in particolare la scelta dei tre slot, sarà in seguito giustificata come multiplazione temporale, parte del meccanismo di prevenzione delle collisioni.
 
 \subsection{Canale}
 
@@ -290,10 +294,10 @@ Sia $R$ l'insieme dei possibili grafi di rete. Chiamiamo \emph{rapporto di conne
 \begin{equation*}
 c \colon R \to [0,\,1]
 \end{equation*}
-che mappa $G$ nel numero relativo (percentuale) di satelliti connessi al collettore.
+che mappa $G$ nel numero relativo (percentuale) di satelliti direttamente o indirettamente connessi al collettore.
 \end{definition}
 
-Questa risponde alla domanda: dato un grafo $G \in R$, quanti dei satelliti risultano connessi al collettore? Dà quindi un'informazione sulla quantità di nodi nel sottografo connesso.
+% Questa risponde alla domanda: dato un grafo $G \in R$, quanti dei satelliti risultano connessi al collettore? Dà quindi un'informazione sulla quantità di nodi nel sottografo connesso.
 
 Quanto vale il rapporto di connessione al variare dei parametri $a$, $p$ e $n$? Questa domanda non trova una risposta generale, in quanto esso fondamentalmente dipende dallo specifico grafo di rete. Banalmente, se fissiamo $d = 1$, la portata del collettore copre l'intero ambiente e perciò tutti i satelliti sono ad esso direttamente connessi, ovvero $c(G) = 1 \ \forall G = graph(L)$ con $d = 1$. Posto invece $d > 1$, tutti i satelliti potrebbero rientrare nella portata del collettore e quindi risultare $c(G_1) = 1$, oppure viceversa potrebbero essere tutti a distanza $> p$ dal collettore e perciò risultare $c(G_2) = 0$.
 
