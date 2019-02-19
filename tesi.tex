@@ -546,13 +546,13 @@ wait(i) = t + rand(1,\,2^{a+r})
 \end{equation*}
 con $a = attempts(i)$ e $r \geq 0$ il \emph{fattore di ritrasmissione}. Come $w$, anche $r$ rappresenta un compromesso tra durata totale delle trasmissioni e probabilità di collisione (e conseguenti ritrasmissioni).
 
+Alla ricezione di un riscontro ($node\_confirm(m) = i$), viene azzerato il contatore $attempts(i) = 0$ e vengono rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
+
 \begin{figure}[H]
 \centering
 \includegraphics{figures/r.pdf}
 \caption{Tempo finale e numero di ritrasmissioni medi in layout stocastici di dimensione 1 con 10 satelliti al variare del fattore di ritrasmissione.}
 \end{figure}
-
-Alla ricezione di un riscontro ($node\_confirm(m) = i$), viene azzerato il contatore $attempts(i) = 0$ e vengono rischedulate le trasmissioni al prossimo quanto temporale disponibile $wait(i) = 0$.
 
 \subsection{Routine di ricezione}
 
@@ -738,25 +738,23 @@ node 1: removed mess. 1
 \caption{Output della simulazione con relativi passaggi intermedi.}
 \end{figure}
 
+\newpage
+
 \subsection{Risultati statistici}
 
-Per misurare le prestazioni dell'algoritmo su un campione eterogeneo di layout è stata realizzata la routine\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/routst.c}}
+Per misurare le prestazioni dell'algoritmo su un campione eterogeneo di layout è stata realizzata la routine \texttt{routst}\footnote{Sorgente disponibile all'indirizzo \url{https://github.com/mattiadallavia/nomadop/blob/master/routst.c}}, che calcola i valori medi di $tf$, $tx$, $retx$, $rx$ e $coll$ su $i$ campioni al variare dei parametri $d$, $n$, $w$, $b$ e $r$. Riportiamo di seguito i risultati per layout di dimensione $1$, $2$ e $4$.
 
-\smallskip
+% {\centering
+% \begin{BVerbatim}
+% routst d_min d_max d_step
+%        n_min n_max n_step
+%    --w w_min w_max w_step
+%    --b b_min b_max b_step
+%    --r r_min r_max r_step
+%        p i --seed s
+% \end{BVerbatim}
 
-{\centering
-\begin{BVerbatim}
-routst d_min d_max d_step
-       n_min n_max n_step
-   --w w_min w_max w_step
-   --b b_min b_max b_step
-   --r r_min r_max r_step
-       p i --seed s
-\end{BVerbatim}
-
-}
-
-che calcola i valori medi di $tf$, $tx$, $retx$, $rx$ e $coll$ su $i$ campioni al variare dei parametri $d$, $n$, $w$, $b$ e $r$. Riportiamo di seguito i risultati per layout di dimensione $1$, $2$ e $4$.
+% }
 
 \begin{figure}[H]
 \centering
@@ -786,7 +784,7 @@ In questo caso le trasmissioni medie per nodo sono circa $15 - \frac{955.63}{n}$
 
 \section{Conclusioni}
 
-In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precedenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il vantaggio strategico di mercato di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche e dedotto una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
+In questo elaborato abbiamo proposto l'idea di un operatore nomadico che offre connettività a sensori sparsi sul territorio coniugando l'instradamento ad hoc ad un collettore in movimento. A differenza di precedenti studi \cite{moblife1, moblife2}, abbiamo voluto sottolineare il potenziale vantaggio economico di questo approccio. Dopo aver presentato un modello formale di rete di sensori, ne abbiamo analizzato le caratteristiche e dedotto una relazione tra densità dei nodi e connessione della rete. Infine, abbiamo proposto un algoritmo di instradamento per la collezione di dati collaborativa, del quale abbiamo misurato le prestazioni medie grazie a delle simulazioni. In futuro ci prospettiamo di indagare sulla copertura della cella itinerante, in termini di sensori coperti e frequenza di collezione. Sarebbe interessante operare delle simulazioni basate su dati topografici, immaginando ad esempio l'itinerario di un veicolo dotato di collettore attraverso le arterie stradali.
 
 \begin{thebibliography}{0}
 
