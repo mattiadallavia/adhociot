@@ -17,3 +17,6 @@ st
 *.fdb_latexmk
 
 !conn.dat
+!trucks.dat
+!stations.dat
+!italy.dat
