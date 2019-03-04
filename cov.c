@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #define NODE_WAITING   0 // waiting to be activated by the reception of one message
 #define NODE_ACTIVE    1 // ready to transmit
@@ -8,7 +9,7 @@
 struct node
 {
 	int number;
-	int state;
+	int visited;
 	float lat;
 	float lon;
 };
@@ -25,12 +26,19 @@ int geodist(float lat1, float lon1, float lat2, float lon2);
 struct node nodes[5000];
 int nodes_len = 0;
 
+// sort trucks by date
+// sort -k 4,4 -k 1,1 trucks.dat -o trucks.day.dat
+
+// nodes visited a certain number of days
+// cut -f 2 stations.day.dat | sort | uniq -c | sed 's/^ *//' | cut -d ' ' -f 1 | sort | uniq -c
+
 int main(int argc, char **argv)
 {
 	int i, r, range;
 	char *nodes_filename, *sinks_filename;
 	FILE *nodesin, *sinksin;
 	struct sink s;
+	char date_str[20], date_str_curr[20];
 
 	nodes_filename = argv[1];
 	sinks_filename = argv[2];
@@ -46,14 +54,21 @@ int main(int argc, char **argv)
 		nodes_len++;
 	}
 
-	while (EOF != (r = fscanf(sinksin, "%d\t%f\t%f\t%*s\t%*s", &s.number, &s.lat, &s.lon)))
+	while (EOF != (r = fscanf(sinksin, "%d\t%f\t%f\t%s\t%*s", &s.number, &s.lat, &s.lon, date_str)))
 	{
+		// date change
+		if (strcmp(date_str, date_str_curr) != 0)
+		{
+			for (i = 0; i < nodes_len; i++) nodes[i].visited = 0;
+			strcpy(date_str_curr, date_str);
+		}
+
 		for (i = 0; i < nodes_len; i++)
 		{
-			if ((nodes[i].state == NODE_WAITING) && geodist(s.lat, s.lon, nodes[i].lat, nodes[i].lon) <= range)
+			if ((!nodes[i].visited) && geodist(s.lat, s.lon, nodes[i].lat, nodes[i].lon) <= range)
 			{
-				nodes[i].state = NODE_ACTIVE;
-				printf("%d\t%f\t%f\n", nodes[i].number, nodes[i].lat, nodes[i].lon);
+				nodes[i].visited = 1;
+				printf("%s\t%d\t%f\t%f\n", date_str, nodes[i].number, nodes[i].lat, nodes[i].lon);
 			}
 		}
 	}
