@@ -3,9 +3,6 @@
 #include <math.h>
 #include <string.h>
 
-#define NODE_WAITING   0 // waiting to be activated by the reception of one message
-#define NODE_ACTIVE    1 // ready to transmit
-
 struct node
 {
 	int number;
@@ -21,28 +18,36 @@ struct sink
 	float lon;
 };
 
+void visit(int index, float lat, float lon, int depth);
 int geodist(float lat1, float lon1, float lat2, float lon2);
 
 struct node nodes[5000];
 int nodes_len = 0;
+int range;
+int depth_max;
+char date_str_curr[20];
 
 // sort trucks by date
 // sort -k 4,4 -k 1,1 trucks.dat -o trucks.day.dat
+
+// nodes visited each day
+// cut -f 1 stations.day.dat | uniq -c
 
 // nodes visited a certain number of days
 // cut -f 2 stations.day.dat | sort | uniq -c | sed 's/^ *//' | cut -d ' ' -f 1 | sort | uniq -c
 
 int main(int argc, char **argv)
 {
-	int i, r, range;
+	int i, r;
 	char *nodes_filename, *sinks_filename;
 	FILE *nodesin, *sinksin;
 	struct sink s;
-	char date_str[20], date_str_curr[20];
+	char date_str[20];
 
 	nodes_filename = argv[1];
 	sinks_filename = argv[2];
 	range = atoi(argv[3]);
+	depth_max = atoi(argv[4]);
 
 	nodesin = fopen(nodes_filename, "r");
 	sinksin = fopen(sinks_filename, "r");
@@ -63,13 +68,25 @@ int main(int argc, char **argv)
 			strcpy(date_str_curr, date_str);
 		}
 
-		for (i = 0; i < nodes_len; i++)
+		visit(-1, s.lat, s.lon, 0);
+	}
+}
+
+void visit(int index, float lat, float lon, int depth)
+{
+	int i;
+
+	if (index != -1) // if not a sink
+	{
+		nodes[index].visited = 1;
+		printf("%s\t%d\t%f\t%f\t%d\n", date_str_curr, nodes[index].number, nodes[index].lat, nodes[index].lon, depth);
+	}
+
+	if (depth < depth_max) for (i = 0; i < nodes_len; i++)
+	{
+		if ((index != i) && !nodes[i].visited && (geodist(lat, lon, nodes[i].lat, nodes[i].lon) <= range))
 		{
-			if ((!nodes[i].visited) && geodist(s.lat, s.lon, nodes[i].lat, nodes[i].lon) <= range)
-			{
-				nodes[i].visited = 1;
-				printf("%s\t%d\t%f\t%f\n", date_str, nodes[i].number, nodes[i].lat, nodes[i].lon);
-			}
+			visit(i, nodes[i].lat, nodes[i].lon, depth + 1);
 		}
 	}
 }
