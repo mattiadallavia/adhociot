@@ -1,5 +1,5 @@
 # ./conn 0 20 1 0 1000 50 1000 100 --s 1 > conn.dat
-# ./st 1 2 --a 3 --m --st < conn.dat > conn_aggr.dat
+# ./st 1 2 --a 3 --m --st < conn.dat > conn.aggr.dat
 
 set multiplot layout 2, 2
 unset key
