@@ -82,8 +82,6 @@ int main(int argc, char **argv)
 			buf_len++;
 		}
 
-		if (r == 0) return 0;
-
 		if (row_len > 0) // data line
 		{
 			s1 += row[col_agg];
@@ -116,6 +114,8 @@ int main(int argc, char **argv)
 		{
 			printf("\n");
 		}
+
+		if (r == 0) return 0;
 
 		buf_len = 0;
 		buf_cur = 0;
