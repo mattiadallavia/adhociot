@@ -27,6 +27,9 @@ int range;
 int depth_max;
 char date_str_curr[20];
 
+// only northern italy stations
+// awk '{ if ( $2 >= 44.5 ) { print } }' stations.dat > stations_north.dat
+
 // sort trucks by date
 // sort -k 4,4 -k 1,1 trucks.dat -o trucks.day.dat
 
