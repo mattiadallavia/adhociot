@@ -34,10 +34,11 @@ char date_str_curr[20];
 // sort -k 4,4 -k 1,1 trucks.dat -o trucks.day.dat
 
 // nodes visited each day
-// cut -f 1 stations.day.dat | uniq -c
+// ./cov stations.dat trucks.day.dat 10000 1 > stations.visited.dat
+// cut -f 1 stations.visited.dat | uniq -c | awk '{ print $2"\t"$1 }'
 
 // nodes visited a certain number of days
-// cut -f 2 stations.day.dat | sort | uniq -c | sed 's/^ *//' | cut -d ' ' -f 1 | sort | uniq -c
+// cut -f 2 stations.visited.dat | sort | uniq -c | sed 's/^ *//' | cut -d ' ' -f 1 | sort | uniq -c | awk '{ print $2"\t"$1 }'
 
 int main(int argc, char **argv)
 {
