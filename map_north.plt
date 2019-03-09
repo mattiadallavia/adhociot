@@ -4,6 +4,8 @@ unset key
 set size ratio -1
 set xrange [6.4:14.1]
 set yrange [44.2:47.4]
+set xlabel 'longitude'
+set ylabel 'latitude'
 
 plot 'italy.dat' w lines lc 'black', \
      'stations_north.dat' u 3:2 w points pt 2 lc 'sea-green', \
