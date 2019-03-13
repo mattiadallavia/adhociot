@@ -5,8 +5,6 @@ rout
 routst
 st
 bund
-cov
-den
 
 *.dat
 *.log
@@ -20,7 +18,3 @@ den
 *.fdb_latexmk
 
 !conn.dat
-!trucks.dat
-!trucks_north.dat
-!stations_north.dat
-!italy.dat
